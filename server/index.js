@@ -11,22 +11,20 @@ app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:htt
 let machines = new Map();
 
 app.get("/updates", async (req, res) => {
+  let latestVersion;
   try {
     const { data } = await axios.get(
       "https://api.github.com/repos/Geoxor/Xornet/releases"
     );
     latestVersion = parseFloat(data[0].tag_name.replace("v", ""));
-    res.json({
-      latestVersion,
-      downloadLink: `https://github.com/Geoxor/Xornet/releases/download/v${latestVersion}/xornet-reporter-v${latestVersion}`,
-    });
   } catch (error) {
     latestVersion = 0.11;
-    res.json({
+  }
+
+  res.json({
       latestVersion,
       downloadLink: `https://github.com/Geoxor/Xornet/releases/download/v${latestVersion}/xornet-reporter-v${latestVersion}`,
-    });
-  }
+  });
 });
 
 setInterval(() => {
@@ -54,7 +52,6 @@ io.on("connection", async (socket) => {
 
   socket.on("report", async (report) => {
     if (report.name) {
-
         // Parse RAM usage & determine used
         report.ram.used = parseFloat(((report.ram.total - report.ram.free) / 1024 / 1024 / 1024).toFixed(2));
         report.ram.total = parseFloat((report.ram.total / 1024 / 1024 / 1024).toFixed(2));
@@ -71,7 +68,7 @@ io.on("connection", async (socket) => {
             report.network = report.network.filter((iface) => iface.tx_sec !== null && iface.rx_sec !== null);
 
             // Get total network interfaces
-            totalInterfaces = report.network.length;
+            const totalInterfaces = report.network.length;
 
             // Combine all bandwidth together
             let TxSec = (report.network.reduce((a, b) => a + b.tx_sec, 0) * 8) / 1000 / 1000;
@@ -93,14 +90,12 @@ io.on("connection", async (socket) => {
               machines.set(report.uuid, report);
             }
             await addStatsToDB(report);
-      }
+        }
     }
   });
 });
 
-
 /**      USER DATABASE HANDLING       */
-
 const User = require("./models/User.js");
 
 /**
@@ -109,32 +104,26 @@ const User = require("./models/User.js");
  * @param {String} [username] the username of the user
  * @param {String} [password] the encrypted password of the user
  */
-
 async function addUserToDB(id, username, password){
   const users = await User.find({ _id: id}).exec()
   if(users.length !== 0) return console.warn(`[MANGOLIA]: User with uuid '${id}' is already in the database!`);
   new User({_id: id, username: username, password: password}).save().then(() => console.log(`[MANGOLIA]: User with uuid '${id}' added to the database!`));
 }
 
-
 /**      MACHINE DATABASE HANDLING       */
-
 const Machine = require("./models/Machine.js");
 
 /**
  * Attempts to create a machine and save them to the database
- * @param {Object} [static] contains the static data of the machine
+ * @param {Object} [staticData] contains the staticData data of the machine
  */
-
-async function addMachineToDB(static){
-  const machines = await Machine.find({ _id: static.system.uuid}).exec()
-  if(machines.length !== 0) return console.warn(`[MANGOLIA]: Machine with uuid '${static.system.uuid}' is already in the database!`);
-  new User({_id: static.system.uuid, static: static}).save().then(() => console.log(`[MANGOLIA]: Machine with uuid '${static.system.uuid}' added to the database!`));
+async function addMachineToDB(staticData){
+  const machines = await Machine.find({ _id: staticData.system.uuid}).exec();
+  if(machines.length !== 0) return console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
+  new User({_id: staticData.system.uuid, static: staticData}).save().then(() => console.log(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' added to the database!`));
 }
 
-
 /**      STATS DATABASE HANDLING       */
-
 const Stats = require("./models/Stats.js");
 
 /**

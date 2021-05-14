@@ -14,7 +14,7 @@ const logo = [
 ];
 console.log(logo.join("").magenta);
 
-let static = {};
+let staticData = {};
 
 function getSystemExtension() {
   switch (os.platform()) {
@@ -108,6 +108,7 @@ async function deleteOldVersion(oldVersion) {
 }
 
 async function getDiskInfo() {
+  // TODO: Figure out what this var does
   info = {};
   let disks = await si.fsSize();
   disks = disks.map((disk) => {
@@ -123,23 +124,22 @@ async function getStats() {
   const name = os.hostname();
   const platform = os.platform();
 
-  valueObject = {
-    networkStats: `(*) tx_sec, rx_sec`,
-    currentLoad: "currentLoad",
-  };
-
-  const data = await si.get(valueObject);
+  const data = await si.get({
+      networkStats: `(*) tx_sec, rx_sec`,
+      currentLoad: "currentLoad",
+  });
 
   let uuid;
-  if (static.system.uuid !== "") {
-    uuid = static.system.uuid;
+  // TODO: Figure out why this errors out on my windows
+  if (staticData.system.uuid !== "") {
+    uuid = staticData.system.uuid;
   } else {
-    uuid = static.uuid.os;
+    uuid = staticData.uuid.os;
   }
 
-  let stats = {
+  return stats = {
     uuid: uuid,
-    isVirtual: static.system.virtual,
+    isVirtual: staticData.system.virtual,
     name,
     platform,
     ram: {
@@ -151,14 +151,12 @@ async function getStats() {
     reporterVersion: version,
     disks: await getDiskInfo(),
   };
-
-  return stats;
 }
 
 async function connectToXornet() {
   console.log("[INFO]".bgCyan.black + " Fetching system information...");
-  static = await si.getStaticData();
-  static.system.uuid = static.system.uuid.replace(/-/g, "");
+  staticData = await si.getStaticData();
+  staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
   console.log(
     "[INFO]".bgCyan.black + " System information collection finished"
   );
@@ -167,9 +165,9 @@ async function connectToXornet() {
   let socket = io.connect(backend, {
     reconnect: true,
     auth: {
-      static,
+      static: staticData,
       type: "reporter",
-      uuid: static.system.uuid,
+      uuid: staticData.system.uuid,
     },
   });
 
@@ -182,7 +180,7 @@ async function connectToXornet() {
 
   socket.on("connect", async () => {
     console.log("[CONNECTED]".bgGreen.black + ` Connected to ${backend.green}`);
-    socket.emit("identity", static.system.uuid);
+    socket.emit("identity", staticData.system.uuid);
     emitter = setInterval(function () {
       socket.emit("report", statistics);
     }, 1000);
