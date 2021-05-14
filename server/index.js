@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+const { v4: uuidv4 } = require('uuid');
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
@@ -9,6 +9,7 @@ const io = require("socket.io")(http, { cors: { origin: "*" } });
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')); // Enable HTTP code logs
 
 let machines = new Map();
+let latestVersion = null;
 
 app.get("/updates", async (req, res) => {
   let latestVersion;
@@ -52,6 +53,8 @@ io.on("connection", async (socket) => {
 
   socket.on("report", async (report) => {
     if (report.name) {
+        report.rogue = false;
+
         // Parse RAM usage & determine used
         report.ram.used = parseFloat(((report.ram.total - report.ram.free) / 1024 / 1024 / 1024).toFixed(2));
         report.ram.total = parseFloat((report.ram.total / 1024 / 1024 / 1024).toFixed(2));
@@ -68,7 +71,7 @@ io.on("connection", async (socket) => {
             report.network = report.network.filter((iface) => iface.tx_sec !== null && iface.rx_sec !== null);
 
             // Get total network interfaces
-            const totalInterfaces = report.network.length;
+            totalInterfaces = report.network.length;
 
             // Combine all bandwidth together
             let TxSec = (report.network.reduce((a, b) => a + b.tx_sec, 0) * 8) / 1000 / 1000;
@@ -82,14 +85,15 @@ io.on("connection", async (socket) => {
             };
 
             const uuidRegex = /[a-f0-9]{30}/g;
-            if(uuidRegex.test(report.uuid)) {
-              report.rogue = false;
-              machines.set(report.uuid, report);
-            } else {
-              report.rogue = true;
-              machines.set(report.uuid, report);
-            }
-            await addStatsToDB(report);
+            const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+
+            if(!uuidRegex.test(report.uuid)) report.rogue = true;
+            if(!hostnameRegex.test(report.uuid)) report.rogue = true;
+            if(report.reporterVersion > latestVersion + 1) report.rogue = true;
+
+            machines.set(report.uuid, report);
+
+            if (!report.rogue) await addStatsToDB(report);
         }
     }
   });
@@ -120,7 +124,7 @@ const Machine = require("./models/Machine.js");
 async function addMachineToDB(staticData){
   const machines = await Machine.find({ _id: staticData.system.uuid}).exec();
   if(machines.length !== 0) return console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
-  new User({_id: staticData.system.uuid, static: staticData}).save().then(() => console.log(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' added to the database!`));
+  new Machine({_id: staticData.system.uuid, static: staticData}).save().then(() => console.log(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' added to the database!`));
 }
 
 /**      STATS DATABASE HANDLING       */
@@ -132,7 +136,7 @@ const Stats = require("./models/Stats.js");
  */
 
 async function addStatsToDB(report){
-  const timestamp = new Date.getTime();
+  const timestamp = new Date().getTime();
   new Stats({_id: uuidv4(), machine_id: report.uuid, timestamp: timestamp, ram: report.ram, cpu: report.cpu, network: report.network, disks: report.disks}).save().then(() => console.log(`[MANGOLIA]: System with uuid '${report.uuid}' reported stats and they are added to database`));
 }
 
