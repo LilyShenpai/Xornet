@@ -11,6 +11,8 @@ const reportParser = require("./util/reportParser");
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')); // Enable HTTP code logs
 
 let machines = new Map();
+let machinesPings = new Map();
+
 let latestVersion = 0.12;
 
 app.get("/updates", async (req, res) => {
@@ -20,13 +22,11 @@ app.get("/updates", async (req, res) => {
       "https://api.github.com/repos/Geoxor/Xornet/releases"
     );
     latestVersion = parseFloat(data[0].tag_name.replace("v", ""));
-  } catch (error) {
-    latestVersion = 0.12;
-  }
+  } catch (error) {}
 
   res.json({
-      latestVersion,
-      downloadLink: `https://github.com/Geoxor/Xornet/releases/download/v${latestVersion}/xornet-reporter-v${latestVersion}`,
+    latestVersion,
+    downloadLink: `https://github.com/Geoxor/Xornet/releases/download/v${latestVersion}/xornet-reporter-v${latestVersion}`,
   });
 });
 
@@ -36,13 +36,14 @@ setInterval(() => {
 
 setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
+  io.sockets.in('reporter').emit('heartbeat', Date.now());
 }, 1000);
 
 function formatSeconds(seconds) {
   if(!seconds) return undefined;
   seconds = Number(seconds);
   const d = Math.floor(seconds / 86400);
-  const h = Math.floor(seconds & 86400 / 3600);
+  const h = Math.floor(seconds / 3600 % 24);
   const m = Math.floor(seconds % 3600 / 60);
   const s = Math.floor(seconds % 3600 % 60);
 
@@ -64,6 +65,10 @@ io.on("connection", async (socket) => {
     // name: socket.handshake.auth.static.os.hostname,
   });
 
+  // Calculate ping and append it to the machine map
+  socket.on('heartbeatResponse', heartbeat => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
+
+  // Parse reports
   socket.on("report", async (report) => {
     // Add geolocation data
     report.geolocation = socket.handshake.auth.static.geolocation;
@@ -71,13 +76,11 @@ io.on("connection", async (socket) => {
 
     report = reportParser(report, latestVersion);
 
-    console.log(report);
+    // Add to ram
+    machines.set(report.uuid, report);
 
-    // if the report is invalid theres no point of saving it, cuz why would we want invalid data?
-    if (!report.rogue) {
-      machines.set(report.uuid, report);
-      await addStatsToDB(report);
-    }
+    // Add to database
+    if (!report.rogue) await addStatsToDB(report);
   });
 });
 

@@ -6,7 +6,7 @@ const fs = require("fs");
 const ProgressBar = require("progress");
 require("colors");
 
-const version = 0.12;
+const version = 0.13;
 const logo = [
   "    __  __      _____ \n",
   "\\_//  \\|__)|\\ ||_  |  \n",
@@ -200,6 +200,14 @@ async function connectToXornet() {
   socket.on("disconnect", async () => {
     console.log("[WARN]".bgYellow.black + ` Disconnected from ${backend}`);
     clearInterval(emitter);
+  });
+
+  // Get a heartbeat from the backend and send a heartbeat response back with UUID
+  socket.on("heartbeat", async (epoch) => {
+    socket.emit("heartbeatResponse", {
+      uuid: static.system.uuid,
+      epoch,
+    });
   });
 }
 
