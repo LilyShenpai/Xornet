@@ -29,7 +29,7 @@ app.get("/updates", async (req, res) => {
 });
 
 setInterval(() => {
-  machines = new Map();
+  machines.clear();
 }, 60000);
 
 setInterval(async () => {
@@ -52,50 +52,68 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("report", async (report) => {
-    if (report.name) {
-        report.rogue = false;
+      // TODO: Refactor validation into its own function
+      let totalInterfaces;
+      if (report.name) {
+          report.rogue = false;
 
-        // Parse RAM usage & determine used
-        report.ram.used = parseFloat(((report.ram.total - report.ram.free) / 1024 / 1024 / 1024).toFixed(2));
-        report.ram.total = parseFloat((report.ram.total / 1024 / 1024 / 1024).toFixed(2));
-        report.ram.free = parseFloat((report.ram.free / 1024 / 1024 / 1024).toFixed(2));
+          // Parse RAM usage & determine used
+          report.ram.used = parseFloat(((report.ram.total - report.ram.free) / 1024 / 1024 / 1024).toFixed(2));
+          report.ram.total = parseFloat((report.ram.total / 1024 / 1024 / 1024).toFixed(2));
+          report.ram.free = parseFloat((report.ram.free / 1024 / 1024 / 1024).toFixed(2));
 
-        // Parse CPU usage
-        report.cpu = parseInt(report.cpu);
+          // Parse CPU usage
+          report.cpu = parseInt(report.cpu);
 
-        // Remove dashes from UUID
-        report.uuid = report.uuid.replace(/-/g, "");
+          // Remove dashes from UUID
+          report.uuid = report.uuid.replace(/-/g, "");
 
-        if (Array.isArray(report.network)) {
-            // Clear out null interfaces
-            report.network = report.network.filter((iface) => iface.tx_sec !== null && iface.rx_sec !== null);
+          report.reporterVersion = parseFloat(report.reporterVersion).toFixed(2)
 
-            // Get total network interfaces
-            totalInterfaces = report.network.length;
+          if (!Array.isArray(report.network)) {
+              return;
+          }
 
-            // Combine all bandwidth together
-            let TxSec = (report.network.reduce((a, b) => a + b.tx_sec, 0) * 8) / 1000 / 1000;
-            let RxSec = (report.network.reduce((a, b) => a + b.rx_sec, 0) * 8) / 1000 / 1000;
+          // Clear out null interfaces
+          report.network = report.network.filter((iface) => iface.tx_sec !== null && iface.rx_sec !== null);
 
-            // Replace whats there with proper data
-            report.network = {
-                totalInterfaces,
-                TxSec: parseFloat(TxSec.toFixed(2)),
-                RxSec: parseFloat(RxSec.toFixed(2)),
-            };
+          // Get total network interfaces
+          totalInterfaces = report.network.length;
 
-            const uuidRegex = /[a-f0-9]{30}/g;
-            const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+          // Combine all bandwidth together
+          let TxSec = (report.network.reduce((a, b) => a + b.tx_sec, 0) * 8) / 1000 / 1000;
+          let RxSec = (report.network.reduce((a, b) => a + b.rx_sec, 0) * 8) / 1000 / 1000;
 
-            if(!uuidRegex.test(report.uuid)) report.rogue = true;
-            if(!hostnameRegex.test(report.uuid)) report.rogue = true;
-            if(report.reporterVersion > latestVersion + 1) report.rogue = true;
+          // Replace whats there with proper data
+          report.network = {
+              totalInterfaces,
+              TxSec: parseFloat(TxSec.toFixed(2)),
+              RxSec: parseFloat(RxSec.toFixed(2)),
+          };
 
-            machines.set(report.uuid, report);
+          const uuidRegex = /[a-f0-9]{30}/g;
+          const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/g;
+          const whiteSpacesInStringRegex = /\s/g;
 
-            if (!report.rogue) await addStatsToDB(report);
-        }
-    }
+          if (!uuidRegex.test(report.uuid) || whiteSpacesInStringRegex.test(report.uuid)) report.rogue = true;
+          if (!hostnameRegex.test(report.name) || whiteSpacesInStringRegex.test(report.name)) report.rogue = true;
+          if (isNaN(report.reporterVersion) || report.reporterVersion > latestVersion + 1) report.rogue = true;
+          if (isNaN(report.ram.used) || report.ram.used < 0) report.rogue = true;
+          if (isNaN(report.ram.total) || report.ram.total < 0) report.rogue = true;
+          if (isNaN(report.ram.free) || report.ram.free < 0) report.rogue = true;
+          if (isNaN(report.cpu) || report.cpu < 0) report.rogue = true;
+          if (isNaN(report.network.TxSec) || report.network.TxSec < 0) report.rogue = true;
+          if (isNaN(report.network.RxSec) || report.network.RxSec < 0) report.rogue = true;
+          if (typeof report.isVirtual !== "boolean") report.rogue = true;
+          if (report.platform.length < 2 || report.platform.length > 10) report.rogue = true;
+
+          // if the report is invalid theres no point of saving it, cuz why would we want invalid data?
+          if (!report.rogue) {
+              machines.set(report.uuid, report);
+              await addStatsToDB(report);
+          }
+
+      }
   });
 });
 
@@ -134,7 +152,6 @@ const Stats = require("./models/Stats.js");
  * Creates a stats report and saves it to database
  * @param {Object} [report] contains the stats of the machine
  */
-
 async function addStatsToDB(report){
   const timestamp = new Date().getTime();
   new Stats({_id: uuidv4(), machine_id: report.uuid, timestamp: timestamp, ram: report.ram, cpu: report.cpu, network: report.network, disks: report.disks}).save().then(() => console.log(`[MANGOLIA]: System with uuid '${report.uuid}' reported stats and they are added to database`));

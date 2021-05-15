@@ -137,7 +137,7 @@ async function getStats() {
     uuid = staticData.uuid.os;
   }
 
-  return stats = {
+  return {
     uuid: uuid,
     isVirtual: staticData.system.virtual,
     name,
