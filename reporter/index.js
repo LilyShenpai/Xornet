@@ -107,7 +107,8 @@ async function deleteOldVersion(oldVersion) {
   });
 }
 
-async function getLocation(){
+async function getLocation() {
+  console.log("[INFO]".bgCyan.black + ` Fetching geolocation...`);
   location = (await axios.get(`http://ipwhois.app/json/`)).data;
   return {
     ip: location.ip,
@@ -160,6 +161,7 @@ async function getStats() {
     network: data.networkStats,
     reporterVersion: version,
     disks: await getDiskInfo(),
+    uptime: os.uptime(),
   };
 }
 
