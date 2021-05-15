@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const express = require("express");
 const morgan = require("morgan");
 const axios = require("axios");
-const port = process.env.PORT || 8080;
+const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
@@ -11,7 +11,7 @@ const reportParser = require("./util/reportParser");
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')); // Enable HTTP code logs
 
 let machines = new Map();
-let latestVersion = null;
+let latestVersion = 0.12;
 
 app.get("/updates", async (req, res) => {
   let latestVersion;
@@ -21,7 +21,7 @@ app.get("/updates", async (req, res) => {
     );
     latestVersion = parseFloat(data[0].tag_name.replace("v", ""));
   } catch (error) {
-    latestVersion = 0.11;
+    latestVersion = 0.12;
   }
 
   res.json({

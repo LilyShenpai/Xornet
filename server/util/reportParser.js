@@ -4,7 +4,16 @@ const whiteSpacesInStringRegex = /\s/;
 
 function reportParser(report, latestVersion) {
   report = parse(report);
-  report.rogue = !validate(report, latestVersion);
+
+  try {
+    validate(report, latestVersion);
+  } catch (error) {
+    report.rogue = true;
+    console.log("[WARN] got invalid Report from reporter");
+    if (process.env.APP_ENV === "testing") {
+      console.log(`[DEBUG] "${error.message}" stacktrace:\n${error.stack}`);
+    }
+  }
 
   return report;
 }
@@ -23,7 +32,7 @@ function parse(report) {
   // Remove dashes from UUID
   report.uuid = report.uuid.replace(/-/g, "");
 
-  report.reporterVersion = parseFloat(report.reporterVersion).toFixed(2);
+  report.reporterVersion = parseFloat(report.reporterVersion);
 
   if (!Array.isArray(report.network)) return report;
 
@@ -48,20 +57,62 @@ function parse(report) {
 }
 
 function validate(report, latestVersion) {
-  // TODO: Refactor this function, its super horrible to debug
-  if (!uuidRegex.test(report.uuid) || whiteSpacesInStringRegex.test(report.uuid)) return false;
-  if (!hostnameRegex.test(report.name) || whiteSpacesInStringRegex.test(report.name)) return false;
-  if (isNaN(report.reporterVersion) || report.reporterVersion > latestVersion + 1) return false;
-  if (isNaN(report.ram.used) || report.ram.used < 0) return false;
-  if (isNaN(report.ram.total) || report.ram.total < 0) return false;
-  if (isNaN(report.ram.free) || report.ram.free < 0) return false;
-  if (isNaN(report.cpu) || report.cpu < 0) return false;
-  if (isNaN(report.network.TxSec) || report.network.TxSec < 0) return false;
-  if (isNaN(report.network.RxSec) || report.network.RxSec < 0) return false;
-  if (typeof report.isVirtual !== "boolean") return false;
-  if (report.platform.length < 2 || report.platform.length > 10) return false;
+  isValidUuid(report.uuid);
+  hasNoWhiteSpaces(report.uuid);
 
-  return true;
+  isValidHostName(report.name);
+  hasNoWhiteSpaces(report.name);
+
+  isValidNumber(report.reporterVersion);
+  versionIsValid(report.reporterVersion, latestVersion);
+
+  isValidNumber(report.ram.used);
+  isValidNumber(report.ram.total);
+  isValidNumber(report.ram.free);
+  isNotNegative(report.ram.used);
+
+  isValidNumber(report.cpu);
+  isNotNegative(report.cpu);
+
+  isValidOject(report.network);
+  isValidNumber(report.network.TxSec);
+  isNotNegative(report.network.TxSec);
+  isValidNumber(report.network.RxSec);
+  isNotNegative(report.network.RxSec);
+
+  isValidBoolean(report.isVirtual);
+}
+
+function isValidUuid(uuid) {
+  if (!uuidRegex.test(uuid)) throw new Error(`"${uuid}" is not a valid UUID!`);
+}
+
+function isValidHostName(host) {
+  if (!hostnameRegex.test(host)) throw new Error(`"${host}" is not a valid UUID!`);
+}
+
+function hasNoWhiteSpaces(value) {
+  if (whiteSpacesInStringRegex.test(value)) throw new Error(`"${value}" has Whitespaces`);
+}
+
+function isValidNumber(value) {
+  if (typeof value !== "number" || isNaN(value)) throw new Error(`"${value}" is not a Valid number`);
+}
+
+function versionIsValid(value, latestVersion) {
+  if (value > latestVersion || value < Math.floor(latestVersion)) throw new Error(`"${value}" is not a valid Version`);
+}
+
+function isNotNegative(value) {
+  if (value < 0) throw new Error(`"${value}" is a Negative value`);
+}
+
+function isValidBoolean(value) {
+  if (typeof value !== "boolean") throw new Error(`"${value}" is not a Bool`);
+}
+
+function isValidOject(value) {
+  if (typeof value !== "object") throw new Error(`"${value}" is not an Array`);
 }
 
 module.exports = reportParser;
