@@ -107,6 +107,16 @@ async function deleteOldVersion(oldVersion) {
   });
 }
 
+async function getLocation(){
+  location = (await axios.get(`http://ipwhois.app/json/`)).data;
+  return {
+    ip: location.ip,
+    location: location.country,
+    countryCode: location.country_code,
+    isp: location.isp,
+  }
+}
+
 async function getDiskInfo() {
   // TODO: Figure out what this var does
   info = {};
@@ -155,8 +165,11 @@ async function getStats() {
 
 async function connectToXornet() {
   console.log("[INFO]".bgCyan.black + " Fetching system information...");
+
   staticData = await si.getStaticData();
+  staticData.geolocation = await getLocation();
   staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
+
   console.log(
     "[INFO]".bgCyan.black + " System information collection finished"
   );
@@ -176,7 +189,7 @@ async function connectToXornet() {
     statistics = await getStats();
   }, 1000);
 
-  var emitter = null;
+  let emitter = null;
 
   socket.on("connect", async () => {
     console.log("[CONNECTED]".bgGreen.black + ` Connected to ${backend.green}`);
