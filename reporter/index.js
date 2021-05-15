@@ -30,12 +30,10 @@ function getSystemExtension() {
 async function checkForUpdates() {
   console.log("[INFO]".bgCyan.black + ` Checking for updates`);
   try {
-    const update = (await axios.get("http://backend.xornet.cloud/updates"))
-      .data;
+    const update = (await axios.get("https://backend.xornet.cloud/updates")).data;
     if (version < update.latestVersion) {
       console.log(
-        "[INFO]".bgCyan.black +
-          ` Downloading new update v${update.latestVersion}`
+        "[INFO]".bgCyan.black + ` Downloading new update v${update.latestVersion}`
       );
       await downloadUpdate(update.downloadLink + getSystemExtension());
       console.log("[INFO]".bgCyan.black + ` Download complete`);
@@ -109,7 +107,7 @@ async function deleteOldVersion(oldVersion) {
 
 async function getLocation() {
   console.log("[INFO]".bgCyan.black + ` Fetching geolocation...`);
-  location = (await axios.get(`http://ipwhois.app/json/`)).data;
+  location = (await axios.get(`https://ipwhois.app/json/`)).data;
   return {
     ip: location.ip,
     location: location.country,
@@ -119,8 +117,6 @@ async function getLocation() {
 }
 
 async function getDiskInfo() {
-  // TODO: Figure out what this var does
-  info = {};
   let disks = await si.fsSize();
   disks = disks.map((disk) => {
     return {

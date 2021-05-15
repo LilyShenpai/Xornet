@@ -1,11 +1,13 @@
+require('dotenv').config()
 const { v4: uuidv4 } = require('uuid');
 const express = require("express");
-const app = express();
 const morgan = require("morgan");
 const axios = require("axios");
 const port = process.env.PORT || 8080;
+const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
+const reportParser = require("./util/reportParser");
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')); // Enable HTTP code logs
 
 let machines = new Map();
@@ -39,11 +41,11 @@ setInterval(async () => {
 function formatSeconds(seconds) {
   if(!seconds) return undefined;
   seconds = Number(seconds);
-  var d = Math.floor(seconds / 86400);
-  var h = Math.floor(seconds & 86400 / 3600);
-  var m = Math.floor(seconds % 3600 / 60);
-  var s = Math.floor(seconds % 3600 % 60);
- 
+  const d = Math.floor(seconds / 86400);
+  const h = Math.floor(seconds & 86400 / 3600);
+  const m = Math.floor(seconds % 3600 / 60);
+  const s = Math.floor(seconds % 3600 % 60);
+
   return `${d}d ${h}h ${m}m ${s}s`
 }
 
@@ -63,71 +65,19 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("report", async (report) => {
-      // TODO: Refactor validation into its own function
-      let totalInterfaces;
-      if (report.name) {
-          report.rogue = false;
+    // Add geolocation data
+    report.geolocation = socket.handshake.auth.static.geolocation;
+    if (report.geolocation) delete report.geolocation.ip;
 
-          // Add geolocation data
-          report.geolocation = socket.handshake.auth.static.geolocation;
-          if(report.geolocation && report.geolocation.ip) delete report.geolocation.ip;
+    report = reportParser(report, latestVersion);
 
-          // Parse RAM usage & determine used
-          report.ram.used = parseFloat(((report.ram.total - report.ram.free) / 1024 / 1024 / 1024).toFixed(2));
-          report.ram.total = parseFloat((report.ram.total / 1024 / 1024 / 1024).toFixed(2));
-          report.ram.free = parseFloat((report.ram.free / 1024 / 1024 / 1024).toFixed(2));
+    console.log(report);
 
-          // Parse CPU usage
-          report.cpu = parseInt(report.cpu);
-
-          // Remove dashes from UUID
-          report.uuid = report.uuid.replace(/-/g, "");
-
-          report.reporterVersion = parseFloat(report.reporterVersion).toFixed(2)
-
-          if (!Array.isArray(report.network)) {
-              return;
-          }
-
-          // Clear out null interfaces
-          report.network = report.network.filter((iface) => iface.tx_sec !== null && iface.rx_sec !== null);
-
-          // Get total network interfaces
-          totalInterfaces = report.network.length;
-
-          // Combine all bandwidth together
-          let TxSec = (report.network.reduce((a, b) => a + b.tx_sec, 0) * 8) / 1000 / 1000;
-          let RxSec = (report.network.reduce((a, b) => a + b.rx_sec, 0) * 8) / 1000 / 1000;
-
-          // Replace whats there with proper data
-          report.network = {
-              totalInterfaces,
-              TxSec: parseFloat(TxSec.toFixed(2)),
-              RxSec: parseFloat(RxSec.toFixed(2)),
-          };
-
-          const uuidRegex = /[a-f0-9]{30}/g;
-          const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/g;
-          const whiteSpacesInStringRegex = /\s/g;
-
-          if (!uuidRegex.test(report.uuid) || whiteSpacesInStringRegex.test(report.uuid)) report.rogue = true;
-          if (!hostnameRegex.test(report.name) || whiteSpacesInStringRegex.test(report.name)) report.rogue = true;
-          if (isNaN(report.reporterVersion) || report.reporterVersion > latestVersion + 1) report.rogue = true;
-          if (isNaN(report.ram.used) || report.ram.used < 0) report.rogue = true;
-          if (isNaN(report.ram.total) || report.ram.total < 0) report.rogue = true;
-          if (isNaN(report.ram.free) || report.ram.free < 0) report.rogue = true;
-          if (isNaN(report.cpu) || report.cpu < 0) report.rogue = true;
-          if (isNaN(report.network.TxSec) || report.network.TxSec < 0) report.rogue = true;
-          if (isNaN(report.network.RxSec) || report.network.RxSec < 0) report.rogue = true;
-          if (typeof report.isVirtual !== "boolean") report.rogue = true;
-          if (report.platform.length < 2 || report.platform.length > 10) report.rogue = true;
-
-          // if the report is invalid theres no point of saving it, cuz why would we want invalid data?
-          if (!report.rogue) {
-              machines.set(report.uuid, report);
-              await addStatsToDB(report);
-          }
-      }
+    // if the report is invalid theres no point of saving it, cuz why would we want invalid data?
+    if (!report.rogue) {
+      machines.set(report.uuid, report);
+      await addStatsToDB(report);
+    }
   });
 });
 
@@ -142,7 +92,7 @@ const User = require("./models/User.js");
  */
 async function addUserToDB(id, username, password){
   const users = await User.find({ _id: id}).exec()
-  if(users.length !== 0) return console.warn(`[MANGOLIA]: User with uuid '${id}' is already in the database!`);
+  if (users.length !== 0) return console.warn(`[MANGOLIA]: User with uuid '${id}' is already in the database!`);
   await new User({_id: id, username: username, password: password}).save(); 
   console.log(`[MANGOLIA]: User with uuid '${id}' added to the database!`);
 }
@@ -155,9 +105,9 @@ const Machine = require("./models/Machine.js");
  * @param {Object} [staticData] contains the staticData data of the machine
  */
 async function addMachineToDB(staticData){
-    const machines = await Machine.find({ _id: staticData.system.uuid}).exec()
-    if(machines.length !== 0) return console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
-    await new Machine({_id: staticData.system.uuid, static: staticData}).save();
+  const machines = await Machine.find({ _id: staticData.system.uuid}).exec()
+  if(machines.length !== 0) return console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
+  await new Machine({_id: staticData.system.uuid, static: staticData}).save();
 }
 
 /**      STATS DATABASE HANDLING       */
@@ -170,7 +120,7 @@ const Stats = require("./models/Stats.js");
 async function addStatsToDB(report){
   const timestamp = new Date().getTime();
   await new Stats({_id: uuidv4(), machine_id: report.uuid, timestamp: timestamp, ram: report.ram, cpu: report.cpu, network: report.network, disks: report.disks}).save();
-  console.log(`[MANGOLIA]: System with uuid '${report.uuid}' reported stats and they are added to database`);
+  // console.log(`[MANGOLIA]: System with uuid '${report.uuid}' reported stats and they are added to database`);
 }
 
 http.listen(port, () => console.log(`Started on port ${port.toString()}`));
