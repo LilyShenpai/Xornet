@@ -6,27 +6,52 @@ const fs = require("fs");
 const ProgressBar = require("progress");
 require("colors");
 
+/**
+ * Current version of Xornet Reporter
+ * @type {number}
+ */
 const version = 0.13;
 const logo = [
-  '     ___           ___           ___           ___           ___           ___     \n',
-  '    |\\__\\         /\\  \\         /\\  \\         /\\__\\         /\\  \\         /\\  \\    \n',
-  '    |:|  |       /::\\  \\       /::\\  \\       /::|  |       /::\\  \\        \\:\\  \\   \n',
-  '    |:|  |      /:/\\:\\  \\     /:/\\:\\  \\     /:|:|  |      /:/\\:\\  \\        \\:\\  \\  \n',
-  '    |:|__|__   /:/  \\:\\  \\   /::\\~\\:\\  \\   /:/|:|  |__   /::\\~\\:\\  \\       /::\\  \\ \n',
-  '____/::::\\__\\ /:/__/ \\:\\__\\ /:/\\:\\ \\:\\__\\ /:/ |:| /\\__\\ /:/\\:\\ \\:\\__\\     /:/\\:\\__\\\n',
-  '\\::::/~~/~    \\:\\  \\ /:/  / \\/_|::\\/:/  / \\/__|:|/:/  / \\:\\~\\:\\ \\/__/    /:/  \\/__/\n',
-  ' ~~|:|~~|      \\:\\  /:/  /     |:|::/  /      |:/:/  /   \\:\\ \\:\\__\\     /:/  /     \n',
-  '   |:|  |       \\:\\/:/  /      |:|\\/__/       |::/  /     \\:\\ \\/__/     \\/__/      \n',
-  '   |:|  |        \\::/  /       |:|  |         /:/  /       \\:\\__\\                  \n',
+  "     ___           ___           ___           ___           ___           ___     \n",
+  "    |\\__\\         /\\  \\         /\\  \\         /\\__\\         /\\  \\         /\\  \\    \n",
+  "    |:|  |       /::\\  \\       /::\\  \\       /::|  |       /::\\  \\        \\:\\  \\   \n",
+  "    |:|  |      /:/\\:\\  \\     /:/\\:\\  \\     /:|:|  |      /:/\\:\\  \\        \\:\\  \\  \n",
+  "    |:|__|__   /:/  \\:\\  \\   /::\\~\\:\\  \\   /:/|:|  |__   /::\\~\\:\\  \\       /::\\  \\ \n",
+  "____/::::\\__\\ /:/__/ \\:\\__\\ /:/\\:\\ \\:\\__\\ /:/ |:| /\\__\\ /:/\\:\\ \\:\\__\\     /:/\\:\\__\\\n",
+  "\\::::/~~/~    \\:\\  \\ /:/  / \\/_|::\\/:/  / \\/__|:|/:/  / \\:\\~\\:\\ \\/__/    /:/  \\/__/\n",
+  " ~~|:|~~|      \\:\\  /:/  /     |:|::/  /      |:/:/  /   \\:\\ \\:\\__\\     /:/  /     \n",
+  "   |:|  |       \\:\\/:/  /      |:|\\/__/       |::/  /     \\:\\ \\/__/     \\/__/      \n",
+  "   |:|  |        \\::/  /       |:|  |         /:/  /       \\:\\__\\                  \n",
   `    \\|__|         \\/__/         \\|__|         \\/__/         \\/__/             v${version}\n`,
 ];
 
+// Joins the logo so that it has a rainbow effect.
 console.log(logo.join("").rainbow);
 
+/**
+ * Start time of the Reporter.
+ * @type {number}
+ */
 const reporterStartTime = Date.now();
 
+/**
+ * Time between collecting and sending data to the backend.
+ * @type {number}
+ */
+const REFRESH_INTERVAL = 1000;
+
+/**
+ * Static Data
+ * @type {object}
+ */
 let staticData = {};
 
+/**
+ * Detects the system platform and returns the extension.
+ * Currently doesn't do anything as the updates don't work.
+ * Working on a better updater using Electron.
+ * @returns
+ */
 function getSystemExtension() {
   switch (os.platform()) {
     case "win32":
@@ -38,11 +63,18 @@ function getSystemExtension() {
   }
 }
 
+/**
+ * Checks for an update on the github release page.
+ */
 async function checkForUpdates() {
   console.log("[INFO]".bgCyan.black + ` Checking for updates`);
 
   try {
-    var update = parseFloat((await axios.get("https://api.github.com/repos/Geoxor/Xornet/releases")).data[0].tag_name.replace("v", ""));
+    var update = parseFloat(
+      (
+        await axios.get("https://api.github.com/repos/Geoxor/Xornet/releases")
+      ).data[0].tag_name.replace("v", "")
+    );
   } catch (error) {
     if (error) {
       console.log(error);
@@ -60,7 +92,7 @@ async function checkForUpdates() {
     }
   }
 
-  if (os.platform() === "win32"){
+  if (os.platform() === "win32") {
     if (version < update.latestVersion) {
       console.log(
         "[INFO]".bgCyan.black +
@@ -70,16 +102,24 @@ async function checkForUpdates() {
       console.log("[INFO]".bgCyan.black + ` Update finished`);
     } else {
       console.log("[INFO]".bgCyan.black + ` No updates found`);
-      connectToXornet();
     }
-  } else if (os.platform() === 'linux') {
-    console.log("[UPDATE MESSAGE]".bgGreen.black + ` please run this command to update manually` + `'wget https://github.com/Geoxor/Xornet/releases/download/v${update.latestVersion}/install.sh && chmod +x ./install.sh && sudo ./install.sh'`.green);
-    connectToXornet();
-  } else {
-    connectToXornet();
+  } else if (os.platform() === "linux") {
+    console.log(
+      "[UPDATE MESSAGE]".bgGreen.black +
+        ` please run this command to update manually` +
+        `'wget https://github.com/Geoxor/Xornet/releases/download/v${update.latestVersion}/install.sh && chmod +x ./install.sh && sudo ./install.sh'`
+          .green
+    );
   }
+
+  connectToXornet();
 }
 
+/**
+ * Downloads the new update to the system if available.
+ * @param downloadLink {string}
+ * @returns
+ */
 async function downloadUpdate(downloadLink) {
   const downloadPath = `./${
     downloadLink.split("/")[downloadLink.split("/").length - 1]
@@ -116,6 +156,11 @@ async function downloadUpdate(downloadLink) {
   });
 }
 
+/**
+ * Gets the system geolocation using the 'IPWHOIS' API.
+ * We take the IP, Location, Country Code and ISP and return it as an object.
+ * @returns
+ */
 async function getLocation() {
   console.log("[INFO]".bgCyan.black + ` Fetching geolocation...`);
   location = (await axios.get(`https://ipwhois.app/json/`)).data;
@@ -127,6 +172,10 @@ async function getLocation() {
   }
 }
 
+/**
+ * Gets the systems disk information using 'systeminformation' and returns it as an object.
+ * @returns {object}
+ */
 async function getDiskInfo() {
   let disks = await si.fsSize();
   disks = disks.map((disk) => {
@@ -138,15 +187,38 @@ async function getDiskInfo() {
   return disks;
 }
 
+/**
+ * Collects all the statistics from the system and returns an Object.
+ * @returns {Object} with all stats for the report
+ */
 async function getStats() {
+  /**
+   * Systems Hostname
+   * @type {string}
+   */
   const hostname = os.hostname();
+
+  /**
+   * Operating System
+   * @type {string} 'win32' | 'linux' | 'darwin'
+   */
   const platform = os.platform();
 
-  const data = await si.get({
-      networkStats: `(*) tx_sec, rx_sec`,
-      currentLoad: "currentLoad",
-  });
+  let valueObject = {
+    networkStats: `(*) tx_sec, rx_sec`,
+    currentLoad: "currentLoad",
+  };
 
+  /**
+   * Data about Network and CPU loads.
+   * @type {object}
+   */
+  const data = await si.get(valueObject);
+
+  /**
+   * Systems Unique Identifier
+   * @type {string}
+   */
   let uuid;
   if (staticData.system.uuid !== "") {
     uuid = staticData.system.uuid;
@@ -173,7 +245,11 @@ async function getStats() {
   };
 }
 
+/**
+ * Connects to the Xornet Backend and sends system statistics every second.
+ */
 async function connectToXornet() {
+  // Console logging information so that the user knows whats happening.
   console.log("[INFO]".bgCyan.black + " Fetching system information...");
 
   console.log("[INFO]".bgCyan.black + ` Fetching static data...`);
@@ -185,12 +261,26 @@ async function connectToXornet() {
   console.log("[INFO]".bgCyan.black + ` Geolocation collected`.green);
 
   console.log("[INFO]".bgCyan.black + ` Parsing UUID...`);
+
   staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
-  console.log("[INFO]".bgCyan.black + ` Assigning system UUID to ${staticData.system.uuid.cyan}`.green);
+  console.log(
+    "[INFO]".bgCyan.black +
+      ` Assigning system UUID to ${staticData.system.uuid.cyan}`.green
+  );
 
-  console.log("[INFO]".bgCyan.black + " System information collection finished".green);
+  console.log(
+    "[INFO]".bgCyan.black + " System information collection finished".green
+  );
 
+  /**
+   * Xornet Backend WebSocket
+   * @type {string}
+   */
   const backend = "ws://backend.xornet.cloud";
+  /**
+   * WebSocket Connection
+   * @type {object}
+   */
   let socket = io.connect(backend, {
     reconnect: true,
     auth: {
@@ -200,28 +290,42 @@ async function connectToXornet() {
     },
   });
 
+  /**
+   * All the System Statistics
+   * @type {object}
+   */
   let statistics = {};
   setInterval(async () => {
     statistics = await getStats();
-  }, 1000);
+  }, REFRESH_INTERVAL);
 
+  /**
+   * Sends data to the Xornet Backend.
+   */
   let emitter = null;
 
+  // Informs the user that the reporter has connected to the Xornet Backend.
+  // Creates a 'setInterval' which will send the data to the backend every second.
   socket.on("connect", async () => {
     console.log("[CONNECTED]".bgGreen.black + ` Connected to ${backend.green}`);
 
     emitter = setInterval(function () {
-      console.log("[INFO]".bgCyan.black + ` Sending Stats - ${Date.now()}`.cyan);
+      console.log(
+        "[INFO]".bgCyan.black + ` Sending Stats - ${Date.now()}`.cyan
+      );
       socket.emit("report", statistics);
-    }, 1000);
+    }, REFRESH_INTERVAL);
   });
 
+  // Warns the user if the reporter disconnects from the Xornet Backend.
+  // Clears the emitters interval so that the reporter does not send any data until it reconnects.
   socket.on("disconnect", async () => {
     console.log("[WARN]".bgYellow.black + ` Disconnected from ${backend}`);
     clearInterval(emitter);
   });
 
-  // Get a heartbeat from the backend and send a heartbeat response back with UUID
+  // Get a heartbeat from the backend and send a heartbeat response back with UUID.
+  // Returns a response with the systems UUID which is then used later to calculate the ping.
   socket.on("heartbeat", async (epoch) => {
     socket.emit("heartbeatResponse", {
       uuid: staticData.system.uuid,

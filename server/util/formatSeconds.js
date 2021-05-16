@@ -1,3 +1,7 @@
+/**
+ * Formats seconds into days, hours, minutes and seconds.
+ * @return {string} Days, Hours, Minutes, Seconds
+ */
 function formatSeconds(seconds) {
   if(!seconds) return undefined;
   seconds = Number(seconds);

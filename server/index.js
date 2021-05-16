@@ -10,9 +10,16 @@ const io = require("socket.io")(http, { cors: { origin: "*" } });
 const reportParser = require("./util/reportParser");
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')); // Enable HTTP code logs
 
+/**
+ * All machines connected to Xornet
+ */
 let machines = new Map();
 let machinesPings = new Map();
 
+/**
+ * Latest version of Reporter
+ * @type {number}
+ */
 let latestVersion = 0.13;
 
 app.get("/updates", async (req, res) => {
@@ -58,6 +65,7 @@ io.on("connection", async (socket) => {
   socket.on('heartbeatResponse', heartbeat => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
 
   // Parse reports
+  // Report is what is collected from the Reporter
   socket.on("report", async (report) => {
     // Add geolocation data
     report.geolocation = socket.handshake.auth.static.geolocation;
