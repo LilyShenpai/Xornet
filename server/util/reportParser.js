@@ -3,6 +3,12 @@ const uuidRegex = /[a-f0-9]{32}/;
 const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const whiteSpacesInStringRegex = /\s/;
 
+/**
+ * @param report {Object} A raw report from a reporter
+ * @param latestVersion {number} the latest version of Xornet
+ * @param machinesPings {Map} the machinesPings Map
+ * @returns {Object} A validated and parsed report
+ */
 function reportParser(report, latestVersion, machinesPings) {
   report = parse(report, machinesPings);
 
@@ -19,6 +25,11 @@ function reportParser(report, latestVersion, machinesPings) {
   return report;
 }
 
+/**
+ * @param report a raw import
+ * @param machinesPings The machinesPings map that has all the pings
+ * @returns {Object} The parsed report
+ */
 function parse(report, machinesPings) {
   report.rogue = false;
 
@@ -77,6 +88,11 @@ function parse(report, machinesPings) {
   return report;
 }
 
+/**
+ * @param report {Object} A parsed report
+ * @param latestVersion {number} the latest version of Xornet
+ * @throws Error when theres an Invalid value in the parsed report
+ */
 function validate(report, latestVersion) {
   isValidUuid(report.uuid);
   hasNoWhiteSpaces(report.uuid);
