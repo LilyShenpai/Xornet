@@ -8,9 +8,16 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')); // Enable HTTP code logs
 
+/**
+ * All machines connected to Xornet
+ */
 let machines = new Map();
 let machinesPings = new Map();
 
+/**
+ * Latest version of Reporter
+ * @type {number}
+ */
 let latestVersion = 0.13;
 
 app.get("/updates", async (req, res) => {
@@ -40,6 +47,10 @@ setInterval(async () => {
   io.sockets.in('reporter').emit('heartbeat', Date.now());
 }, 1000);
 
+/**
+ * Formats seconds into days, hours, minutes and seconds.
+ * @return {string} Days, Hours, Minutes, Seconds
+ */
 function formatSeconds(seconds) {
   if(!seconds) return undefined;
   seconds = Number(seconds);
@@ -70,6 +81,7 @@ io.on("connection", async (socket) => {
   socket.on('heartbeatResponse', heartbeat => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
 
   // Parse reports
+  // Report is what is collected from the Reporter
   socket.on("report", async (report) => {
     if (!report.ram) return;
     report.rogue = false;
@@ -117,6 +129,7 @@ io.on("connection", async (socket) => {
           RxSec: parseFloat(RxSec.toFixed(2)),
       };
 
+      // Regex thats used for validating rogues
       const uuidRegex = /[a-f0-9]{32}/g;
       const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]))*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 
