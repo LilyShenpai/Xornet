@@ -13,7 +13,7 @@ app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:htt
 let machines = new Map();
 let machinesPings = new Map();
 
-let latestVersion = 0.12;
+let latestVersion = 0.13;
 
 app.get("/updates", async (req, res) => {
   let latestVersion;
@@ -39,17 +39,6 @@ setInterval(async () => {
   io.sockets.in('reporter').emit('heartbeat', Date.now());
 }, 1000);
 
-function formatSeconds(seconds) {
-  if(!seconds) return undefined;
-  seconds = Number(seconds);
-  const d = Math.floor(seconds / 86400);
-  const h = Math.floor(seconds / 3600 % 24);
-  const m = Math.floor(seconds % 3600 / 60);
-  const s = Math.floor(seconds % 3600 % 60);
-
-  return `${d}d ${h}h ${m}m ${s}s`
-}
-
 // Websockets
 io.on("connection", async (socket) => {
   if (socket.handshake.auth.type === "client") socket.join("client");
@@ -62,7 +51,7 @@ io.on("connection", async (socket) => {
   console.log({
     type: socket.handshake.auth.type,
     uuid: socket.handshake.auth.uuid,
-    // name: socket.handshake.auth.static.os.hostname,
+    // hostname: socket.handshake.auth.static.os.hostname,
   });
 
   // Calculate ping and append it to the machine map
@@ -74,7 +63,7 @@ io.on("connection", async (socket) => {
     report.geolocation = socket.handshake.auth.static.geolocation;
     if (report.geolocation) delete report.geolocation.ip;
 
-    report = reportParser(report, latestVersion);
+    report = reportParser(report, latestVersion, machinesPings);
 
     // Add to ram
     machines.set(report.uuid, report);

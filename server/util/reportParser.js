@@ -1,25 +1,28 @@
-const uuidRegex = /[a-f0-9]{30}/;
+const formatSeconds = require("./formatSeconds")
+const uuidRegex = /[a-f0-9]{32}/;
 const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const whiteSpacesInStringRegex = /\s/;
 
-function reportParser(report, latestVersion) {
-  report = parse(report);
+function reportParser(report, latestVersion, machinesPings) {
+  report = parse(report, machinesPings);
 
   try {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-    console.log("[WARN] got invalid Report from reporter");
+    console.log("[WARN] Got invalid Report from reporter");
     if (process.env.APP_ENV === "testing") {
-      console.log(`[DEBUG] "${error.message}" stacktrace:\n${error.stack}`);
+      console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
     }
   }
 
   return report;
 }
 
-function parse(report) {
+function parse(report, machinesPings) {
   report.rogue = false;
+
+  if (report.ram === null || report.ram === undefined) report.ram = {};
 
   // Parse RAM usage & determine used
   report.ram.used = parseFloat(((report.ram.total - report.ram.free) / 1024 / 1024 / 1024).toFixed(2));
@@ -30,9 +33,18 @@ function parse(report) {
   report.cpu = parseInt(report.cpu);
 
   // Remove dashes from UUID
-  report.uuid = report.uuid.replace(/-/g, "");
+  report.uuid = report.uuid?.replace(/-/g, "");
 
   report.reporterVersion = parseFloat(report.reporterVersion);
+
+  // Parse uptime
+  report.uptime = {
+    pure: report.uptime,
+    formatted: formatSeconds(report.uptime),
+  };
+
+  // Append Ping from ping buffer
+  report.ping = machinesPings.get(report.uuid);
 
   if (!Array.isArray(report.network)) return report;
 
@@ -74,7 +86,7 @@ function validate(report, latestVersion) {
   isValidNumber(report.cpu);
   isNotNegative(report.cpu);
 
-  isValidOject(report.network);
+  isValidObject(report.network);
   isValidNumber(report.network.TxSec);
   isNotNegative(report.network.TxSec);
   isValidNumber(report.network.RxSec);
@@ -111,7 +123,7 @@ function isValidBoolean(value) {
   if (typeof value !== "boolean") throw new Error(`"${value}" is not a Bool`);
 }
 
-function isValidOject(value) {
+function isValidObject(value) {
   if (typeof value !== "object") throw new Error(`"${value}" is not an Array`);
 }
 
