@@ -112,7 +112,7 @@ function isValidNumber(value) {
 }
 
 function versionIsValid(value, latestVersion) {
-  if (value > latestVersion || value < Math.floor(latestVersion)) throw new Error(`"${value}" is not a valid Version`);
+  if (value > latestVersion + 0.01 || value < Math.floor(latestVersion)) throw new Error(`"${value}" is not a valid Version`);
 }
 
 function isNotNegative(value) {
