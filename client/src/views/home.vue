@@ -15,7 +15,7 @@
       <div class="machines">
         <gaugeField v-if="machines.get(selectedMachine)" :machine="machines.get(selectedMachine)"/>
       </div>
-      <!-- Disabled temp due to it causing lag when developing -->
+      <!-- Disabled temp due to it causing lag when developing --> 
       <!-- <chart :key="totalUpload[totalUpload.length - 2] + 'upload'" :identity="totalUpload[totalUpload.length - 2] + 'upload'" :type="'line'" :data="{
         labels: labels,
         datasets: [
@@ -80,7 +80,7 @@ export default {
   },
   mounted(){
     socket.on("machines", machines => {
-      console.log(machines);
+      // console.log(machines);
 
       Object.values(machines).forEach(machine => this.machines.set(machine.uuid, machine));
       
@@ -109,11 +109,6 @@ export default {
         this.labels.shift();
       }
     });
-  },
-  watch:{
-    $route (to, from){
-      this.isSmall = false;
-    }
   },
 }
 </script>
