@@ -8,7 +8,7 @@ require("colors");
 
 /**
  * Current version of Xornet Reporter
- * @type {string}
+ * @type {number}
  */
 const version = 0.13;
 const logo = [
@@ -44,7 +44,7 @@ const REFRESH_INTERVAL = 1000;
  * Static Data
  * @type {object}
  */
-let static = {};
+let staticData = {};
 
 /**
  * Detects the system platform and returns the extension.
@@ -68,6 +68,7 @@ function getSystemExtension() {
  */
 async function checkForUpdates() {
   console.log("[INFO]".bgCyan.black + ` Checking for updates`);
+
   try {
     var update = parseFloat(
       (
@@ -86,11 +87,12 @@ async function checkForUpdates() {
         "[WARN]".bgYellow.black + ` Backend server is offline, skipping update`
       );
       console.log("[INFO]".bgCyan.black + ` Waiting for backend to connect...`);
-      console.log("[INFO]".bgCyan.black + ` UUID: ${static.system.uuid}`.cyan);
+      console.log("[INFO]".bgCyan.black + ` UUID: ${staticData.system.uuid}`.cyan);
       connectToXornet();
     }
   }
-  if (os.platform() == "win32") {
+
+  if (os.platform() === "win32") {
     if (version < update.latestVersion) {
       console.log(
         "[INFO]".bgCyan.black +
@@ -100,24 +102,22 @@ async function checkForUpdates() {
       console.log("[INFO]".bgCyan.black + ` Update finished`);
     } else {
       console.log("[INFO]".bgCyan.black + ` No updates found`);
-      connectToXornet();
     }
-  } else if (os.platform() == "linux") {
+  } else if (os.platform() === "linux") {
     console.log(
       "[UPDATE MESSAGE]".bgGreen.black +
         ` please run this command to update manually` +
         `'wget https://github.com/Geoxor/Xornet/releases/download/v${update.latestVersion}/install.sh && chmod +x ./install.sh && sudo ./install.sh'`
           .green
     );
-    connectToXornet();
-  } else {
-    connectToXornet();
   }
+
+  connectToXornet();
 }
 
 /**
  * Downloads the new update to the system if available.
- * @param {string}
+ * @param downloadLink {string}
  * @returns
  */
 async function downloadUpdate(downloadLink) {
@@ -144,7 +144,7 @@ async function downloadUpdate(downloadLink) {
       incomplete: " ",
       renderThrottle: 1,
       total: parseInt(totalLength),
-    }
+    },
   );
 
   data.pipe(writer);
@@ -162,13 +162,14 @@ async function downloadUpdate(downloadLink) {
  * @returns
  */
 async function getLocation() {
-  location = (await axios.get(`http://ipwhois.app/json/`)).data;
+  console.log("[INFO]".bgCyan.black + ` Fetching geolocation...`);
+  location = (await axios.get(`https://ipwhois.app/json/`)).data;
   return {
     ip: location.ip,
     location: location.country,
     countryCode: location.country_code,
     isp: location.isp,
-  };
+  }
 }
 
 /**
@@ -176,7 +177,6 @@ async function getLocation() {
  * @returns {object}
  */
 async function getDiskInfo() {
-  info = {};
   let disks = await si.fsSize();
   disks = disks.map((disk) => {
     return {
@@ -189,7 +189,7 @@ async function getDiskInfo() {
 
 /**
  * Collects all the statistics from the system and returns an Object.
- * @returns
+ * @returns {Object} with all stats for the report
  */
 async function getStats() {
   /**
@@ -197,15 +197,14 @@ async function getStats() {
    * @type {string}
    */
   const hostname = os.hostname();
+
   /**
    * Operating System
-   * @type {string}
-   * @example
-   * 'win32' | 'linux' | 'darwin'
+   * @type {string} 'win32' | 'linux' | 'darwin'
    */
   const platform = os.platform();
 
-  valueObject = {
+  let valueObject = {
     networkStats: `(*) tx_sec, rx_sec`,
     currentLoad: "currentLoad",
   };
@@ -221,18 +220,15 @@ async function getStats() {
    * @type {string}
    */
   let uuid;
-  if (static.system.uuid !== "") {
-    uuid = static.system.uuid;
+  if (staticData.system.uuid !== "") {
+    uuid = staticData.system.uuid;
   } else {
-    uuid = static.uuid.os;
+    uuid = staticData.uuid.os;
   }
 
-  /**
-   * System Statistics
-   */
-  let stats = {
+  return {
     uuid: uuid,
-    isVirtual: static.system.virtual,
+    isVirtual: staticData.system.virtual,
     hostname,
     platform,
     ram: {
@@ -247,7 +243,6 @@ async function getStats() {
     reporterUptime: Date.now() - reporterStartTime,
     timestamp: Date.now(),
   };
-  return stats;
 }
 
 /**
@@ -258,18 +253,19 @@ async function connectToXornet() {
   console.log("[INFO]".bgCyan.black + " Fetching system information...");
 
   console.log("[INFO]".bgCyan.black + ` Fetching static data...`);
-  static = await si.getStaticData();
+  staticData = await si.getStaticData();
   console.log("[INFO]".bgCyan.black + ` Static data collected`.green);
 
   console.log("[INFO]".bgCyan.black + ` Fetching geolocation...`);
-  static.geolocation = await getLocation();
+  staticData.geolocation = await getLocation();
   console.log("[INFO]".bgCyan.black + ` Geolocation collected`.green);
 
   console.log("[INFO]".bgCyan.black + ` Parsing UUID...`);
-  static.system.uuid = static.system.uuid.replace(/-/g, "");
+
+  staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
   console.log(
     "[INFO]".bgCyan.black +
-      ` Assigning system UUID to ${static.system.uuid.cyan}`.green
+      ` Assigning system UUID to ${staticData.system.uuid.cyan}`.green
   );
 
   console.log(
@@ -288,9 +284,9 @@ async function connectToXornet() {
   let socket = io.connect(backend, {
     reconnect: true,
     auth: {
-      static,
+      static: staticData,
       type: "reporter",
-      uuid: static.system.uuid,
+      uuid: staticData.system.uuid,
     },
   });
 
@@ -306,7 +302,7 @@ async function connectToXornet() {
   /**
    * Sends data to the Xornet Backend.
    */
-  var emitter = null;
+  let emitter = null;
 
   // Informs the user that the reporter has connected to the Xornet Backend.
   // Creates a 'setInterval' which will send the data to the backend every second.
@@ -332,7 +328,7 @@ async function connectToXornet() {
   // Returns a response with the systems UUID which is then used later to calculate the ping.
   socket.on("heartbeat", async (epoch) => {
     socket.emit("heartbeatResponse", {
-      uuid: static.system.uuid,
+      uuid: staticData.system.uuid,
       epoch,
     });
   });
