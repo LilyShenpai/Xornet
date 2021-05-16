@@ -1,4 +1,5 @@
-require('dotenv').config()
+require('dotenv').config();
+require('module-alias/register');
 const { v4: uuidv4 } = require('uuid');
 const express = require("express");
 const morgan = require("morgan");
@@ -7,7 +8,7 @@ const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
-const parseReport = require("./util/parseReport");
+const parseReport = require("@/util/parseReport");
 app.use(morgan('dev')); // Enable HTTP code logs
 
 /**
@@ -82,7 +83,7 @@ io.on("connection", async (socket) => {
 });
 
 /**      USER DATABASE HANDLING       */
-const User = require("./models/User.js");
+const User = require("@/models/User.js");
 
 /**
  * Attempts to create a user and save them to the database
@@ -93,12 +94,15 @@ const User = require("./models/User.js");
 async function addUserToDB(id, username, password){
   const users = await User.find({ _id: id}).exec()
   if (users.length !== 0) return console.warn(`[MANGOLIA]: User with uuid '${id}' is already in the database!`);
+
+  // TODO: create all the typical password salting stuff to hash passwords
+  // and add middlewares on the websockets for protected routes
   await new User({_id: id, username: username, password: password}).save(); 
   console.log(`[MANGOLIA]: User with uuid '${id}' added to the database!`);
 }
 
 /**      MACHINE DATABASE HANDLING       */
-const Machine = require("./models/Machine.js");
+const Machine = require("@/models/Machine.js");
 
 /**
  * Attempts to create a machine and save them to the database
@@ -111,7 +115,7 @@ async function addMachineToDB(staticData){
 }
 
 /**      STATS DATABASE HANDLING       */
-const Stats = require("./models/Stats.js");
+const Stats = require("@/models/Stats.js");
 
 /**
  * Creates a stats report and saves it to database
