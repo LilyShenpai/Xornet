@@ -46,6 +46,15 @@ function parse(report, machinesPings) {
   // Append Ping from ping buffer. The first report has an Empty UUID so we set the ping to 0 to make the report valid
   report.ping = machinesPings.get(report.uuid) ?? 0;
 
+  // Make sure we only have know platforms or unknown
+  if (
+    report.platform !== "linux" &&
+    report.platform !== "win32" &&
+    report.platform !== "darwin"
+  ) {
+    report.platform = "unknown";
+  }
+
   if (!Array.isArray(report.network)) return report;
 
   // Clear out null interfaces
@@ -100,6 +109,9 @@ function validate(report, latestVersion) {
   isValidNumber(report.timestamp)
 
   isValidBoolean(report.isVirtual);
+
+  isValidObject(report.disks);
+  isValidDisksArray(report.disks);
 }
 
 function isValidUuid(uuid) {
@@ -131,11 +143,21 @@ function isValidBoolean(value) {
 }
 
 function isValidObject(value) {
-  if (typeof value !== "object") throw new Error(`"${value}" is not an Array`);
+  if (typeof value !== "object") throw new Error(`"${value}" is not an Object`);
 }
 
 function isNotEmpty(value) {
   if (value === null || value === undefined || value === "" || value.length === 0) throw new Error(`"${value}" is Empty`);
+}
+
+function isValidDisksArray(value) {
+  if (!value.forEach) throw new Error("Disks value is not an Array");
+
+  value.forEach(value => {
+    isNotEmpty(value.fs);
+    isValidNumber(value.use);
+    isNotNegative(value.use);
+  });
 }
 
 module.exports = reportParser;
