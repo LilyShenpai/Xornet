@@ -43,8 +43,8 @@ function parse(report, machinesPings) {
     formatted: formatSeconds(report.uptime),
   };
 
-  // Append Ping from ping buffer
-  report.ping = machinesPings.get(report.uuid);
+  // Append Ping from ping buffer. The first report has an Empty UUID so we set the ping to 0 to make the report valid
+  report.ping = machinesPings.get(report.uuid) ?? 0;
 
   if (!Array.isArray(report.network)) return report;
 
@@ -72,8 +72,9 @@ function validate(report, latestVersion) {
   isValidUuid(report.uuid);
   hasNoWhiteSpaces(report.uuid);
 
-  isValidHostName(report.name);
-  hasNoWhiteSpaces(report.name);
+  isNotEmpty(report.hostname)
+  isValidHostName(report.hostname);
+  hasNoWhiteSpaces(report.hostname);
 
   isValidNumber(report.reporterVersion);
   versionIsValid(report.reporterVersion, latestVersion);
@@ -91,6 +92,12 @@ function validate(report, latestVersion) {
   isNotNegative(report.network.TxSec);
   isValidNumber(report.network.RxSec);
   isNotNegative(report.network.RxSec);
+
+  isValidNumber(report.ping);
+
+  isValidNumber(report.uptime.pure);
+
+  isValidNumber(report.timestamp)
 
   isValidBoolean(report.isVirtual);
 }
@@ -125,6 +132,10 @@ function isValidBoolean(value) {
 
 function isValidObject(value) {
   if (typeof value !== "object") throw new Error(`"${value}" is not an Array`);
+}
+
+function isNotEmpty(value) {
+  if (value === null || value === undefined || value === "" || value.length === 0) throw new Error(`"${value}" is Empty`);
 }
 
 module.exports = reportParser;
