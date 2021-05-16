@@ -7,8 +7,8 @@ const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
-const reportParser = require("./util/reportParser");
-app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"')); // Enable HTTP code logs
+const parseReport = require("./util/parseReport");
+app.use(morgan('dev')); // Enable HTTP code logs
 
 /**
  * All machines connected to Xornet
@@ -71,7 +71,7 @@ io.on("connection", async (socket) => {
     report.geolocation = socket.handshake.auth.static.geolocation;
     if (report.geolocation) delete report.geolocation.ip;
 
-    report = reportParser(report, latestVersion, machinesPings);
+    report = parseReport(report, latestVersion, machinesPings);
 
     // Add to ram
     machines.set(report.uuid, report);

@@ -1,8 +1,8 @@
 const assert = require("assert");
-const reportParser = require('../util/reportParser');
+const parseReport = require('../util/parseReport');
 
-describe("ReportParser Test Suit", () => {
-  it("Test ReportParser with valid Report", () => {
+describe("parseReport Test Suit", () => {
+  it("Test parseReport with valid Report", () => {
     const report = {
       uuid: "123456789012345678901234567890ab",
       isVirtual: false,
@@ -29,7 +29,7 @@ describe("ReportParser Test Suit", () => {
 
     const machinePings = new Map([["123456789012345678901234567890ab", 30]]);
 
-    const actualReport = reportParser(report, 0.12, machinePings);
+    const actualReport = parseReport(report, 0.12, machinePings);
 
     const expectedReport = {
       uuid: '123456789012345678901234567890ab',

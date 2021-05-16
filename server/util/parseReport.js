@@ -9,7 +9,7 @@ const whiteSpacesInStringRegex = /\s/;
  * @param machinesPings {Map} the machinesPings Map
  * @returns {Object} A validated and parsed report
  */
-function reportParser(report, latestVersion, machinesPings) {
+function parseReport(report, latestVersion, machinesPings) {
   report = parse(report, machinesPings);
 
   try {
@@ -176,4 +176,4 @@ function isValidDisksArray(value) {
   });
 }
 
-module.exports = reportParser;
+module.exports = parseReport;
