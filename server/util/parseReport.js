@@ -66,8 +66,6 @@ function parse(report, machinesPings) {
     report.platform = "unknown";
   }
 
-  if (!Array.isArray(report.network)) return report;
-
   // Clear out null interfaces
   report.network = report.network.filter((iFace) => iFace.tx_sec !== null && iFace.rx_sec !== null);
 
@@ -98,46 +96,56 @@ function parse(report, machinesPings) {
 
 /**
  * @param report {Object} A parsed report
- * @param latestVersion {number} the latest version of Xornet
+ * @param latestVersion {number} the latest version of Xornet Reporter
  * @throws Error when theres an Invalid value in the parsed report
  */
 function validate(report, latestVersion) {
+  // Validate UUIDs
   isValidUuid(report.uuid);
   hasNoWhiteSpaces(report.uuid);
 
+  // Validate hostname
   isNotEmpty(report.hostname)
   isValidHostName(report.hostname);
   hasNoWhiteSpaces(report.hostname);
 
+  // Validate reporterVersion
   isValidNumber(report.reporterVersion);
   versionIsValid(report.reporterVersion, latestVersion);
-
+  
+  // Validate ram
   isValidNumber(report.ram.used);
   isValidNumber(report.ram.total);
   isValidNumber(report.ram.free);
   isNotNegative(report.ram.used);
 
+  // Validate CPUs
   isValidNumber(report.cpu);
   isNotNegative(report.cpu);
 
+  // Validate netowkr
   isValidObject(report.network);
   isValidNumber(report.network.TxSec);
   isNotNegative(report.network.TxSec);
   isValidNumber(report.network.RxSec);
   isNotNegative(report.network.RxSec);
 
+  // Validate ping
   isValidNumber(report.ping);
 
+  // Validate uptime
   isValidNumber(report.uptime.pure);
 
+  // Validate timestamp
   isValidNumber(report.timestamp)
 
   isValidBoolean(report.isVirtual);
-
+  // Validate disks
   isValidObject(report.disks);
-  isValidDisksArray(report.disks);
+  isValidDisksArray(report.disks, report.platform);
 }
 
+// Validators
 function isValidUuid(uuid) {
   if (!uuidRegex.test(uuid)) throw new Error(`"${uuid}" is not a valid UUID!`);
 }
@@ -146,16 +154,88 @@ function isValidHostName(host) {
   if (!hostnameRegex.test(host)) throw new Error(`"${host}" is not a valid UUID!`);
 }
 
+function versionIsValid(currentVersion, latestVersion) {
+  if (currentVersion > latestVersion + 0.01 || currentVersion < 0) throw new Error(`"${currentVersion}" is not a valid Version`);
+}
+
+function isValidFS(fs, platform){
+  isNotEmpty(fs);
+
+  let windowsRegex = /[A-Z]:{2}/g;
+  let linuxRegex = /^\/dev\/s\w*/g;
+
+  switch (platform) {
+    case "win32":
+      if(windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
+      break;
+    case "linux":
+      if(linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
+    default:
+      break;
+  }
+}
+
+function isValidFileSystemType(fileSystemType, platform){
+  isNotEmpty(fileSystemType);
+
+  const windowsFileSystems = ["FAT", "NTFS", "exFAT"];
+  const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs"];
+
+  switch (platform) {
+    case "win32":
+      if(!windowsFileSystems.includes(fileSystemType.toUpperCase())) throw new Error(`"${fileSystemType}" is not a valid file system`);
+      break;
+    case "linux":
+      if(!linuxFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
+    default:
+      break;
+  }
+}
+
+function isValidMount(mount, fs, platform){
+  isNotEmpty(mount);
+
+  switch (platform) {
+    case "win32":
+      if(mount !== fs) throw new Error(`"${mount}" is not a valid mount`);
+      break;
+    case "linux":
+      if(!mount.startsWith("/")) throw new Error(`"${mount}" is not a valid mount`);
+    default:
+      break;
+  }
+}
+
+function isValidDisksArray(disk, platform) {
+  if (!disk.forEach) throw new Error("Disks disk is not an Array");
+  
+  disk.forEach(disk => {
+    isValidFS(disk.fs, platform);
+    isValidFileSystemType(disk.type, platform);
+
+    isValidNumber(disk.size);
+    isNotNegative(disk.size);
+
+    isValidNumber(disk.used);
+    isNotNegative(disk.used);
+
+    isValidNumber(disk.available);
+    isNotNegative(disk.available);
+
+    isValidNumber(disk.use);
+    isNotNegative(disk.use);
+
+    isValidMount(disk.mount, disk.fs, platform);
+  });
+}
+
+// Abstract Validators
 function hasNoWhiteSpaces(value) {
   if (whiteSpacesInStringRegex.test(value)) throw new Error(`"${value}" has Whitespaces`);
 }
 
 function isValidNumber(value) {
   if (typeof value !== "number" || isNaN(value)) throw new Error(`"${value}" is not a Valid number`);
-}
-
-function versionIsValid(value, latestVersion) {
-  if (value > latestVersion + 0.01 || value < Math.floor(latestVersion)) throw new Error(`"${value}" is not a valid Version`);
 }
 
 function isNotNegative(value) {
@@ -172,39 +252,6 @@ function isValidObject(value) {
 
 function isNotEmpty(value) {
   if (value === null || value === undefined || value === "" || value.length === 0) throw new Error(`"${value}" is Empty`);
-}
-
-function isValidDisksArray(value) {
-  if (!value.forEach) throw new Error("Disks value is not an Array");
-  // {
-  //   fs: 'X:',
-  //   type: 'NTFS',
-  //   size: 7997210226688,
-  //   used: 3803645599744,
-  //   available: 4193564626944,
-  //   use: 47.56,
-  //   mount: 'X:'
-  // }
-
-  value.forEach(value => {
-    isNotEmpty(value.fs);
-
-    isNotEmpty(value.type);
-
-    isValidNumber(value.size);
-    isNotNegative(value.size);
-
-    isValidNumber(value.used);
-    isNotNegative(value.used);
-
-    isValidNumber(value.available);
-    isNotNegative(value.available);
-
-    isValidNumber(value.use);
-    isNotNegative(value.use);
-
-    isNotEmpty(value.mount);
-  });
 }
 
 module.exports = parseReport;
