@@ -16,7 +16,8 @@ function parseReport(report, latestVersion, machinesPings) {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-    console.log("[WARN] Got invalid Report from reporter");
+      console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
+      // console.log("[WARN] Got invalid Report from reporter"); 
     if (process.env.APP_ENV === "testing") {
       console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
     }
@@ -161,15 +162,15 @@ function versionIsValid(currentVersion, latestVersion) {
 function isValidFS(fs, platform){
   isNotEmpty(fs);
 
-  let windowsRegex = /[A-Z]:{2}/g;
+  let windowsRegex = /[A-Z]:$/g;
   let linuxRegex = /^\/dev\/s\w*/g;
 
   switch (platform) {
     case "win32":
-      if(windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
+      if(!windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
       break;
     case "linux":
-      if(linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
+      if(!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
     default:
       break;
   }
@@ -183,10 +184,11 @@ function isValidFileSystemType(fileSystemType, platform){
 
   switch (platform) {
     case "win32":
-      if(!windowsFileSystems.includes(fileSystemType.toUpperCase())) throw new Error(`"${fileSystemType}" is not a valid file system`);
+      if(!windowsFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
       break;
     case "linux":
       if(!linuxFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
+      break;
     default:
       break;
   }
@@ -201,6 +203,7 @@ function isValidMount(mount, fs, platform){
       break;
     case "linux":
       if(!mount.startsWith("/")) throw new Error(`"${mount}" is not a valid mount`);
+      break;
     default:
       break;
   }
