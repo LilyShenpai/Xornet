@@ -45,8 +45,8 @@ describe("parseReport Test Suit", () => {
       disks: [
         {fs: 'C:', type: 'NTFS', size: 465.16, used: 295.01, available: 170.15, use: 63.42, mount: 'C:'},
         {fs: 'D:', type: 'NTFS', size: 2794.52, used: 1700.84, available: 1093.68, use: 60.86, mount: 'D:'},
-        {fs: 'X:', type: 'NTFS', size: 7447.98, used: 3542.42, available: 3905.56, use: 47.56, mount: 'X:'},
-        {fs: 'maliciousText', type: 'maliciousFilesystem', size: 'troll', used: 'lolmelting', available: 'yourmom', use: '13.37', mount: 'xornet:'}
+        {fs: 'X:', type: 'NTFS', size: 7447.98, used: 3542.42, available: 3905.56, use: 47.56, mount: 'X:'}, 
+        {fs: 'maliciousText', type: 'maliciousFilesystem', size: NaN, used: NaN, available: NaN, use: '13.37', mount: 'xornet:'}
       ],
       uptime: { pure: 300, formatted: '0d 0h 5m 0s' },
       reporterUptime: 200,
