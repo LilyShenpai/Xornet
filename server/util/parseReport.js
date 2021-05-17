@@ -32,6 +32,9 @@ function parseReport(report, latestVersion, machinesPings) {
  * @returns {Object} The parsed report
  */
 function parse(report, machinesPings) {
+
+  if (report.network?.length == 0) report.network = [];
+
   report.rogue = false;
 
   if (report.ram === null || report.ram === undefined) report.ram = {};
@@ -67,11 +70,12 @@ function parse(report, machinesPings) {
     report.platform = "unknown";
   }
 
+
   // Clear out null interfaces
-  report.network = report.network?.filter((iFace) => iFace.tx_sec !== null && iFace.rx_sec !== null);
+  report.network = report.network.filter((iFace) => iFace.tx_sec !== null && iFace.rx_sec !== null);
 
   // Get total network interfaces
-  const totalInterfaces = report.network?.length;
+  const totalInterfaces = report.network.length;
 
   // Combine all bandwidth together
   const txSec = (report.network.reduce((a, b) => a + b.tx_sec, 0) * 8) / 1000 / 1000;
