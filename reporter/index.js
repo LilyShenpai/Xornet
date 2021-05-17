@@ -10,7 +10,8 @@ require("colors");
  * Current version of Xornet Reporter
  * @type {number}
  */
-const version = 0.13;
+
+const version = 0.14;
 const logo = [
   "     ___           ___           ___           ___           ___           ___     \n",
   "    |\\__\\         /\\  \\         /\\  \\         /\\__\\         /\\  \\         /\\  \\    \n",
