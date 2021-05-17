@@ -2,6 +2,9 @@ const formatSeconds = require("./formatSeconds")
 const uuidRegex = /[a-f0-9]{32}/;
 const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const whiteSpacesInStringRegex = /\s/;
+const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT", "UDF"];
+const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs", "vfat"];
+const macosFileSystems = ["HFS", "APFS"];
 
 /**
  * @param report {Object} A raw report from a reporter
@@ -174,16 +177,13 @@ function isValidFS(fs, platform){
       if(!windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
       break;
     case "linux":
+    case "darwin":
       if(!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
-    default:
-      break;
   }
 }
 
 function isValidFileSystemType(fileSystemType, platform){
   isNotEmpty(fileSystemType);
-  const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT", "UDF"];
-  const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs", "vfat"];
 
   switch (platform) {
     case "win32":
@@ -192,7 +192,8 @@ function isValidFileSystemType(fileSystemType, platform){
     case "linux":
       if(!linuxFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
       break;
-    default:
+    case "darwin":
+      if(!macosFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
       break;
   }
 }
@@ -205,9 +206,8 @@ function isValidMount(mount, fs, platform){
       if(mount !== fs) throw new Error(`"${mount}" is not a valid mount`);
       break;
     case "linux":
+    case "darwin":
       if(!mount.startsWith("/")) throw new Error(`"${mount}" is not a valid mount`);
-      break;
-    default:
       break;
   }
 }
