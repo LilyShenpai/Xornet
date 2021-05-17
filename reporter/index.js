@@ -11,7 +11,7 @@ require("colors");
  * @type {number}
  */
 
-const version = 0.14;
+const version = 0.15;
 const logo = [
   "     ___           ___           ___           ___           ___           ___     \n",
   "    |\\__\\         /\\  \\         /\\  \\         /\\__\\         /\\  \\         /\\  \\    \n",
@@ -81,15 +81,14 @@ async function checkForUpdates() {
       console.log(error);
       if (error.response.status === 403) {
         console.log("[WARN]".bgYellow.black + ` GitHub API error, skipping...`);
-        connectToXornet();
-        return;
+        return connectToXornet();
       }
       console.log(
         "[WARN]".bgYellow.black + ` Backend server is offline, skipping update`
       );
       console.log("[INFO]".bgCyan.black + ` Waiting for backend to connect...`);
       console.log("[INFO]".bgCyan.black + ` UUID: ${staticData.system.uuid}`.cyan);
-      connectToXornet();
+      return connectToXornet();
     }
   }
 
@@ -113,7 +112,7 @@ async function checkForUpdates() {
     );
   }
 
-  connectToXornet();
+  return connectToXornet();
 }
 
 /**

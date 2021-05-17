@@ -23,7 +23,7 @@ let machinesPings = new Map();
  * Latest version of Reporter
  * @type {number}
  */
-let latestVersion = 0.13;
+let latestVersion = 0.14;
 
 app.get("/updates", async (req, res) => {
   let latestVersion;
