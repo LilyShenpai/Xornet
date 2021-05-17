@@ -20,7 +20,7 @@ describe("parseReport Test Suit", () => {
       reporterVersion: 0.12,
       disks: [
         {fs: 'C:', type: 'NTFS', size: 499461910528, used: 316761124864, available: 182700785664, use: 63.42, mount: 'C:'},
-        {fs: 'D:', type: 'NTFS', size: 3000591446016, used: 1826259214336, available: 1174332231680, use: 60.86, mount: 'D:'},
+        {fs: 'D:', type: 'FAT32', size: 3000591446016, used: 1826259214336, available: 1174332231680, use: 60.86, mount: 'D:'},
         {fs: 'X:', type: 'NTFS', size: 7997210226688, used: 3803645599744, available: 4193564626944, use: 47.56, mount: 'X:'},
       ],
       uptime: 300,
@@ -43,7 +43,7 @@ describe("parseReport Test Suit", () => {
       reporterVersion: 0.12,
       disks: [
         {fs: 'C:', type: 'NTFS', size: 465.16, used: 295.01, available: 170.15, use: 63.42, mount: 'C:'},
-        {fs: 'D:', type: 'NTFS', size: 2794.52, used: 1700.84, available: 1093.68, use: 60.86, mount: 'D:'},
+        {fs: 'D:', type: 'FAT32', size: 2794.52, used: 1700.84, available: 1093.68, use: 60.86, mount: 'D:'},
         {fs: 'X:', type: 'NTFS', size: 7447.98, used: 3542.42, available: 3905.56, use: 47.56, mount: 'X:'}, 
       ],
       uptime: { pure: 300, formatted: '0d 0h 5m 0s' },

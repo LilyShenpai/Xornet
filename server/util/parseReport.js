@@ -16,8 +16,8 @@ function parseReport(report, latestVersion, machinesPings) {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-      console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
-      // console.log("[WARN] Got invalid Report from reporter"); 
+      // if(report.uuid == '032e02b40499059dca062c0700080009') console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
+      console.log("[WARN] Got invalid Report from reporter"); 
     if (process.env.APP_ENV === "testing") {
       console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
     }
@@ -68,10 +68,10 @@ function parse(report, machinesPings) {
   }
 
   // Clear out null interfaces
-  report.network = report.network.filter((iFace) => iFace.tx_sec !== null && iFace.rx_sec !== null);
+  report.network = report.network?.filter((iFace) => iFace.tx_sec !== null && iFace.rx_sec !== null);
 
   // Get total network interfaces
-  const totalInterfaces = report.network.length;
+  const totalInterfaces = report.network?.length;
 
   // Combine all bandwidth together
   const txSec = (report.network.reduce((a, b) => a + b.tx_sec, 0) * 8) / 1000 / 1000;
@@ -179,7 +179,7 @@ function isValidFS(fs, platform){
 function isValidFileSystemType(fileSystemType, platform){
   isNotEmpty(fileSystemType);
 
-  const windowsFileSystems = ["FAT", "NTFS", "exFAT"];
+  const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT"];
   const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs"];
 
   switch (platform) {
