@@ -16,7 +16,7 @@ function parseReport(report, latestVersion, machinesPings) {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-      // if(report.uuid == '032e02b40499059dca062c0700080009') console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
+      // if(report.uuid == 'a2c3174dbcdf4196b02b232cf4a49b14') console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
       console.log("[WARN] Got invalid Report from reporter"); 
     if (process.env.APP_ENV === "testing") {
       console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
@@ -163,7 +163,7 @@ function isValidFS(fs, platform){
   isNotEmpty(fs);
 
   let windowsRegex = /[A-Z]:$/g;
-  let linuxRegex = /^\/dev\/s\w*/g;
+  let linuxRegex = /^\/dev\/\w*/g;
 
   switch (platform) {
     case "win32":
@@ -178,9 +178,8 @@ function isValidFS(fs, platform){
 
 function isValidFileSystemType(fileSystemType, platform){
   isNotEmpty(fileSystemType);
-
-  const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT"];
-  const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs"];
+  const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT", "UDF"];
+  const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs", "vfat"];
 
   switch (platform) {
     case "win32":
