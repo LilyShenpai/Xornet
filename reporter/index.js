@@ -173,21 +173,6 @@ async function getLocation() {
 }
 
 /**
- * Gets the systems disk information using 'systeminformation' and returns it as an object.
- * @returns {object}
- */
-async function getDiskInfo() {
-  let disks = await si.fsSize();
-  disks = disks.map((disk) => {
-    return {
-      fs: disk.fs,
-      use: disk.use,
-    };
-  });
-  return disks;
-}
-
-/**
  * Collects all the statistics from the system and returns an Object.
  * @returns {Object} with all stats for the report
  */
@@ -238,7 +223,7 @@ async function getStats() {
     cpu: data.currentLoad.currentLoad,
     network: data.networkStats,
     reporterVersion: version,
-    disks: await getDiskInfo(),
+    disks: await si.fsSize(),
     uptime: os.uptime(),
     reporterUptime: Date.now() - reporterStartTime,
     timestamp: Date.now(),

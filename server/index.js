@@ -7,7 +7,9 @@ const axios = require("axios");
 const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const http = require("http").createServer(app);
-const io = require("socket.io")(http, { cors: { origin: "*" } });
+const io = require("socket.io")(http, { 
+  cors: { origin: "*" },
+});
 const parseReport = require("@/util/parseReport");
 app.use(morgan('dev')); // Enable HTTP code logs
 
@@ -46,6 +48,13 @@ setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
   io.sockets.in('reporter').emit('heartbeat', Date.now());
 }, 1000);
+
+io.engine.on("connection_error", err => {
+  console.log(err.req);
+  console.log(err.code);
+  console.log(err.message);
+  console.log(err.content);
+});
 
 // Websockets
 io.on("connection", async (socket) => {

@@ -85,6 +85,14 @@ function parse(report, machinesPings) {
     RxSec: parseFloat(rxSec.toFixed(2)),
   };
 
+  // Parse disks
+  report.disks = report.disks.map(disk => {
+    disk.size = parseFloat((disk.size / 1024 / 1024 / 1024).toFixed(2));
+    disk.used = parseFloat((disk.used / 1024 / 1024 / 1024).toFixed(2));
+    disk.available = parseFloat((disk.available / 1024 / 1024 / 1024).toFixed(2));
+    return disk;
+  })
+
   return report;
 }
 
@@ -168,11 +176,34 @@ function isNotEmpty(value) {
 
 function isValidDisksArray(value) {
   if (!value.forEach) throw new Error("Disks value is not an Array");
+  // {
+  //   fs: 'X:',
+  //   type: 'NTFS',
+  //   size: 7997210226688,
+  //   used: 3803645599744,
+  //   available: 4193564626944,
+  //   use: 47.56,
+  //   mount: 'X:'
+  // }
 
   value.forEach(value => {
     isNotEmpty(value.fs);
+
+    isNotEmpty(value.type);
+
+    isValidNumber(value.size);
+    isNotNegative(value.size);
+
+    isValidNumber(value.used);
+    isNotNegative(value.used);
+
+    isValidNumber(value.available);
+    isNotNegative(value.available);
+
     isValidNumber(value.use);
     isNotNegative(value.use);
+
+    isNotEmpty(value.mount);
   });
 }
 
