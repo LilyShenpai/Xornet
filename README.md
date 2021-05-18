@@ -16,6 +16,7 @@ The compiled binaries work on the following operating systems:
   - Debian
   - Windows 10
   - Windows Server 2019
+  - MacOS
 
 The reporter can be run using node.js at least on:
   - Debian
