@@ -18,13 +18,14 @@ The compiled binaries work on the following operating systems:
   - Windows Server 2019
   - MacOS
 
-The reporter can be run using node.js at least on:
+The decompiled reporter can be ran using node.js at least on:
   - Debian
   - Ubuntu
   - Manjaro
   - Raspbian
   - Windows 10
   - Windows Server 2019
+  - MacOS
   
 # Disclaimer
 We don't know how to code, if you get hacked, its your fault for not committing.
