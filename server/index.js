@@ -6,13 +6,16 @@ const morgan = require("morgan");
 const axios = require("axios");
 const port = process.env.BACKEND_PORT || 8080;
 const app = express();
+const cors = require('cors')
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { 
-  cors: { origin: "*" },
+  cors: { origin: "http://xornet.cloud" },
 });
 const parseReport = require("@/util/parseReport");
 app.use(morgan('dev')); // Enable HTTP code logs
-
+app.use(cors({
+  origin: 'http://xornet.cloud',
+}))
 /**
  * All machines connected to Xornet
  */
@@ -39,6 +42,20 @@ app.get("/updates", async (req, res) => {
     downloadLink: `https://github.com/Geoxor/Xornet/releases/download/v${latestVersion}/xornet-reporter-v${latestVersion}`,
   });
 });
+
+app.get('/stats', (req, res) => {
+  res.json({
+    totalMachines: machines.size,
+    totalTraffic: getTotalTraffic(),
+    totalCores: getTotalTraffic(),
+    totalRam: Math.ceil(Array.from(machines.values()).reduce((a, b) => a + b.ram.total, 0)),
+  });
+});
+
+
+function getTotalTraffic(){
+  return 500;
+}
 
 setInterval(() => {
   machines.clear();
