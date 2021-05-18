@@ -81,17 +81,11 @@ io.engine.on("connection_error", err => {
 // Websockets
 io.on("connection", async (socket) => {
   if (socket.handshake.auth.type === "client") socket.join("client");
-  if (socket.handshake.auth.type === "reporter") {
+  if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== '') {
     await addMachineToDB(socket.handshake.auth.static);
     socket.join("reporter");
   }
   if (!socket.handshake.auth.type) return socket.disconnect();
-
-  console.log({
-    type: socket.handshake.auth.type,
-    uuid: socket.handshake.auth.uuid,
-    // hostname: socket.handshake.auth.static.os.hostname,
-  });
 
   // Calculate ping and append it to the machine map
   socket.on('heartbeatResponse', heartbeat => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
