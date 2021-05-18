@@ -21,6 +21,7 @@ app.use(cors({
  */
 let machines = new Map();
 let machinesPings = new Map();
+let machinesStatic = new Map();
 
 /**
  * Latest version of Reporter
@@ -44,12 +45,16 @@ app.get("/updates", async (req, res) => {
 });
 
 app.get('/stats', (req, res) => {
-  res.json({
+
+  let object = {
     totalMachines: machines.size,
     totalTraffic: getTotalTraffic(),
-    totalCores: getTotalTraffic(),
+    totalCores: Array.from(machinesStatic.values()).reduce((a, b) => a + b.static.cpu.cores, 0),
     totalRam: Math.ceil(Array.from(machines.values()).reduce((a, b) => a + b.ram.total, 0)),
-  });
+  };
+
+  console.log(object);
+  res.json(object);
 });
 
 
@@ -102,6 +107,7 @@ io.on("connection", async (socket) => {
 
     // Add to ram
     machines.set(report.uuid, report);
+    machinesStatic.set(report.uuid, socket.handshake.auth);
 
     // Add to database
     if (!report.rogue) await addStatsToDB(report);
