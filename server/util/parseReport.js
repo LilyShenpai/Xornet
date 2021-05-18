@@ -36,7 +36,7 @@ function parseReport(report, latestVersion, machinesPings) {
  */
 function parse(report, machinesPings) {
 
-  if (report.network?.length == 0) report.network = [];
+  if (!report.network || report.network.length == 0) report.network = [];
 
   report.rogue = false;
 
