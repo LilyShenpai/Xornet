@@ -1,3 +1,16 @@
+// We will have 3 types of user types
+// Masteradmin
+// Admins - Who own a datacenter
+// Users who use VMs/servers from a datacenter
+
+// Master admins will be able to see everything on Xornet
+// Admins will be able to see all their machines that have in their datacenter
+
+// Datacenter Model that assigns machines to a datacenter so we can determine which account owns what computers
+
+// Add machine to the datacenter / xornet through the website
+// Create add machine, add datacenter, add admins, wizards in the frontend
+
 require('dotenv').config();
 require('module-alias/register');
 const { v4: uuidv4 } = require('uuid');
@@ -43,18 +56,19 @@ app.get("/updates", async (req, res) => {
     downloadLink: `https://github.com/Geoxor/Xornet/releases/download/v${latestVersion}/xornet-reporter-v${latestVersion}`,
   });
 });
-
-app.get('/stats', (req, res) => {
+app.get('/stats', async (req, res) => {
 
   let object = {
     totalMachines: machines.size,
-    totalTraffic: getTotalTraffic(),
+    totalTraffic: ((await Stats.fetchDailyTraffic(86400000)).total_megabytes / 1000).toFixed(2),
     totalCores: Array.from(machinesStatic.values()).reduce((a, b) => a + b.static.cpu.cores, 0),
     totalRam: Math.ceil(Array.from(machines.values()).reduce((a, b) => a + b.ram.total, 0)),
   };
 
-  console.log(object);
   res.json(object);
+});
+app.get("/daily-traffic", async (req, res) => {
+  res.json(await Stats.fetchDailyTraffic(86400000));
 });
 
 
