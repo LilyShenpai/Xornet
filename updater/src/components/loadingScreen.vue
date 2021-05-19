@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import logo from '@/components/logo';
+import logo from '@/components/dashboard/logo';
 export default {
     name: 'loadingScreen',
     components: {

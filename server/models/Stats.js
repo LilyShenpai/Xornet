@@ -47,8 +47,6 @@ schema.statics.fetchDailyTraffic = async function(timeOffset) {
         total_megabytes: (networkTotal / 8).toFixed(2),
     };
 }
-
-
 let Stats = mongoose.model('Stats', schema);
 
 module.exports = Stats;
