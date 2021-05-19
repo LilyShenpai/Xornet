@@ -1,17 +1,17 @@
 <template>
   <div v-if="isVisible" class="loadingScreen">
-      <logo class="logo"/>
+      <Logo class="logo"/>
       <progress :value="60" max="100"></progress>
       Downloading Reporter Update
   </div>
 </template>
 
 <script>
-import logo from '@/components/dashboard/logo';
+import Logo from '@/components/dashboard/Logo';
 export default {
     name: 'loadingScreen',
     components: {
-        logo
+        Logo
     },
     data: () => {
         return {
