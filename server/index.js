@@ -113,6 +113,8 @@ io.on("connection", async (socket) => {
 
     report = parseReport(report, latestVersion, machinesPings);
 
+    if (Object.values(report).some(field => field == null)) return;
+
     // Add to ram
     machines.set(report.uuid, report);
     machinesStatic.set(report.uuid, socket.handshake.auth);
