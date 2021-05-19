@@ -66,39 +66,43 @@ fn ws_test(system: sysinfo::System) {
 	    println!("Ack data: {:#?}", message);
 	};
 
-	let json_payload = json!({
-		"uuid": "b89734fb689743",
-		"isVirtual": false,
-		"hostname": system.get_host_name(),
-		"platform": system.get_name(),
-		"ram": {
-		  "total": 420,
-		  "free": 69,
-		},
-		"cpu": 23,
-
-		"network": [{ "tx_sec": n_total_in, "rx_sec": n_total_out }],
-		"reporterVersion": 0.16,
-		"disks": {
-			"fs": "G:",
-			"type": "NTFS",
-			"size": 119489134592i64,
-			"used": 55407673344i64,
-			"available": 64081461248i64,
-			"use": 46.37,
-			"mount": "G:"
-		  },
-		"uptime": 232337,
-		"reporterUptime": 58666182,
-		"timestamp": 1621427023724i64,
-	  });
-	// emit with an ack
-	let ack = socket
-	    .emit_with_ack("report", json_payload, Duration::from_secs(2), ack_callback)
-	    .expect("Server unreachable");
-
 	// println!("Stats:             {:?}", json_payload);
 	// socket.on("bar", )
+	let handle = std::thread::spawn(move || loop {
+		let json_payload = json!({
+			"uuid": "b89734fb689743",
+			"isVirtual": false,
+			"hostname": system.get_host_name(),
+			"platform": system.get_name(),
+			"ram": {
+			  "total": 420,
+			  "free": 69,
+			},
+			"cpu": 23,
+	
+			"network": [{ "tx_sec": n_total_in, "rx_sec": n_total_out }],
+			"reporterVersion": 0.16,
+			"disks": {
+				"fs": "G:",
+				"type": "NTFS",
+				"size": 119489134592i64,
+				"used": 55407673344i64,
+				"available": 64081461248i64,
+				"use": 46.37,
+				"mount": "G:"
+			  },
+			"uptime": 232337,
+			"reporterUptime": 58666182,
+			"timestamp": 1621427023724i64,
+		  });
+		// emit with an ack
+		let ack = socket
+	    .emit_with_ack("report", json_payload, Duration::from_secs(2), ack_callback)
+	    .expect("Server unreachable");
+		let time_to_wait = Duration::from_millis(1000);
+		thread::sleep(time_to_wait);
+	});
+    handle.join().unwrap();
 }
 
 // fn set_interval<F, Fut>(mut f: F, dur: time::Duration)
