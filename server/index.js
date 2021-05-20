@@ -104,6 +104,10 @@ io.on("connection", async (socket) => {
   // Calculate ping and append it to the machine map
   socket.on('heartbeatResponse', heartbeat => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
 
+  socket.on('cli', cli => {
+    console.log(cli);
+  });
+
   // Parse reports
   // Report is what is collected from the Reporter
   socket.on("report", async (report) => {
