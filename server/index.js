@@ -106,15 +106,14 @@ io.on("connection", async (socket) => {
   // Calculate ping and append it to the machine map
   socket.on('heartbeatResponse', heartbeat => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
 
-  // Create a new pty service when client connects.
-  let pty = new PTYService(socket);
+  
+  
+  // This should be moved into the reporters and be secured
 
-  // Attach event listener for socket.io
-  socket.on("input", input => {
-    // Runs this listener when socket receives "input" events from socket.io client.
-    // input event is emitted on client side when user types in terminal UI
-    pty.write(input);
-  });
+  // let pty = new PTYService(socket);
+  // socket.on("input", input => {
+  //   pty.write(input);
+  // });
 
 
   // Parse reports
