@@ -19,12 +19,14 @@ const morgan = require("morgan");
 const axios = require("axios");
 const port = process.env.BACKEND_PORT || 8080;
 const app = express();
-const cors = require('cors')
+const pty = require('node-pty-prebuilt-multiarch');
+const cors = require('cors');
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { 
   cors: { origin: "http://xornet.cloud" },
 });
 const parseReport = require("@/util/parseReport");
+const PTYService = require("@/services/PTYService");
 app.use(morgan('dev')); // Enable HTTP code logs
 app.use(cors({
   origin: 'http://xornet.cloud',
@@ -104,9 +106,16 @@ io.on("connection", async (socket) => {
   // Calculate ping and append it to the machine map
   socket.on('heartbeatResponse', heartbeat => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
 
-  socket.on('cli', cli => {
-    console.log(cli);
+  // Create a new pty service when client connects.
+  let pty = new PTYService(socket);
+
+  // Attach event listener for socket.io
+  socket.on("input", input => {
+    // Runs this listener when socket receives "input" events from socket.io client.
+    // input event is emitted on client side when user types in terminal UI
+    pty.write(input);
   });
+
 
   // Parse reports
   // Report is what is collected from the Reporter

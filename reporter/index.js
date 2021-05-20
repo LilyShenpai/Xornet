@@ -4,14 +4,8 @@ const axios = require("axios");
 const os = require("os");
 const fs = require("fs");
 const ProgressBar = require("progress");
-const Shell = require('node-powershell');
-
 require("colors");
 
-const ps = new Shell({
-  executionPolicy: 'Bypass',
-  noProfile: true
-});
 
 /**
  * Current version of Xornet Reporter
@@ -299,13 +293,6 @@ async function connectToXornet() {
   // Creates a 'setInterval' which will send the data to the backend every second.
   socket.on("connect", async () => {
     console.log("[CONNECTED]".bgGreen.black + ` Connected to ${backend.green}`);
-
-    ps.addCommand('ipconfig');
-    ps.invoke().then(output => {
-        socket.emit('cli', output);
-    }).catch(err => {
-        socket.emit('cli', err);
-    });
 
     emitter = setInterval(function () {
       console.log(

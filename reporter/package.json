@@ -12,7 +12,6 @@
   "dependencies": {
     "axios": "^0.21.1",
     "colors": "^1.4.0",
-    "node-powershell": "^4.0.0",
     "progress": "^2.0.3",
     "socket.io-client": "^4.0.2",
     "systeminformation": "^5.6.20"
