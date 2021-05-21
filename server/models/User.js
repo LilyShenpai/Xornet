@@ -15,4 +15,21 @@ const schema = new Schema({
     versionKey: false // You should be aware of the outcome after set to false
 });
 
+
+/**
+ * Attempts to create a user and save them to the database
+ * @param {String} [id] the uuid of the user
+ * @param {String} [username] the username of the user
+ * @param {String} [password] the encrypted password of the user
+ */
+schema.statics.addUserToDB = async function (id, username, password){
+    const users = await User.find({ _id: id}).exec()
+    if (users.length !== 0) return console.warn(`[MANGOLIA]: User with uuid '${id}' is already in the database!`);
+  
+    // TODO: create all the typical password salting stuff to hash passwords
+    // and add middlewares on the websockets for protected routes
+    await new this({_id: id, username: username, password: password}).save(); 
+    console.log(`[MANGOLIA]: User with uuid '${id}' added to the database!`);
+}
+
 module.exports = mongoose.model('User', schema);

@@ -13,7 +13,6 @@
 
 require('dotenv').config();
 require('module-alias/register');
-const { v4: uuidv4 } = require('uuid');
 const express = require("express");
 const morgan = require("morgan");
 const axios = require("axios");
@@ -22,11 +21,14 @@ const app = express();
 const pty = require('node-pty-prebuilt-multiarch');
 const cors = require('cors');
 const http = require("http").createServer(app);
-const io = require("socket.io")(http, { 
-  cors: { origin: "http://xornet.cloud" },
-});
+const io = require("socket.io")(http, {cors: { origin: "http://xornet.cloud" }});
 const parseReport = require("@/util/parseReport");
-const PTYService = require("@/services/PTYService");
+
+const User = require("@/models/User.js");
+const Machine = require("@/models/Machine.js");
+const Stats = require("@/models/Stats.js");
+
+// const PTYService = require("@/services/PTYService");
 app.use(morgan('dev')); // Enable HTTP code logs
 app.use(cors({
   origin: 'http://xornet.cloud',
@@ -74,10 +76,6 @@ app.get("/daily-traffic", async (req, res) => {
 });
 
 
-function getTotalTraffic(){
-  return 500;
-}
-
 setInterval(() => {
   machines.clear();
 }, 60000);
@@ -98,7 +96,7 @@ io.engine.on("connection_error", err => {
 io.on("connection", async (socket) => {
   if (socket.handshake.auth.type === "client") socket.join("client");
   if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== '') {
-    await addMachineToDB(socket.handshake.auth.static);
+    await Machine.addMachineToDB(socket.handshake.auth.static);
     socket.join("reporter");
   }
   if (!socket.handshake.auth.type) return socket.disconnect();
@@ -132,53 +130,9 @@ io.on("connection", async (socket) => {
     machinesStatic.set(report.uuid, socket.handshake.auth);
 
     // Add to database
-    if (!report.rogue) await addStatsToDB(report);
+    if (!report.rogue) await Stats.addStatsToDB(report);
   });
 });
 
-/**      USER DATABASE HANDLING       */
-const User = require("@/models/User.js");
-
-/**
- * Attempts to create a user and save them to the database
- * @param {String} [id] the uuid of the user
- * @param {String} [username] the username of the user
- * @param {String} [password] the encrypted password of the user
- */
-async function addUserToDB(id, username, password){
-  const users = await User.find({ _id: id}).exec()
-  if (users.length !== 0) return console.warn(`[MANGOLIA]: User with uuid '${id}' is already in the database!`);
-
-  // TODO: create all the typical password salting stuff to hash passwords
-  // and add middlewares on the websockets for protected routes
-  await new User({_id: id, username: username, password: password}).save(); 
-  console.log(`[MANGOLIA]: User with uuid '${id}' added to the database!`);
-}
-
-/**      MACHINE DATABASE HANDLING       */
-const Machine = require("@/models/Machine.js");
-
-/**
- * Attempts to create a machine and save them to the database
- * @param {Object} [staticData] contains the staticData data of the machine
- */
-async function addMachineToDB(staticData){
-  const machines = await Machine.find({ _id: staticData.system.uuid}).exec()
-  if(machines.length !== 0) return console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
-  await new Machine({_id: staticData.system.uuid, static: staticData}).save();
-}
-
-/**      STATS DATABASE HANDLING       */
-const Stats = require("@/models/Stats.js");
-
-/**
- * Creates a stats report and saves it to database
- * @param {Object} [report] contains the stats of the machine
- */
-async function addStatsToDB(report){
-  const timestamp = new Date().getTime();
-  await new Stats({_id: uuidv4(), machine_id: report.uuid, timestamp: timestamp, ram: report.ram, cpu: report.cpu, network: report.network, disks: report.disks}).save();
-  // console.log(`[MANGOLIA]: System with uuid '${report.uuid}' reported stats and they are added to database`);
-}
 
 http.listen(port, () => console.log(`Started on port ${port.toString()}`));

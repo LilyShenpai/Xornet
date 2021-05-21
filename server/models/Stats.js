@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
+
 const Schema = mongoose.Schema;
 mongoose.connect(process.env.MONGODB_HOST, {useNewUrlParser: true, useUnifiedTopology: true});
 
@@ -47,6 +49,18 @@ schema.statics.fetchDailyTraffic = async function(timeOffset) {
         total_megabytes: (networkTotal / 8).toFixed(2),
     };
 }
+
+/**
+ * Creates a stats report and saves it to database
+ * @param {Object} [report] contains the stats of the machine
+ */
+schema.statics.addStatsToDB = async function(report){
+    const timestamp = new Date().getTime();
+    await new this({_id: uuidv4(), machine_id: report.uuid, timestamp: timestamp, ram: report.ram, cpu: report.cpu, network: report.network, disks: report.disks}).save();
+    // console.log(`[MANGOLIA]: System with uuid '${report.uuid}' reported stats and they are added to database`);
+}
+
+
 let Stats = mongoose.model('Stats', schema);
 
 module.exports = Stats;
