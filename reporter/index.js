@@ -6,11 +6,11 @@ const fs = require("fs");
 const ProgressBar = require("progress");
 require("colors");
 
+
 /**
  * Current version of Xornet Reporter
  * @type {number}
  */
-
 const version = 0.15;
 const logo = [
   "     ___           ___           ___           ___           ___           ___     \n",

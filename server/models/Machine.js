@@ -9,4 +9,15 @@ const schema = new Schema({
     versionKey: false // You should be aware of the outcome after set to false
 });
 
+/**
+ * Attempts to create a machine and save them to the database
+ * @param {Object} [staticData] contains the staticData data of the machine
+ */
+schema.statics.add = async function(staticData){
+    const machines = await this.find({ _id: staticData.system.uuid}).exec()
+    if(machines.length !== 0) return console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
+    await new this({_id: staticData.system.uuid, static: staticData}).save();
+};
+
+
 module.exports = mongoose.model('Machine', schema);
