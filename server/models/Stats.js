@@ -54,7 +54,7 @@ schema.statics.fetchDailyTraffic = async function(timeOffset) {
  * Creates a stats report and saves it to database
  * @param {Object} [report] contains the stats of the machine
  */
-schema.statics.addStatsToDB = async function(report){
+schema.statics.add = async function(report){
     const timestamp = new Date().getTime();
     await new this({_id: uuidv4(), machine_id: report.uuid, timestamp: timestamp, ram: report.ram, cpu: report.cpu, network: report.network, disks: report.disks}).save();
     // console.log(`[MANGOLIA]: System with uuid '${report.uuid}' reported stats and they are added to database`);

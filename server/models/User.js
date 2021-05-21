@@ -22,7 +22,7 @@ const schema = new Schema({
  * @param {String} [username] the username of the user
  * @param {String} [password] the encrypted password of the user
  */
-schema.statics.addUserToDB = async function (id, username, password){
+schema.statics.add = async function (id, username, password){
     const users = await User.find({ _id: id}).exec()
     if (users.length !== 0) return console.warn(`[MANGOLIA]: User with uuid '${id}' is already in the database!`);
   

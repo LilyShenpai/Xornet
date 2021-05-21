@@ -96,7 +96,7 @@ io.engine.on("connection_error", err => {
 io.on("connection", async (socket) => {
   if (socket.handshake.auth.type === "client") socket.join("client");
   if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== '') {
-    await Machine.addMachineToDB(socket.handshake.auth.static);
+    await Machine.add(socket.handshake.auth.static);
     socket.join("reporter");
   }
   if (!socket.handshake.auth.type) return socket.disconnect();
@@ -130,7 +130,7 @@ io.on("connection", async (socket) => {
     machinesStatic.set(report.uuid, socket.handshake.auth);
 
     // Add to database
-    if (!report.rogue) await Stats.addStatsToDB(report);
+    if (!report.rogue) await Stats.add(report);
   });
 });
 
