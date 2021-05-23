@@ -261,7 +261,7 @@ async function connectToXornet() {
    * Xornet Backend WebSocket
    * @type {string}
    */
-  const backend = "ws://backend.xornet.cloud";
+  const backend = "wss://backend.xornet.cloud";
   /**
    * WebSocket Connection
    * @type {object}

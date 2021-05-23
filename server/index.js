@@ -17,6 +17,8 @@ const express = require("express");
 const morgan = require("morgan");
 const axios = require("axios");
 const fs = require("fs");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const pty = require('node-pty-prebuilt-multiarch');
@@ -30,12 +32,12 @@ const io = require("socket.io")(https, {cors: { origin: "https://xornet.cloud" }
 const parseReport = require("@/util/parseReport");
 
 
-
-const User = require("@/models/User.js");
 const Machine = require("@/models/Machine.js");
 const Stats = require("@/models/Stats.js");
 
 const PTYService = require("@/services/PTYService");
+app.use(bodyParser.json());   
+app.use(cookieParser());
 app.use(morgan('dev')); // Enable HTTPs code logs
 app.use(cors({
   origin: 'https://xornet.cloud',
@@ -51,7 +53,7 @@ let machinesStatic = new Map();
  * Latest version of Reporter
  * @type {number}
  */
-let latestVersion = 0.14;
+let latestVersion = 0.15;
 
 app.get("/updates", async (req, res) => {
   let latestVersion;
@@ -81,6 +83,9 @@ app.get('/stats', async (req, res) => {
 app.get("/daily-traffic", async (req, res) => {
   res.json(await Stats.fetchDailyTraffic(86400000));
 });
+
+app.use(require("@/routes/login"));
+app.use(require("@/routes/signup"));
 
 // Temp clear out machines every 60seconds to clear 
 setInterval(() => machines.clear(), 60000);
