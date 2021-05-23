@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 mongoose.connect(process.env.MONGODB_HOST, {useNewUrlParser: true, useUnifiedTopology: true});
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require("bcrypt");
-const saltRounds = process.env.SALTROUNDS;
+const saltRounds = parseInt(process.env.SALTROUNDS);
 
 const schema = new Schema({
     _id:        String,                        // The user's ID

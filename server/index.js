@@ -28,7 +28,7 @@ const options = {
   cert: fs.readFileSync("./cert.pem")
 };
 const https = require("https").createServer(options, app);
-const io = require("socket.io")(https, {cors: { origin: "https://xornet.cloud" }});
+const io = require("socket.io")(https, {cors: { origin: "*" }});
 const parseReport = require("@/util/parseReport");
 
 
@@ -41,6 +41,7 @@ app.use(cookieParser());
 app.use(morgan('dev')); // Enable HTTPs code logs
 app.use(cors({
   origin: 'https://xornet.cloud',
+  credentials: true 
 })) 
 /**
  * All machines connected to Xornet

@@ -13,6 +13,11 @@ async function createToken(user, res) {
     };
   
     jwt.sign(payload, process.env.SECRET, { expiresIn: "30d" }, (err, token) => {
+      if (err) {
+        console.log(err);
+        res.status(500).json({message: err});
+      }
+
       res.status(200)
          .cookie("token", token)
          .json({
@@ -26,7 +31,7 @@ router.post("/login", async (req, res) => {
     // Parse body
     const user = (await User.find({ username: req.body.username }).exec())[0];
 
-    console.log(req.body.username, user);
+    if (!user) return res.status(400).json({ error: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
 
     try {  // Try matching
       const match = await bcrypt.compare(req.body.password, user.password);
