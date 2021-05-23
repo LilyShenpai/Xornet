@@ -16,22 +16,29 @@ require('module-alias/register');
 const express = require("express");
 const morgan = require("morgan");
 const axios = require("axios");
+const fs = require("fs");
 const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const pty = require('node-pty-prebuilt-multiarch');
 const cors = require('cors');
-const http = require("http").createServer(app);
-const io = require("socket.io")(http, {cors: { origin: "http://xornet.cloud" }});
+const options = {
+  key: fs.readFileSync("./key.pem"),
+  cert: fs.readFileSync("./cert.pem")
+};
+const https = require("https").createServer(options, app);
+const io = require("socket.io")(https, {cors: { origin: "https://xornet.cloud" }});
 const parseReport = require("@/util/parseReport");
+
+
 
 const User = require("@/models/User.js");
 const Machine = require("@/models/Machine.js");
 const Stats = require("@/models/Stats.js");
 
 const PTYService = require("@/services/PTYService");
-app.use(morgan('dev')); // Enable HTTP code logs
+app.use(morgan('dev')); // Enable HTTPs code logs
 app.use(cors({
-  origin: 'http://xornet.cloud',
+  origin: 'https://xornet.cloud',
 })) 
 /**
  * All machines connected to Xornet
@@ -126,4 +133,4 @@ io.on("connection", async (socket) => {
 });
 
 
-http.listen(port, () => console.log(`Started on port ${port.toString()}`));
+https.listen(port, () => console.log(`Started on port ${port.toString()}`));

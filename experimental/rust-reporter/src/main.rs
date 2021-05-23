@@ -33,7 +33,7 @@ fn main() {
 
 fn ws_test(system: sysinfo::System) {
 	report(system);
-    const URL: &'static str = "http://localhost:8080";        // Get the URL
+    const URL: &'static str = "https://localhost:8080";        // Get the URL
 	let callback = |payload: Payload, mut socket: Socket| {
 		match payload {
 			Payload::String(str) => println!("Received: {}", str),
