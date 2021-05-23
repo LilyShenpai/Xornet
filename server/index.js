@@ -28,11 +28,11 @@ const User = require("@/models/User.js");
 const Machine = require("@/models/Machine.js");
 const Stats = require("@/models/Stats.js");
 
-// const PTYService = require("@/services/PTYService");
+const PTYService = require("@/services/PTYService");
 app.use(morgan('dev')); // Enable HTTP code logs
 app.use(cors({
   origin: 'http://xornet.cloud',
-}))
+})) 
 /**
  * All machines connected to Xornet
  */
@@ -75,22 +75,13 @@ app.get("/daily-traffic", async (req, res) => {
   res.json(await Stats.fetchDailyTraffic(86400000));
 });
 
-
-setInterval(() => {
-  machines.clear();
-}, 60000);
+// Temp clear out machines every 60seconds to clear 
+setInterval(() => machines.clear(), 60000);
 
 setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
   io.sockets.in('reporter').emit('heartbeat', Date.now());
 }, 1000);
-
-io.engine.on("connection_error", err => {
-  console.log(err.req);
-  console.log(err.code);
-  console.log(err.message);
-  console.log(err.content);
-});
 
 // Websockets
 io.on("connection", async (socket) => {
