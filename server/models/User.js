@@ -6,15 +6,15 @@ const bcrypt = require("bcrypt");
 const saltRounds = parseInt(process.env.SALTROUNDS);
 
 const schema = new Schema({
-    _id:            String,                        // The user's ID
-    created_at:     Date,                          // Date when the account is created
-    username:       String,                        // Username of the user
-    email:          String,                        // Email of the user
-    password:       { type: String, },                        // Encrypted password of the user
-    profileImage:   String,                        // Link to the pfp of the user
-    points:         Number,                        // User's earned points
-    is_admin:       Boolean,                       // Is user administrator or not
-    machines:       { type: Array, default: null } // The array that contains the UUID's of the machines the user has
+    _id:            { type: String, required: true },   // The user's ID
+    created_at:     Date,                               // Date when the account is created
+    username:       { type: String, required: true },   // Username of the user
+    email:          { type: String, required: true },   // Email of the user
+    password:       { type: String, required: true },   // Encrypted password of the user
+    profileImage:   String,                             // Link to the pfp of the user
+    points:         Number,                             // User's earned points
+    is_admin:       Boolean,                            // Is user administrator or not
+    machines:       { type: Array, default: null }      // The array that contains the UUID's of the machines the user has
 }, {
     versionKey: false // You should be aware of the outcome after set to false
 });
