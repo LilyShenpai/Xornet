@@ -37,6 +37,7 @@ const Stats = require("@/models/Stats.js");
 
 const PTYService = require("@/services/PTYService");
 app.use(bodyParser.json());   
+app.use(express.static("uploads")); 
 app.use(cookieParser());
 app.use(morgan('dev')); // Enable HTTPs code logs
 app.use(cors({

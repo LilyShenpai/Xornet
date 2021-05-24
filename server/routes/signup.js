@@ -30,7 +30,7 @@ router.post("/signup", async (req, res) => {
         res.status(400).json(error); 
     }
 
-    res.status(200).json(response); 
+    res.status(201).json(response); 
 });
 
 module.exports = router

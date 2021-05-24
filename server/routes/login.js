@@ -21,6 +21,10 @@ async function createToken(user, res) {
       res.status(200)
          .cookie("token", token, {
             domain: 'xornet.cloud',
+            expires: new Date(Date.now() + 900000),
+            sameSite: true,
+            secure: true,
+            httpOnly: true
          })
          .json({
             message: "Logged in",
