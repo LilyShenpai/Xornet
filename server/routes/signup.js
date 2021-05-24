@@ -14,8 +14,6 @@ const schema = Joi.object({
 
 router.post("/signup", async (req, res) => {
 
-    console.log(req.body);
-
     // Validate the form
     try {
         var form = await schema.validateAsync(req.body);

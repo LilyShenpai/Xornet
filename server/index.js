@@ -87,6 +87,7 @@ app.get("/daily-traffic", async (req, res) => {
 
 app.use(require("@/routes/login"));
 app.use(require("@/routes/signup"));
+app.use(require("@/routes/profile"));
 
 // Temp clear out machines every 60seconds to clear 
 setInterval(() => machines.clear(), 60000);

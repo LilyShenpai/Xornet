@@ -21,8 +21,8 @@ const schema = new Schema({
 
 /**
  * Attempts to create a user and save them to the database
- * @param {String} [id] the uuid of the user
  * @param {String} [username] the username of the user
+ * @param {String} [email] the email of the user
  * @param {String} [password] the encrypted password of the user
  */
 schema.statics.add = async function (username, email, password){

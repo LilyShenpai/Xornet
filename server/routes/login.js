@@ -19,7 +19,9 @@ async function createToken(user, res) {
       }
 
       res.status(200)
-         .cookie("token", token)
+         .cookie("token", token, {
+            domain: 'xornet.cloud',
+         })
          .json({
             message: "Logged in",
             token: token,
@@ -31,9 +33,11 @@ router.post("/login", async (req, res) => {
     // Parse body
     const user = (await User.find({ username: req.body.username }).exec())[0];
 
+    // If there is no user with those credentials return this
     if (!user) return res.status(400).json({ error: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
 
-    try {  // Try matching
+    // Try matching
+    try {  
       const match = await bcrypt.compare(req.body.password, user.password);
       if (match) createToken(user, res);
       else throw "error"; // If password doesn't match throw error
