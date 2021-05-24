@@ -7,7 +7,7 @@ let auth = (req, res, next) => {
     jwt.verify(req.cookies.token, process.env.SECRET, async (error, payload) => {
         console.log(error);
         if (error) return res.status(401).json({ message: "You must be logged in to view your user info idiot 🖕🖕🖕", error});
-        req.user = (await User.find({ _id: payload.uuid }).exec())[0];
+        req.user = (await User.findOne({ _id: payload.uuid }).exec());
         next();
     });
 };

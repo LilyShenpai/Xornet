@@ -35,7 +35,7 @@ async function createToken(user, res) {
 
 router.post("/login", async (req, res) => {
     // Parse body
-    const user = (await User.find({ username: req.body.username }).exec())[0];
+    const user = (await User.findOne({ username: req.body.username }).exec());
 
     // If there is no user with those credentials return this
     if (!user) return res.status(400).json({ error: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
