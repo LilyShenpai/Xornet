@@ -10,6 +10,7 @@ const Joi = require("joi");
 const User = require("@/models/User.js");
 
 const schema = Joi.object({
+  _id:              Joi.string(),
   username:         Joi.string().alphanum().min(3).max(30),
   profileImage:     Joi.string(),
   password:         Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
@@ -38,6 +39,7 @@ router.use(upload.any());
 
 router.get("/profile", auth, async (req, res) => {
     req.user.password = undefined;
+    req.user.machines = undefined;
     res.status(200).json(req.user);
 });
 
@@ -45,7 +47,6 @@ router.patch("/profile", auth, async (req, res) => {
     req.body.json = JSON.parse(req.body.json);
     try {
         let profile = req.body.json;
-
         if(req.files[0]) profile.profileImage = await saveImage(req.files[0]),
         await schema.validateAsync(profile);
         await User.update(req.user._id, profile);
