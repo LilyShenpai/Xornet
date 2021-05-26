@@ -39,19 +39,19 @@ fn ws_test(system: sysinfo::System) {
 			Payload::String(str) => println!("Received: {}", str),
 			Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
 		}
-		socket.emit("foo", json!({"got ack": true})).expect("Server unreachable")
+		socket.emit("test", json!({"got ack": true})).expect("Server unreachable")
  	};
 
 	let mut socket = SocketBuilder::new(URL)
 		.set_namespace("/")
 		.expect("illegal namespace")
-		.on("bar", callback)
+		.on("test", callback)
 		.on("error", |err, _| eprintln!("Error: {:#?}", err))
 		.connect()
 		.expect("Connection failed");
 
-	let json_payload = json!({"kekw": 123});
-	socket.emit("foo", json_payload).expect("Server unreachable");
+	// let json_payload = json!({"kekw": 123});
+	// socket.emit("report", json_payload).expect("Server unreachable");
 
 	// define a callback, that's executed when the ack got acked
 	let ack_callback = |message: Payload, _| {
@@ -59,13 +59,43 @@ fn ws_test(system: sysinfo::System) {
 	    println!("Ack data: {:#?}", message);
 	};
 
-	let json_payload = json!({"myAckData": 123});
-	// emit with an ack
-	let ack = socket
-	    .emit_with_ack("foo", json_payload, Duration::from_secs(2), ack_callback)
-	    .expect("Server unreachable");
-
+	// println!("Stats:             {:?}", json_payload);
 	// socket.on("bar", )
+	let handle = std::thread::spawn(move || loop {
+		let json_payload = json!({
+			"uuid": "b89734fb689743",
+			"isVirtual": false,
+			"hostname": system.get_host_name(),
+			"platform": system.get_name(),
+			"ram": {
+			  "total": 420,
+			  "free": 69,
+			},
+			"cpu": 23,
+	
+			"network": [{ "tx_sec": n_total_in, "rx_sec": n_total_out }],
+			"reporterVersion": 0.16,
+			"disks": {
+				"fs": "G:",
+				"type": "NTFS",
+				"size": 119489134592i64,
+				"used": 55407673344i64,
+				"available": 64081461248i64,
+				"use": 46.37,
+				"mount": "G:"
+			  },
+			"uptime": 232337,
+			"reporterUptime": 58666182,
+			"timestamp": 1621427023724i64,
+		  });
+		// emit with an ack
+		let ack = socket
+	    .emit_with_ack("report", json_payload, Duration::from_secs(2), ack_callback)
+	    .expect("Server unreachable");
+		let time_to_wait = Duration::from_millis(1000);
+		thread::sleep(time_to_wait);
+	});
+    handle.join().unwrap();
 }
 
 // fn set_interval<F, Fut>(mut f: F, dur: time::Duration)
@@ -87,27 +117,29 @@ fn ws_test(system: sysinfo::System) {
 //         });
 //     }
 
-fn report(system: sysinfo::System) {
-    // Temperature of the different components:
-    // for component in system.get_components() {
-    //     println!("{:?}", component);
-    // }
+// fn report(system: sysinfo::System) {
+//     // Temperature of the different components:
+//     // for component in system.get_components() {
+//     //     println!("{:?}", component);
+//     // }
 
-    // for disk in system.get_disks() {
-    //     println!("{:?}", disk);
-    // } 
+//     // for disk in system.get_disks() {
+//     //     println!("{:?}", disk);
+//     // } 
 
-    // And then all disks' information:
-    let mut n_total_in = 0;
-    let mut n_total_out = 0;
-    for interface in system.get_networks() {
-        n_total_in += interface.1.get_received();
-        n_total_out += interface.1.get_transmitted();
-    }
+//     // And then all disks' information:
+//     // let mut n_total_in = 0;
+//     // let mut n_total_out = 0;
+// 	// let mut interface_count = 0;
+//     // for interface in system.get_networks() {
+// 	// 	interface_count += 1;
+//     //     n_total_in += interface.1.get_received();
+//     //     n_total_out += interface.1.get_transmitted();
+//     // }
 
-    println!("total network in : {} kbps", n_total_in);
-    println!("total network out: {} kbps", n_total_out);
+//     // println!("total network in : {} kbps", n_total_in);
+//     // println!("total network out: {} kbps", n_total_out);
     
-    println!("total memory: {} KB", system.get_total_memory());
-    println!("used memory : {} KB", system.get_used_memory());
-}
+//     // println!("total memory: {} KB", system.get_total_memory());
+//     // println!("used memory : {} KB", system.get_used_memory());
+// }
