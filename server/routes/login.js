@@ -19,13 +19,7 @@ async function createToken(user, res) {
       }
 
       res.status(200)
-         .cookie("token", token, {
-            domain: 'xornet.cloud',
-            expires: new Date(Date.now() + 2592000000),
-            sameSite: true,
-            secure: true,
-            httpOnly: true
-         })
+         .cookie("token", token)
          .json({
             message: "Logged in",
             token: token,
@@ -34,6 +28,11 @@ async function createToken(user, res) {
 }
 
 router.post("/login", async (req, res) => {
+    
+    console.log(req.get('origin'));
+    const domain = req.get('origin') == 'https://xornet.cloud' ? 'xornet.cloud' : 'localhost';
+
+    console.log(domain);
     // Parse body
     const user = (await User.findOne({ username: req.body.username }).exec());
 
@@ -43,7 +42,7 @@ router.post("/login", async (req, res) => {
     // Try matching
     try {  
       const match = await bcrypt.compare(req.body.password, user.password);
-      if (match) createToken(user, res);
+      if (match) createToken(user, res, domain);
       else throw "error"; // If password doesn't match throw error
     } catch (error) {
       console.log(error);

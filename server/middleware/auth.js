@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("@/models/User.js");
 
 let auth = (req, res, next) => {
+
     jwt.verify(req.cookies.token, process.env.SECRET, async (error, payload) => {
         if (error) {
             console.log(error);

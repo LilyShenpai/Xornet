@@ -36,12 +36,19 @@ const Machine = require("@/models/Machine.js");
 const Stats = require("@/models/Stats.js");
 
 const PTYService = require("@/services/PTYService");
+const whitelist = ['https://xornet.cloud', 'http://localhost:8080']
 app.use(bodyParser.json());   
 app.use(express.static("uploads")); 
 app.use(cookieParser());
 app.use(morgan('dev')); // Enable HTTPs code logs
 app.use(cors({
-  origin: 'https://xornet.cloud',
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true 
 })) 
 /**
