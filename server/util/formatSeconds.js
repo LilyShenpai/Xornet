@@ -10,7 +10,7 @@ function formatSeconds(seconds) {
   const m = Math.floor(seconds % 3600 / 60);
   const s = Math.floor(seconds % 3600 % 60);
 
-  return `${d}d ${h}h ${m}m ${s}s`
+  return { d, h, m, s }
 }
 
 module.exports = formatSeconds;

@@ -32,15 +32,8 @@ fn main() {
 }
 
 fn ws_test(system: sysinfo::System) {
-	//report(system);
-	let mut n_total_in = 0;
-    let mut n_total_out = 0;
-    for interface in system.get_networks() {
-        n_total_in += interface.1.get_received();
-        n_total_out += interface.1.get_transmitted();
-    }
-
-    const URL: &'static str = "http://localhost:8080";        // Get the URL
+	report(system);
+    const URL: &'static str = "https://localhost:8080";        // Get the URL
 	let callback = |payload: Payload, mut socket: Socket| {
 		match payload {
 			Payload::String(str) => println!("Received: {}", str),

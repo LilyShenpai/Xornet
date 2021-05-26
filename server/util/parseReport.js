@@ -19,8 +19,8 @@ function parseReport(report, latestVersion, machinesPings) {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-      // if(report.uuid == 'a2c3174dbcdf4196b02b232cf4a49b14') console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
-      console.log("[WARN] Got invalid Report from reporter"); 
+      // console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
+      console.log(`[WARN] Got invalid Report from reporter`); 
     if (process.env.APP_ENV === "testing") {
       console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
     }
@@ -58,7 +58,7 @@ function parse(report, machinesPings) {
   // Parse uptime
   report.uptime = {
     pure: report.uptime,
-    formatted: formatSeconds(report.uptime),
+    formatted: formatSeconds(report.uptime)
   };
 
   // Append Ping from ping buffer. The first report has an Empty UUID so we set the ping to 0 to make the report valid

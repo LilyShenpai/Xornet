@@ -10,7 +10,7 @@ Figma:
 https://www.figma.com/file/dURFohUnUHXzgO8lSd53jO/Xornet
 
 # Reporter
-The reporter is the main binary app that you can easily download and install on your VMs or servers, it takes care of reporting system information to http://xornet.cloud and its lightweight!
+The reporter is the main binary app that you can easily download and install on your VMs or servers, it takes care of reporting system information to https://xornet.cloud and its lightweight!
 
 The compiled binaries work on the following operating systems:
   - Debian

@@ -46,7 +46,10 @@ describe("parseReport Test Suit", () => {
         {fs: 'D:', type: 'FAT32', size: 2794.52, used: 1700.84, available: 1093.68, use: 60.86, mount: 'D:'},
         {fs: 'X:', type: 'NTFS', size: 7447.98, used: 3542.42, available: 3905.56, use: 47.56, mount: 'X:'}, 
       ],
-      uptime: { pure: 300, formatted: '0d 0h 5m 0s' },
+      uptime: { 
+        pure: 300, 
+        formatted: {d: 0,  h: 0,  m: 5,  s: 0}
+      },
       reporterUptime: 200,
       timestamp: 1621176090,
       rogue: false,
@@ -99,7 +102,10 @@ describe("parseReport Test Suit", () => {
         {fs: '/dev/sda', type: 'ext4', size: 2794.52, used: 1700.84, available: 1093.68, use: 60.86, mount: '/'},
         {fs: '/dev/sda', type: 'vfat', size: 7447.98, used: 3542.42, available: 3905.56, use: 47.56, mount: '/'}, 
       ],
-      uptime: { pure: 300, formatted: '0d 0h 5m 0s' },
+      uptime: { 
+        pure: 300, 
+        formatted: {d: 0,  h: 0,  m: 5,  s: 0}
+      },
       reporterUptime: 200,
       timestamp: 1621176090,
       rogue: false,
@@ -152,7 +158,10 @@ describe("parseReport Test Suit", () => {
         {fs: '/dev/disk1s4', type: 'APFS', size: 2794.52, used: 1700.84, available: 1093.68, use: 60.86, mount: '/System/Volumes/Data'},
         {fs: '/dev/disk1s1', type: 'HFS', size: 7447.98, used: 3542.42, available: 3905.56, use: 47.56, mount: '/Volumes/Install macOS Catalina'},
       ],
-      uptime: { pure: 300, formatted: '0d 0h 5m 0s' },
+      uptime: { 
+        pure: 300, 
+        formatted: {d: 0,  h: 0,  m: 5,  s: 0}
+      },
       reporterUptime: 200,
       timestamp: 1621176090,
       rogue: false,
