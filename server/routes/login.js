@@ -16,16 +16,17 @@ async function createToken(user, res) {
       if (err) {
         console.log(err);
         res.status(500).json({message: err});
+        return;
       }
 
       res.status(200)
-         .cookie("token", token, {
+         .cookie("token", token/*,  {
             domain: 'xornet.cloud',
             expires: new Date(Date.now() + 2592000000),
             sameSite: true,
             secure: true,
             httpOnly: true
-         })
+         } */)
          .json({
             message: "Logged in",
             token: token,
