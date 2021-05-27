@@ -270,9 +270,10 @@ async function connectToXornet() {
   staticData.geolocation = await getLocation();
   console.log("[INFO]".bgCyan.black + ` Geolocation collected`.green);
 
+
   console.log("[INFO]".bgCyan.black + ` Parsing UUID...`);
 
-  staticData.system.uuid = staticData.system.uuid.replace(/-/g, "") || staticData.system.os.uuid.replace(/-/g, "");
+  staticData.system.uuid = staticData.uuid.hardware.replace(/-/g, "") || staticData.uuid.os.replace(/-/g, "");
   console.log(
     "[INFO]".bgCyan.black +
       ` Assigning system UUID to ${staticData.system.uuid.cyan}`.green
