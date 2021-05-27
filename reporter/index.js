@@ -81,7 +81,9 @@ async function checkAccount(){
         console.log("[INFO]".bgCyan.black + ' Backend server appears to be offline/unavailable');
         if (error.response.status == 403) {
           console.log("[WARN]".bgRed.black + ' Go to this URL to add this machine to your account and restart the reporter ' + `https://xornet.cloud/dashboard/machines?newMachine=${staticData.system.uuid}`.red);
-          process.exit();
+          setTimeout(() => {
+            process.exit();
+          }, 60000);
         }
     }
   });

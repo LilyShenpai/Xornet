@@ -64,7 +64,7 @@ let machinesStatic = new Map();
  * Latest version of Reporter
  * @type {number}
  */
-let latestVersion = 0.15;
+let latestVersion = 0.16;
 
 app.use(require("@/routes/login"));
 app.use(require("@/routes/updates"));
