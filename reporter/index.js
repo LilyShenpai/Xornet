@@ -272,7 +272,7 @@ async function connectToXornet() {
 
   console.log("[INFO]".bgCyan.black + ` Parsing UUID...`);
 
-  staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
+  staticData.system.uuid = staticData.system.uuid.replace(/-/g, "") || staticData.system.os.uuid.replace(/-/g, "");
   console.log(
     "[INFO]".bgCyan.black +
       ` Assigning system UUID to ${staticData.system.uuid.cyan}`.green
