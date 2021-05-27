@@ -11,7 +11,7 @@ require("colors");
  * Current version of Xornet Reporter
  * @type {number}
  */
-const version = 0.15;
+const version = 0.16;
 const logo = [
   "     ___           ___           ___           ___           ___           ___     \n",
   "    |\\__\\         /\\  \\         /\\  \\         /\\__\\         /\\  \\         /\\  \\    \n",
@@ -64,6 +64,29 @@ function getSystemExtension() {
   }
 }
 
+async function checkAccount(){
+  return new Promise(async resolve => {
+    console.log("[INFO]".bgCyan.black + ` Checking for account linked to this machine`);
+    try {
+      let response = (await axios.post(`https://backend.xornet.cloud/reporter`, {
+        uuid: staticData.system.uuid
+      }));
+  
+      console.log("[INFO]".bgCyan.black + ' ' + response.data.message);
+      staticData.reporter = {
+        linked_account: response.data.account_uuid,
+      }
+      resolve(console.log("[INFO]".bgCyan.black + ' Authentication completed'));
+    } catch (error) {
+        console.log("[INFO]".bgCyan.black + ' Backend server appears to be offline/unavailable');
+        if (error.response.status == 403) {
+          console.log("[WARN]".bgRed.black + ' Go to this URL to add this machine to your account and restart the reporter ' + `https://xornet.cloud/dashboard/machines?newMachine=${staticData.system.uuid}`.red);
+          process.exit();
+        }
+    }
+  });
+}
+
 /**
  * Checks for an update on the github release page.
  */
@@ -88,7 +111,7 @@ async function checkForUpdates() {
       );
       console.log("[INFO]".bgCyan.black + ` Waiting for backend to connect...`);
       console.log("[INFO]".bgCyan.black + ` UUID: ${staticData.system.uuid}`.cyan);
-      return connectToXornet();
+            return connectToXornet();
     }
   }
 
@@ -256,6 +279,8 @@ async function connectToXornet() {
   console.log(
     "[INFO]".bgCyan.black + " System information collection finished".green
   );
+
+  await checkAccount();
 
   /**
    * Xornet Backend WebSocket

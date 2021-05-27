@@ -33,6 +33,7 @@ const parseReport = require("@/util/parseReport");
 
 
 const Machine = require("@/models/Machine.js");
+const User = require("@/models/User.js");
 const Stats = require("@/models/Stats.js");
 
 const PTYService = require("@/services/PTYService");
@@ -46,7 +47,8 @@ app.use(cors({
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
-      callback(new Error('Not allowed by CORS'))
+      callback(null, true)
+      // callback(new Error('Not allowed by CORS'))
     }
   },
   credentials: true 
@@ -64,38 +66,12 @@ let machinesStatic = new Map();
  */
 let latestVersion = 0.15;
 
-app.get("/updates", async (req, res) => {
-  let latestVersion;
-  try {
-    const { data } = await axios.get(
-      "https://api.github.com/repos/Geoxor/Xornet/releases"
-    );
-    latestVersion = parseFloat(data[0].tag_name.replace("v", ""));
-  } catch (error) {}
-
-  res.json({
-    latestVersion,
-    downloadLink: `https://github.com/Geoxor/Xornet/releases/download/v${latestVersion}/xornet-reporter-v${latestVersion}`,
-  });
-});
-app.get('/stats', async (req, res) => {
-
-  let object = {
-    totalMachines: machines.size,
-    totalTraffic: ((await Stats.fetchDailyTraffic(86400000)).total_megabytes / 1000).toFixed(2),
-    totalCores: Array.from(machinesStatic.values()).reduce((a, b) => a + b.static.cpu.cores, 0),
-    totalRam: Math.ceil(Array.from(machines.values()).reduce((a, b) => a + b.ram.total, 0)),
-  };
-
-  res.json(object);
-});
-app.get("/daily-traffic", async (req, res) => {
-  res.json(await Stats.fetchDailyTraffic(86400000));
-});
-
 app.use(require("@/routes/login"));
+app.use(require("@/routes/updates"));
 app.use(require("@/routes/signup"));
 app.use(require("@/routes/profile"));
+app.use(require("@/routes/stats"));
+app.use(require("@/routes/reporter"));
 
 // Temp clear out machines every 60seconds to clear 
 setInterval(() => machines.clear(), 60000);
@@ -130,17 +106,37 @@ io.on("connection", async (socket) => {
   // Parse reports
   // Report is what is collected from the Reporter
   socket.on("report", async (report) => {
+
+    // Return if the reporter hasn't authenticated
+    if(socket.handshake.auth.static?.reporter?.linked_account == null) return;
+
+    // Return if theres some value that is undefined
+    if (Object.values(report).some(field => field == null)) return;
+
+    // Get the user from the database cus im an idiot so we can append the pfp / username to each report
+    // & replace the uuid with it
+    let user = await User.findOne({_id: socket.handshake.auth.static.reporter.linked_account}).exec();
+
+    // Assign the linked account from the socket's auth to the report
+    // So it goes to the frontend
+    report.owner = {
+      username: user.username,
+      profileImage: user.profileImage,
+    };
+
     // Add geolocation data
+    // So it goes to the frontend
     report.geolocation = socket.handshake.auth.static.geolocation;
     if (report.geolocation) delete report.geolocation.ip;
 
+    // Validate / parse the report
     report = parseReport(report, latestVersion, machinesPings);
 
-    if (Object.values(report).some(field => field == null)) return;
-
-    // Add to ram
-    machines.set(report.uuid, report);
+    // Assign statics
     machinesStatic.set(report.uuid, socket.handshake.auth);
+
+    // Assign report
+    machines.set(report.uuid, report);
 
     // Add to database
     if (!report.rogue) await Stats.add(report);

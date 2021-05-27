@@ -56,5 +56,9 @@ router.patch("/profile", auth, async (req, res) => {
         res.status(400).json({error: error});
     }
 });
+router.put("/profile/machine", auth, async (req, res) => {
+    await User.addMachine(req.user._id, req.body.machine);
+    res.status(201).json({message: "machine added"});
+});
 
 module.exports = router;

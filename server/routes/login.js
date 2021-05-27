@@ -6,7 +6,7 @@ const User = require("@/models/User.js");
 const router = express.Router();
 
 // Functions
-async function createToken(user, res) {
+async function createToken(user, res, domain) {
     const payload = {
       uuid: user._id,
       username: user.username,

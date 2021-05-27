@@ -69,6 +69,23 @@ schema.statics.update = async function (_id, newProfile){
     });
 }
 
+/**
+ * Simply adds a machine to the user's database
+ * @param {String} [_id] the uuid of the user
+ * @param {String} [machineUUID] the uuid of the machine to add to the user
+ */
+schema.statics.addMachine = async function (_id, machineUUID){
+    return new Promise (async resolve => {
+        const user = await this.findOne({ _id }).exec();
+        if (machineUUID != null) {
+            if(!user.machines.includes(machineUUID)) user.machines.push(machineUUID);
+            resolve(user.save());
+        }
+        else reject();
+    });
+}
+
+
 let User = mongoose.model('User', schema);
 
 module.exports = User;
