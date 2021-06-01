@@ -1,12 +1,10 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 router.get("/updates", async (req, res) => {
   let latestVersion;
   try {
-    const { data } = await axios.get(
-      "https://api.github.com/repos/Geoxor/Xornet/releases"
-    );
+    const { data } = await axios.get("https://api.github.com/repos/Geoxor/Xornet/releases");
     latestVersion = parseFloat(data[0].tag_name.replace("v", ""));
   } catch (error) {}
 
@@ -16,4 +14,4 @@ router.get("/updates", async (req, res) => {
   });
 });
 
-module.exports = router
+module.exports = router;

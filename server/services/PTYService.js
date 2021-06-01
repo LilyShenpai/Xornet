@@ -1,7 +1,7 @@
 // PTYService.js
 
 const os = require("os");
-const pty = require('node-pty-prebuilt-multiarch');
+const pty = require("node-pty-prebuilt-multiarch");
 
 class PTY {
   constructor(socket) {
@@ -21,11 +21,11 @@ class PTY {
     this.ptyProcess = pty.spawn(this.shell, [], {
       name: "xterm-color",
       cwd: process.env.HOME, // Which path should terminal start
-      env: process.env // Pass environment variables
+      env: process.env, // Pass environment variables
     });
 
     // Add a "data" event listener.
-    this.ptyProcess.onData(data => {
+    this.ptyProcess.onData((data) => {
       // Whenever terminal generates any data, send that output to socket.io client
       this.sendToClient(data);
     });
