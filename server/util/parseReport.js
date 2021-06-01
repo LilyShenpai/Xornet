@@ -1,4 +1,4 @@
-const formatSeconds = require("./formatSeconds")
+const formatSeconds = require("./formatSeconds");
 const uuidRegex = /[a-f0-9]{32}/;
 const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const whiteSpacesInStringRegex = /\s/;
@@ -19,8 +19,8 @@ function parseReport(report, latestVersion, machinesPings) {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-      // console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
-      console.log(`[WARN] Got invalid Report from reporter`); 
+    // console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
+    console.log(`[WARN] Got invalid Report from reporter`);
     if (process.env.APP_ENV === "testing") {
       console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
     }
@@ -35,7 +35,6 @@ function parseReport(report, latestVersion, machinesPings) {
  * @returns {Object} The parsed report
  */
 function parse(report, machinesPings) {
-
   if (!report.network || report.network.length == 0) report.network = [];
 
   report.rogue = false;
@@ -58,21 +57,16 @@ function parse(report, machinesPings) {
   // Parse uptime
   report.uptime = {
     pure: report.uptime,
-    formatted: formatSeconds(report.uptime)
+    formatted: formatSeconds(report.uptime),
   };
 
   // Append Ping from ping buffer. The first report has an Empty UUID so we set the ping to 0 to make the report valid
   report.ping = machinesPings.get(report.uuid) ?? 0;
 
   // Make sure we only have know platforms or unknown
-  if (
-    report.platform !== "linux" &&
-    report.platform !== "win32" &&
-    report.platform !== "darwin"
-  ) {
+  if (report.platform !== "linux" && report.platform !== "win32" && report.platform !== "darwin") {
     report.platform = "unknown";
   }
-
 
   // Clear out null interfaces
   report.network = report.network.filter((iFace) => iFace.tx_sec !== null && iFace.rx_sec !== null);
@@ -92,12 +86,12 @@ function parse(report, machinesPings) {
   };
 
   // Parse disks
-  report.disks = report.disks?.map(disk => {
+  report.disks = report.disks?.map((disk) => {
     disk.size = parseFloat((disk.size / 1024 / 1024 / 1024).toFixed(2));
     disk.used = parseFloat((disk.used / 1024 / 1024 / 1024).toFixed(2));
     disk.available = parseFloat((disk.available / 1024 / 1024 / 1024).toFixed(2));
     return disk;
-  })
+  });
 
   return report;
 }
@@ -113,14 +107,14 @@ function validate(report, latestVersion) {
   hasNoWhiteSpaces(report.uuid);
 
   // Validate hostname
-  isNotEmpty(report.hostname)
+  isNotEmpty(report.hostname);
   isValidHostName(report.hostname);
   hasNoWhiteSpaces(report.hostname);
 
   // Validate reporterVersion
   isValidNumber(report.reporterVersion);
   versionIsValid(report.reporterVersion, latestVersion);
-  
+
   // Validate ram
   isValidNumber(report.ram.used);
   isValidNumber(report.ram.total);
@@ -145,7 +139,7 @@ function validate(report, latestVersion) {
   isValidNumber(report.uptime.pure);
 
   // Validate timestamp
-  isValidNumber(report.timestamp)
+  isValidNumber(report.timestamp);
 
   isValidBoolean(report.isVirtual);
   // Validate disks
@@ -166,7 +160,7 @@ function versionIsValid(currentVersion, latestVersion) {
   if (currentVersion > latestVersion + 0.01 || currentVersion < 0) throw new Error(`"${currentVersion}" is not a valid Version`);
 }
 
-function isValidFS(fs, platform){
+function isValidFS(fs, platform) {
   isNotEmpty(fs);
 
   let windowsRegex = /[A-Z]:$/g;
@@ -174,48 +168,48 @@ function isValidFS(fs, platform){
 
   switch (platform) {
     case "win32":
-      if(!windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
+      if (!windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
       break;
     case "linux":
     case "darwin":
-      if(!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
+      if (!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
   }
 }
 
-function isValidFileSystemType(fileSystemType, platform){
+function isValidFileSystemType(fileSystemType, platform) {
   isNotEmpty(fileSystemType);
 
   switch (platform) {
     case "win32":
-      if(!windowsFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
+      if (!windowsFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
       break;
     case "linux":
-      if(!linuxFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
+      if (!linuxFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
       break;
     case "darwin":
-      if(!macosFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
+      if (!macosFileSystems.includes(fileSystemType)) throw new Error(`"${fileSystemType}" is not a valid file system`);
       break;
   }
 }
 
-function isValidMount(mount, fs, platform){
+function isValidMount(mount, fs, platform) {
   isNotEmpty(mount);
 
   switch (platform) {
     case "win32":
-      if(mount !== fs) throw new Error(`"${mount}" is not a valid mount`);
+      if (mount !== fs) throw new Error(`"${mount}" is not a valid mount`);
       break;
     case "linux":
     case "darwin":
-      if(!mount.startsWith("/")) throw new Error(`"${mount}" is not a valid mount`);
+      if (!mount.startsWith("/")) throw new Error(`"${mount}" is not a valid mount`);
       break;
   }
 }
 
 function isValidDisksArray(disk, platform) {
   if (!disk.forEach) throw new Error("Disks disk is not an Array");
-  
-  disk.forEach(disk => {
+
+  disk.forEach((disk) => {
     isValidFS(disk.fs, platform);
     isValidFileSystemType(disk.type, platform);
 

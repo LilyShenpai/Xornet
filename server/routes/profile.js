@@ -10,51 +10,58 @@ const Joi = require("joi");
 const User = require("@/models/User.js");
 
 const schema = Joi.object({
-  _id:              Joi.string(),
-  username:         Joi.string().alphanum().min(3).max(30),
-  profileImage:     Joi.string(),
-  password:         Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
-  repeatPassword:   Joi.ref("password"),
-  email:            Joi.string().email({ minDomainSegments: 2 })
+  _id: Joi.string(),
+  username: Joi.string().alphanum().min(3).max(30),
+  profileImage: Joi.string(),
+  password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
+  repeatPassword: Joi.ref("password"),
+  email: Joi.string().email({ minDomainSegments: 2 }),
 });
 
-async function saveImage(image){
-    return new Promise(async (resolve, reject)=> {
-        let date = Date.now();
-        try {
-            Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
-                fs.unlink(`./temp/${image.filename}`, () => {});
-                if (err) throw err;
-                if (jimpImage.bitmap.width > 128) jimpImage.resize(Jimp.AUTO, 128)
-                jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
-                resolve(`https://backend.xornet.cloud/images/${date}-${image.originalname}`);
-            });
-        } catch (error) {
-            reject(error);
-        }
-    });
-};
+async function saveImage(image) {
+  return new Promise(async (resolve, reject) => {
+    let date = Date.now();
+    try {
+      Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
+        fs.unlink(`./temp/${image.filename}`, () => {});
+        if (err) throw err;
+        if (jimpImage.bitmap.width > 128) jimpImage.resize(Jimp.AUTO, 128);
+        jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
+        resolve(`https://backend.xornet.cloud/images/${date}-${image.originalname}`);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 router.use(upload.any());
 
 router.get("/profile", auth, async (req, res) => {
-    req.user.password = undefined;
-    req.user.machines = undefined;
-    res.status(200).json(req.user);
+  req.user.password = undefined;
+  req.user.machines = undefined;
+  res.status(200).json(req.user);
 });
 
 router.patch("/profile", auth, async (req, res) => {
-    req.body.json = JSON.parse(req.body.json);
-    try {
-        let profile = req.body.json;
-        if(req.files[0]) profile.profileImage = await saveImage(req.files[0]),
-        await schema.validateAsync(profile);
-        await User.update(req.user._id, profile);
-        res.status(201).json({message: "Profile updated", profile });
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({error: error});
-    }
+  req.body.json = JSON.parse(req.body.json);
+  try {
+    let profile = req.body.json;
+    if (req.files[0]) (profile.profileImage = await saveImage(req.files[0])), await schema.validateAsync(profile);
+    await User.update(req.user._id, profile);
+    res.status(201).json({ message: "Profile updated", profile });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error });
+  }
+});
+
+const uuidRegex = /[a-f0-9]{32}/;
+
+router.put("/profile/machine", auth, async (req, res) => {
+  await User.addMachine(req.user._id, req.body.machine);
+  if (!uuidRegex.test(req.body.machine)) return res.status(400).json({ message: "invalid uuid" });
+  res.status(201).json({ message: "machine added" });
 });
 
 module.exports = router;
