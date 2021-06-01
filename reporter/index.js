@@ -6,7 +6,6 @@ const fs = require("fs");
 const ProgressBar = require("progress");
 require("colors");
 
-
 /**
  * Current version of Xornet Reporter
  * @type {number}
@@ -64,27 +63,27 @@ function getSystemExtension() {
   }
 }
 
-async function checkAccount(){
-  return new Promise(async resolve => {
+async function checkAccount() {
+  return new Promise(async (resolve) => {
     console.log("[INFO]".bgCyan.black + ` Checking for account linked to this machine`);
     try {
-      let response = (await axios.post(`https://backend.xornet.cloud/reporter`, {
-        uuid: staticData.system.uuid
-      }));
-  
-      console.log("[INFO]".bgCyan.black + ' ' + response.data.message);
+      let response = await axios.post(`https://backend.xornet.cloud/reporter`, {
+        uuid: staticData.system.uuid,
+      });
+
+      console.log("[INFO]".bgCyan.black + " " + response.data.message);
       staticData.reporter = {
         linked_account: response.data.account_uuid,
-      }
-      resolve(console.log("[INFO]".bgCyan.black + ' Authentication completed'));
+      };
+      resolve(console.log("[INFO]".bgCyan.black + " Authentication completed"));
     } catch (error) {
-        console.log("[INFO]".bgCyan.black + ' Backend server appears to be offline/unavailable');
-        if (error.response.status == 403) {
-          console.log("[WARN]".bgRed.black + ' Go to this URL to add this machine to your account and restart the reporter ' + `https://xornet.cloud/dashboard/machines?newMachine=${staticData.system.uuid}`.red);
-          setTimeout(() => {
-            process.exit();
-          }, 60000);
-        }
+      console.log("[INFO]".bgCyan.black + " Backend server appears to be offline/unavailable");
+      if (error.response.status == 403) {
+        console.log("[WARN]".bgRed.black + " Go to this URL to add this machine to your account and restart the reporter " + `https://xornet.cloud/dashboard/machines?newMachine=${staticData.system.uuid}`.red);
+        setTimeout(() => {
+          process.exit();
+        }, 60000);
+      }
     }
   });
 }
@@ -96,11 +95,7 @@ async function checkForUpdates() {
   console.log("[INFO]".bgCyan.black + ` Checking for updates`);
 
   try {
-    var update = parseFloat(
-      (
-        await axios.get("https://api.github.com/repos/Geoxor/Xornet/releases")
-      ).data[0].tag_name.replace("v", "")
-    );
+    var update = parseFloat((await axios.get("https://api.github.com/repos/Geoxor/Xornet/releases")).data[0].tag_name.replace("v", ""));
   } catch (error) {
     if (error) {
       console.log(error);
@@ -108,33 +103,23 @@ async function checkForUpdates() {
         console.log("[WARN]".bgYellow.black + ` GitHub API error, skipping...`);
         return connectToXornet();
       }
-      console.log(
-        "[WARN]".bgYellow.black + ` Backend server is offline, skipping update`
-      );
+      console.log("[WARN]".bgYellow.black + ` Backend server is offline, skipping update`);
       console.log("[INFO]".bgCyan.black + ` Waiting for backend to connect...`);
       console.log("[INFO]".bgCyan.black + ` UUID: ${staticData.system.uuid}`.cyan);
-            return connectToXornet();
+      return connectToXornet();
     }
   }
 
   if (os.platform() === "win32") {
     if (version < update.latestVersion) {
-      console.log(
-        "[INFO]".bgCyan.black +
-          ` Downloading new update v${update.latestVersion}`
-      );
+      console.log("[INFO]".bgCyan.black + ` Downloading new update v${update.latestVersion}`);
       await downloadUpdate(update.downloadLink + getSystemExtension());
       console.log("[INFO]".bgCyan.black + ` Update finished`);
     } else {
       console.log("[INFO]".bgCyan.black + ` No updates found`);
     }
   } else if (os.platform() === "linux") {
-    console.log(
-      "[UPDATE MESSAGE]".bgGreen.black +
-        ` please run this command to update manually` +
-        `'wget https://github.com/Geoxor/Xornet/releases/download/v${update.latestVersion}/install.sh && chmod +x ./install.sh && sudo ./install.sh'`
-          .green
-    );
+    console.log("[UPDATE MESSAGE]".bgGreen.black + ` please run this command to update manually` + `'wget https://github.com/Geoxor/Xornet/releases/download/v${update.latestVersion}/install.sh && chmod +x ./install.sh && sudo ./install.sh'`.green);
   }
 
   return connectToXornet();
@@ -146,9 +131,7 @@ async function checkForUpdates() {
  * @returns
  */
 async function downloadUpdate(downloadLink) {
-  const downloadPath = `./${
-    downloadLink.split("/")[downloadLink.split("/").length - 1]
-  }`;
+  const downloadPath = `./${downloadLink.split("/")[downloadLink.split("/").length - 1]}`;
   console.log(downloadPath);
 
   const writer = fs.createWriteStream(downloadPath);
@@ -161,16 +144,13 @@ async function downloadUpdate(downloadLink) {
 
   const totalLength = headers["content-length"];
 
-  const progressBar = new ProgressBar(
-    `Downloading update [:bar] :percent :rate/bps :etas`,
-    {
-      width: 50,
-      complete: "=",
-      incomplete: " ",
-      renderThrottle: 1,
-      total: parseInt(totalLength),
-    },
-  );
+  const progressBar = new ProgressBar(`Downloading update [:bar] :percent :rate/bps :etas`, {
+    width: 50,
+    complete: "=",
+    incomplete: " ",
+    renderThrottle: 1,
+    total: parseInt(totalLength),
+  });
 
   data.pipe(writer);
   data.on("data", (chunk) => progressBar.tick(chunk.length));
@@ -194,7 +174,7 @@ async function getLocation() {
     location: location.country,
     countryCode: location.country_code,
     isp: location.isp,
-  }
+  };
 }
 
 /**
@@ -270,18 +250,12 @@ async function connectToXornet() {
   staticData.geolocation = await getLocation();
   console.log("[INFO]".bgCyan.black + ` Geolocation collected`.green);
 
-
   console.log("[INFO]".bgCyan.black + ` Parsing UUID...`);
 
   staticData.system.uuid = staticData.uuid.hardware.replace(/-/g, "") || staticData.uuid.os.replace(/-/g, "");
-  console.log(
-    "[INFO]".bgCyan.black +
-      ` Assigning system UUID to ${staticData.system.uuid.cyan}`.green
-  );
+  console.log("[INFO]".bgCyan.black + ` Assigning system UUID to ${staticData.system.uuid.cyan}`.green);
 
-  console.log(
-    "[INFO]".bgCyan.black + " System information collection finished".green
-  );
+  console.log("[INFO]".bgCyan.black + " System information collection finished".green);
 
   await checkAccount();
 
@@ -323,9 +297,7 @@ async function connectToXornet() {
     console.log("[CONNECTED]".bgGreen.black + ` Connected to ${backend.green}`);
 
     emitter = setInterval(function () {
-      console.log(
-        "[INFO]".bgCyan.black + ` Sending Stats - ${Date.now()}`.cyan
-      );
+      console.log("[INFO]".bgCyan.black + ` Sending Stats - ${Date.now()}`.cyan);
       socket.emit("report", statistics);
     }, REFRESH_INTERVAL);
   });
