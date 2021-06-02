@@ -8,6 +8,7 @@ const schema = Joi.object({
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")).required(),
   repeatPassword: Joi.ref("password"),
   email: Joi.string().email({ minDomainSegments: 2 }).required(),
+  geolocation: Joi.object().required(),
 });
 
 router.post("/signup", async (req, res) => {
@@ -21,7 +22,7 @@ router.post("/signup", async (req, res) => {
 
   // Encrypt Passwords
   try {
-    var response = await User.add(form.username, form.email, form.password);
+    var response = await User.add(form);
   } catch (error) {
     console.log(error);
     res.status(400).json(error);

@@ -6,7 +6,7 @@ const User = require("@/models/User.js");
 const router = express.Router();
 
 // Functions
-async function createToken(user, res, domain) {
+async function createToken(user, res) {
   const payload = {
     uuid: user._id,
     username: user.username,
@@ -26,21 +26,22 @@ async function createToken(user, res, domain) {
 }
 
 router.post("/login", async (req, res) => {
-  console.log(req.get("origin"));
-  const domain = req.get("origin") == "https://xornet.cloud" ? "xornet.cloud" : "localhost";
 
-  console.log(domain);
   // Parse body
   const user = await User.findOne({ username: req.body.username }).exec();
 
   // If there is no user with those credentials return this
   if (!user) return res.status(400).json({ error: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
 
+  // This is for backwards compatibility
+  if (!user.geolocation) await User.update(user._id, { geolocation: req.body.geolocation });
+
   // Try matching
   try {
     const match = await bcrypt.compare(req.body.password, user.password);
-    if (match) createToken(user, res, domain);
-    else throw "error"; // If password doesn't match throw error
+    if (match) {
+      createToken(user, res);
+    } else throw "error"; // If password doesn't match throw error
   } catch (error) {
     console.log(error);
     if (error) res.status(400).json({ error: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });

@@ -12,6 +12,7 @@ const schema = new Schema(
     username: { type: String, required: true }, // Username of the user
     email: { type: String, required: true }, // Email of the user
     password: { type: String, required: true }, // Encrypted password of the user
+    geolocation: { type: Object, required: true }, // user's geolocation
     profileImage: String, // Link to the pfp of the user
     points: Number, // User's earned points
     is_admin: Boolean, // Is user administrator or not
@@ -24,32 +25,30 @@ const schema = new Schema(
 
 /**
  * Attempts to create a user and save them to the database
- * @param {String} [username] the username of the user
- * @param {String} [email] the email of the user
- * @param {String} [password] the encrypted password of the user
+ * @param {Object} [form] Object containing user details from the frontend form
  */
-schema.statics.add = async function (username, email, password) {
+schema.statics.add = async function (form) {
   // Check if Username exists in DB
-  const usernameQuery = await this.find({ username }).exec();
+  const usernameQuery = await this.find({ username: form.username }).exec();
   if (usernameQuery.length !== 0) {
-    console.warn(`[MANGOLIA]: User '${username}' is already in the database!`);
-    throw { message: `User '${username}' is already in the database!` };
+    console.warn(`[MANGOLIA]: User '${form.username}' is already in the database!`);
+    throw { message: `User '${form.username}' is already in the database!` };
   }
 
   // Check if email exists in DB
-  const emailQuery = await this.find({ email }).exec();
+  const emailQuery = await this.find({ email: form.email }).exec();
   if (emailQuery.length !== 0) {
-    console.warn(`[MANGOLIA]: User with email '${email}' is already in the database!`);
-    throw { message: `User with email '${email}' is already in the database!` };
+    console.warn(`[MANGOLIA]: User with email '${form.username}' is already in the database!`);
+    throw { message: `User with email '${form.username}' is already in the database!` };
   }
 
   // Encrypt password
-  const hash = await bcrypt.hash(password, saltRounds);
+  form.password = await bcrypt.hash(form.password, saltRounds);
 
   // Add user to DB
-  await new this({ _id: uuidv4(), username: username, email: email, password: hash }).save();
-  console.log(`[MANGOLIA]: User '${username}' added to the database!`);
-  return { message: `User '${username}' added to the database!` };
+  await new this({ _id: uuidv4(), ...form}).save();
+  console.log(`[MANGOLIA]: User '${form.username}' added to the database!`);
+  return { message: `User '${form.username}' added to the database!` };
 };
 
 /**
@@ -65,6 +64,7 @@ schema.statics.update = async function (_id, newProfile) {
     if (newProfile.email) user.email = newProfile.email;
     if (newProfile.password) user.password = await bcrypt.hash(newProfile.password, saltRounds);
     if (newProfile.profileImage) user.profileImage = newProfile.profileImage;
+    if (newProfile.geolocation) user.geolocation = newProfile.geolocation;
 
     resolve(user.save());
   });
