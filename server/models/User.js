@@ -14,6 +14,7 @@ const schema = new Schema(
     password: { type: String, required: true }, // Encrypted password of the user
     geolocation: { type: Object, required: true }, // user's geolocation
     profileImage: { type: Object }, // Link to the pfp of the user
+    socials: { type: Object }, // the users socials
     points: Number, // User's earned points
     is_admin: Boolean, // Is user administrator or not
     machines: { type: Array, default: null }, // The array that contains the UUID's of the machines the user has

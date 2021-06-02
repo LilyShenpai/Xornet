@@ -16,6 +16,8 @@ const schema = Joi.object({
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
   repeatPassword: Joi.ref("password"),
   geolocation: Joi.object(),
+  created_at: Joi.number(),
+  socials: Joi.object(),
   email: Joi.string().email({ minDomainSegments: 2 }),
 });
 
