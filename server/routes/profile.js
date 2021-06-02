@@ -37,10 +37,22 @@ async function saveImage(image) {
 
 router.use(upload.any());
 
-router.get("/profile", auth, async (req, res) => {
-  req.user.password = undefined;
-  req.user.machines = undefined;
-  res.status(200).json(req.user);
+router.get("/profile/:username", auth, async (req, res) => {
+  // If the user is the currently logged in one just send this back
+  if (req.params.username == req.user.username){
+    req.user.password = undefined;
+    req.user.machines = undefined;
+    req.user.geolocation.isp = undefined;
+    return res.status(200).json(req.user);
+  }
+
+  // If they arent logged in then that means they are trying to see
+  // another user's profile so we fetch it from the database
+  const user = await User.findOne({username: req.params.username});
+  user.password = undefined;
+  user.machines = undefined;
+  user.geolocation.isp = undefined;
+  return res.status(200).json(user);
 });
 
 router.patch("/profile", auth, async (req, res) => {
