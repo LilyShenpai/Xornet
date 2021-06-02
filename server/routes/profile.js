@@ -17,7 +17,10 @@ const schema = Joi.object({
   repeatPassword: Joi.ref("password"),
   geolocation: Joi.object(),
   created_at: Joi.number(),
-  socials: Joi.object(),
+  points: Joi.number(),
+  isDev: Joi.string(),
+  socials: Joi.array(),
+  badges: Joi.object(),
   email: Joi.string().email({ minDomainSegments: 2 }),
 });
 
@@ -44,6 +47,7 @@ async function saveImage(image) {
 router.use(upload.any());
 
 router.get("/profile/:username", auth, async (req, res) => {
+  if(req.params.username == undefined) return res.status(404);
   // If the user is the currently logged in one just send this back
   if (req.params.username == req.user.username){
     if(req.user.password) req.user.password = undefined;

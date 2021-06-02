@@ -8,15 +8,17 @@ const saltRounds = parseInt(process.env.SALTROUNDS);
 const schema = new Schema(
   {
     _id: { type: String, required: true }, // The user's ID
-    created_at: { type: Number, required: true, default: Date.now()}, // Epoch when the account is created
+    created_at: { type: Number, required: true, default: Date.now() }, // Epoch when the account is created
     username: { type: String, required: true }, // Username of the user
     email: { type: String, required: true }, // Email of the user
     password: { type: String, required: true }, // Encrypted password of the user
     geolocation: { type: Object, required: true }, // user's geolocation
     profileImage: { type: Object }, // Link to the pfp of the user
-    socials: { type: Object }, // the users socials
-    points: Number, // User's earned points
-    is_admin: Boolean, // Is user administrator or not
+    socials: { type: Array }, // the users socials
+    isDev: { type: String }, // if the user is a Xornet dev
+    badges: { type: Object }, // the users badges
+    points: { type: Number, default: 0 }, // User's earned points
+    is_admin: { type: Boolean, default: false }, // Is user administrator or not
     machines: { type: Array, default: null }, // The array that contains the UUID's of the machines the user has
   },
   {
@@ -47,7 +49,7 @@ schema.statics.add = async function (form) {
   form.password = await bcrypt.hash(form.password, saltRounds);
 
   // Add user to DB
-  await new this({ _id: uuidv4(), ...form}).save();
+  await new this({ _id: uuidv4(), ...form }).save();
   console.log(`[MANGOLIA]: User '${form.username}' added to the database!`);
   return { message: `User '${form.username}' added to the database!` };
 };
