@@ -8,7 +8,7 @@ const saltRounds = parseInt(process.env.SALTROUNDS);
 const schema = new Schema(
   {
     _id: { type: String, required: true }, // The user's ID
-    created_at: Date, // Date when the account is created
+    created_at: { type: Number, required: true, default: Date.now()}, // Epoch when the account is created
     username: { type: String, required: true }, // Username of the user
     email: { type: String, required: true }, // Email of the user
     password: { type: String, required: true }, // Encrypted password of the user
