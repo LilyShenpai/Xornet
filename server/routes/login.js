@@ -26,7 +26,6 @@ async function createToken(user, res) {
 }
 
 router.post("/login", async (req, res) => {
-
   // Parse body
   const user = await User.findOne({ username: req.body.username }).exec();
 

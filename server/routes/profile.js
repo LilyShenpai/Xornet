@@ -49,8 +49,8 @@ async function saveImage(image) {
 async function saveBanner(image) {
   return new Promise(async (resolve, reject) => {
     let date = Date.now();
-    fs.rename(`./temp/${image.filename}`, `./uploads/images/${date}-${image.originalname}`, err => {
-      if(err) console.log(err);
+    fs.rename(`./temp/${image.filename}`, `./uploads/images/${date}-${image.originalname}`, (err) => {
+      if (err) console.log(err);
       resolve({
         url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`,
       });
@@ -61,21 +61,21 @@ async function saveBanner(image) {
 router.use(upload.any());
 
 router.get("/profile/:username", auth, async (req, res) => {
-  if(req.params.username == undefined) return res.status(404);
+  if (req.params.username == undefined) return res.status(404);
   // If the user is the currently logged in one just send this back
-  if (req.params.username == req.user.username){
-    if(req.user.password) req.user.password = undefined;
-    if(req.user.machines) req.user.machines = undefined;
-    if(req.user.geolocation?.isp) req.user.geolocation.isp = undefined;
+  if (req.params.username == req.user.username) {
+    if (req.user.password) req.user.password = undefined;
+    if (req.user.machines) req.user.machines = undefined;
+    if (req.user.geolocation?.isp) req.user.geolocation.isp = undefined;
     return res.status(200).json(req.user);
   }
 
   // If they arent logged in then that means they are trying to see
   // another user's profile so we fetch it from the database
-  const user = await User.findOne({username: req.params.username});
-  if(user.password) user.password = undefined;
-  if(user.machines) user.machines = undefined;
-  if(user.geolocation?.isp) user.geolocation.isp = undefined;
+  const user = await User.findOne({ username: req.params.username });
+  if (user.password) user.password = undefined;
+  if (user.machines) user.machines = undefined;
+  if (user.geolocation?.isp) user.geolocation.isp = undefined;
   return res.status(200).json(user);
 });
 
@@ -83,13 +83,13 @@ router.patch("/profile", auth, async (req, res) => {
   req.body.json = JSON.parse(req.body.json);
   try {
     let profile = req.body.json;
-    for(file of req.files){
+    for (file of req.files) {
       switch (file.fieldname) {
-        case 'image':
+        case "image":
           profile.profileImage = await saveImage(file);
           await schema.validateAsync(profile);
           break;
-        case 'banner':
+        case "banner":
           profile.profileBanner = await saveBanner(file);
           await schema.validateAsync(profile);
           break;

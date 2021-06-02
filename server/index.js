@@ -38,24 +38,26 @@ const Stats = require("@/models/Stats.js");
 const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
 
-const smtp = require ("@/services/smtp.js");
+const smtp = require("@/services/smtp.js");
 const SMTPServer = require("smtp-server").SMTPServer;
 
 app.use(bodyParser.json());
 app.use(express.static("uploads"));
 app.use(cookieParser());
 app.use(morgan("dev")); // Enable HTTPs code logs
-app.use(cors({
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(null, true);
-      // callback(new Error('Not allowed by CORS'))
-    }
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+        // callback(new Error('Not allowed by CORS'))
+      }
+    },
+    credentials: true,
+  })
+);
 /**
  * All machines connected to Xornet
  */
@@ -169,13 +171,13 @@ const smtpserv = new SMTPServer({
       return callback(new Error("Invalid username or password"));
     }
     callback(null, { user: 1 }); // where 123 is the user id or similar property
-  }
+  },
 });
 smtpserv.listen(465, () => {
-  console.log(`SMTP Server started on port 465`)
+  console.log(`SMTP Server started on port 465`);
   //smtp.test();
 });
 
-smtpserv.on("error", error => {
+smtpserv.on("error", (error) => {
   console.error(`[SMTP]: Error with smtp server: ${error}`);
 });
