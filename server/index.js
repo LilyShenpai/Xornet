@@ -37,6 +37,10 @@ const Stats = require("@/models/Stats.js");
 
 const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
+
+const smtp = require ("@/services/smtp.js");
+const SMTPServer = require("smtp-server").SMTPServer;
+
 app.use(bodyParser.json());
 app.use(express.static("uploads"));
 app.use(cookieParser());
@@ -127,7 +131,7 @@ io.on("connection", async (socket) => {
     // So it goes to the frontend
     report.owner = {
       username: user.username,
-      profileImage: user.profileImage,
+      profileImage: user.profileImage.url,
     };
 
     // Add geolocation data
@@ -150,3 +154,21 @@ io.on("connection", async (socket) => {
 });
 
 https.listen(port, () => console.log(`Started on port ${port.toString()}`));
+
+const smtpserv = new SMTPServer({
+  //name: "xornet.cloud",
+  //key: options.key,
+  //cert: options.cert,
+  onConnect(session, callback) {
+    console.log(session);
+    return callback(); // Accept the connection
+  },
+});
+smtpserv.listen(25, () => {
+  console.log(`SMTP Server started on port 25`)
+  smtp.test();
+});
+
+smtpserv.on("error", error => {
+  console.error(`[SMTP]: Error with smtp server: ${error}`);
+});
