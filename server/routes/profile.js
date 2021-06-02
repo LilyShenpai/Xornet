@@ -83,7 +83,6 @@ router.patch("/profile", auth, async (req, res) => {
   req.body.json = JSON.parse(req.body.json);
   try {
     let profile = req.body.json;
-    console.log(req.files);
     for(file of req.files){
       switch (file.fieldname) {
         case 'image':

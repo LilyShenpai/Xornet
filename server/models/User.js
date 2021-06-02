@@ -64,11 +64,14 @@ schema.statics.update = async function (_id, newProfile) {
   return new Promise(async (resolve) => {
     const user = await this.findOne({ _id }).exec();
 
+    // TODO: make this into a forloop or some shit this is annoying
     if (newProfile.username) user.username = newProfile.username;
     if (newProfile.email) user.email = newProfile.email;
     if (newProfile.password) user.password = await bcrypt.hash(newProfile.password, saltRounds);
     if (newProfile.profileImage) user.profileImage = newProfile.profileImage;
+    if (newProfile.profileBanner) user.profileBanner = newProfile.profileBanner;
     if (newProfile.geolocation) user.geolocation = newProfile.geolocation;
+    if (newProfile.socials) user.socials = newProfile.socials;
 
     resolve(user.save());
   });
