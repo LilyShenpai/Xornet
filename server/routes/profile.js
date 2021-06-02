@@ -12,9 +12,10 @@ const User = require("@/models/User.js");
 const schema = Joi.object({
   _id: Joi.string(),
   username: Joi.string().alphanum().min(3).max(30),
-  profileImage: Joi.string(),
+  profileImage: Joi.object(),
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
   repeatPassword: Joi.ref("password"),
+  geolocation: Joi.object(),
   email: Joi.string().email({ minDomainSegments: 2 }),
 });
 
@@ -25,9 +26,12 @@ async function saveImage(image) {
       Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
         fs.unlink(`./temp/${image.filename}`, () => {});
         if (err) throw err;
-        if (jimpImage.bitmap.width > 128) jimpImage.resize(Jimp.AUTO, 128);
+        if (jimpImage.bitmap.width > 256) jimpImage.resize(Jimp.AUTO, 256);
         jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
-        resolve(`https://backend.xornet.cloud/images/${date}-${image.originalname}`);
+        resolve({
+          url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`,
+          hasAlpha: jimpImage.hasAlpha(),
+        });
       });
     } catch (error) {
       reject(error);
@@ -40,18 +44,18 @@ router.use(upload.any());
 router.get("/profile/:username", auth, async (req, res) => {
   // If the user is the currently logged in one just send this back
   if (req.params.username == req.user.username){
-    req.user.password = undefined;
-    req.user.machines = undefined;
-    req.user.geolocation.isp = undefined;
+    if(req.user.password) req.user.password = undefined;
+    if(req.user.machines) req.user.machines = undefined;
+    if(req.user.geolocation?.isp) req.user.geolocation.isp = undefined;
     return res.status(200).json(req.user);
   }
 
   // If they arent logged in then that means they are trying to see
   // another user's profile so we fetch it from the database
   const user = await User.findOne({username: req.params.username});
-  user.password = undefined;
-  user.machines = undefined;
-  user.geolocation.isp = undefined;
+  if(user.password) user.password = undefined;
+  if(user.machines) user.machines = undefined;
+  if(user.geolocation?.isp) user.geolocation.isp = undefined;
   return res.status(200).json(user);
 });
 
