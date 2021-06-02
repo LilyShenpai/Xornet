@@ -37,7 +37,7 @@ async function saveImage(image) {
         if (jimpImage.bitmap.width > 256) jimpImage.resize(Jimp.AUTO, 256);
         jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
         resolve({
-          url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`,
+          url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
           hasAlpha: jimpImage.hasAlpha(),
         });
       });
@@ -53,7 +53,7 @@ async function saveBanner(image) {
     fs.rename(`./temp/${image.filename}`, `./uploads/images/${date}-${image.originalname}`, (err) => {
       if (err) console.log(err);
       resolve({
-        url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`,
+        url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
       });
     });
   });
