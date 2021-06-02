@@ -157,16 +157,23 @@ https.listen(port, () => console.log(`Started on port ${port.toString()}`));
 
 const smtpserv = new SMTPServer({
   //name: "xornet.cloud",
-  //key: options.key,
-  //cert: options.cert,
+  secure: true,
+  key: options.key,
+  cert: options.cert,
   onConnect(session, callback) {
     console.log(session);
     return callback(); // Accept the connection
   },
+  onAuth(auth, session, callback) {
+    if (auth.username !== "kekw@xornet.cloud" || auth.password !== "yay") {
+      return callback(new Error("Invalid username or password"));
+    }
+    callback(null, { user: 1 }); // where 123 is the user id or similar property
+  }
 });
-smtpserv.listen(25, () => {
-  console.log(`SMTP Server started on port 25`)
-  smtp.test();
+smtpserv.listen(465, () => {
+  console.log(`SMTP Server started on port 465`)
+  //smtp.test();
 });
 
 smtpserv.on("error", error => {

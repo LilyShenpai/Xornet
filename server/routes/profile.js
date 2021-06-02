@@ -13,6 +13,7 @@ const schema = Joi.object({
   _id: Joi.string(),
   username: Joi.string().alphanum().min(3).max(30),
   profileImage: Joi.object(),
+  profileBanner: Joi.object(),
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
   repeat_password: Joi.ref("password"),
   geolocation: Joi.object(),
@@ -45,6 +46,18 @@ async function saveImage(image) {
   });
 }
 
+async function saveBanner(image) {
+  return new Promise(async (resolve, reject) => {
+    let date = Date.now();
+    fs.rename(`./temp/${image.filename}`, `./uploads/images/${date}-${image.originalname}`, err => {
+      if(err) console.log(err);
+      resolve({
+        url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`,
+      });
+    });
+  });
+}
+
 router.use(upload.any());
 
 router.get("/profile/:username", auth, async (req, res) => {
@@ -70,7 +83,19 @@ router.patch("/profile", auth, async (req, res) => {
   req.body.json = JSON.parse(req.body.json);
   try {
     let profile = req.body.json;
-    if (req.files[0]) (profile.profileImage = await saveImage(req.files[0])), await schema.validateAsync(profile);
+    console.log(req.files);
+    for(file of req.files){
+      switch (file.fieldname) {
+        case 'image':
+          profile.profileImage = await saveImage(file);
+          await schema.validateAsync(profile);
+          break;
+        case 'banner':
+          profile.profileBanner = await saveBanner(file);
+          await schema.validateAsync(profile);
+          break;
+      }
+    }
     await User.update(req.user._id, profile);
     res.status(201).json({ message: "Profile updated", profile });
   } catch (error) {

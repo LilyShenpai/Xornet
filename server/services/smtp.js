@@ -4,27 +4,31 @@ module.exports = {
     async test() {
         try {
             console.log(`[SMTP]: Starting message test!`);
-            let acc = await nodemailer.createTestAccount();
     
             let transport = nodemailer.createTransport({
                 host: "localhost",
-                port: 25,
-                //secure: true,
+                port: 465,
+                secure: true,
+                //ignoreTLS: true,
                 auth: {
-                    user: acc.user,
-                    pass: acc.pass,
+                    user: "kekw@xornet.cloud",
+                    pass: "yay",
                 },
-                rejectUnauthorized: false
+                tls: {
+                    // do not fail on invalid certs
+                    rejectUnauthorized: false
+                }
             });
             let msg = await transport.sendMail({
-                from:'"Le test" <test@xornet.cloud>',
-                to: "huuskonen.niko@hotmail.fi",
+                from:'"Le test" <kekw@xornet.cloud>',
+                to: "niko.huuskonen.00@gmail.com",
                 subject: "kekw",
                 text: "we do a little trolling",
+                html: "<b>Hello world?</b>",
             });
     
             console.log(`[SMTP]: Test message sent!`);
-            console.log(`[SMTP]: Test message url: ${nodemailer.getTestMessageUrl(info)}`);
+            console.log(msg);
         } catch (error) {
             console.error(`[SMTP]: Error during message test: ${error}`);
         }

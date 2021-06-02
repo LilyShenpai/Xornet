@@ -13,7 +13,8 @@ const schema = new Schema(
     email: { type: String, required: true }, // Email of the user
     password: { type: String, required: true }, // Encrypted password of the user
     geolocation: { type: Object, required: true }, // user's geolocation
-    profileImage: { type: Object }, // Link to the pfp of the user
+    profileImage: { type: Object }, // object containing the link and alpha to the pfp of the user
+    profileBanner: { type: Object }, // Link to the banner of the user
     socials: { type: Array }, // the users socials
     isDev: { type: String }, // if the user is a Xornet dev
     badges: { type: Object }, // the users badges
