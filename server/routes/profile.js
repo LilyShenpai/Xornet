@@ -19,6 +19,7 @@ const schema = Joi.object({
   geolocation: Joi.object(),
   created_at: Joi.number(),
   points: Joi.number(),
+  bio: Joi.string(),
   isDev: Joi.string(),
   is_admin: Joi.boolean(),
   socials: Joi.array(),

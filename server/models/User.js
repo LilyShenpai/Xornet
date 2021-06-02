@@ -17,6 +17,7 @@ const schema = new Schema(
     profileBanner: { type: Object }, // Link to the banner of the user
     socials: { type: Array }, // the users socials
     isDev: { type: String }, // if the user is a Xornet dev
+    bio: { type: String }, // if the user is a Xornet dev
     badges: { type: Object }, // the users badges
     points: { type: Number, default: 0 }, // User's earned points
     is_admin: { type: Boolean, default: false }, // Is user administrator or not
@@ -64,14 +65,10 @@ schema.statics.update = async function (_id, newProfile) {
   return new Promise(async (resolve) => {
     const user = await this.findOne({ _id }).exec();
 
-    // TODO: make this into a forloop or some shit this is annoying
-    if (newProfile.username) user.username = newProfile.username;
-    if (newProfile.email) user.email = newProfile.email;
+    for (const [key, value] of Object.keys(newProfile)){
+      user[key] = value;
+    }
     if (newProfile.password) user.password = await bcrypt.hash(newProfile.password, saltRounds);
-    if (newProfile.profileImage) user.profileImage = newProfile.profileImage;
-    if (newProfile.profileBanner) user.profileBanner = newProfile.profileBanner;
-    if (newProfile.geolocation) user.geolocation = newProfile.geolocation;
-    if (newProfile.socials) user.socials = newProfile.socials;
 
     resolve(user.save());
   });
