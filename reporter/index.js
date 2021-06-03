@@ -4,7 +4,7 @@ const axios = require("axios");
 const os = require("os");
 const fs = require("fs");
 const ProgressBar = require("progress");
-const speedTest = require('speedtest-net');
+const { execSync, spawn, fork } = require('child_process');
 require("colors");
 
 /**
@@ -101,7 +101,7 @@ async function checkForUpdates() {
     var update = parseFloat((await axios.get("https://api.github.com/repos/Geoxor/Xornet/releases")).data[0].tag_name.replace("v", ""));
   } catch (error) {
     if (error) {
-      console.log(error);
+      // console.log(error);
       if (error.response.status === 403) {
         console.log("[WARN]".bgYellow.black + ` GitHub API error, skipping...`);
         return connectToXornet();
@@ -133,51 +133,62 @@ const clearLastLine = () => {
   process.stdout.clearLine(1) // from cursor to end
 }
 
-async function speedtest() {
-
-  return new Promise(async (resolve, reject) => {
+async function speedtest(){
+  return new Promise((resolve, reject) => {
     console.log("[SPEEDTEST]".bgYellow.black + ` Performing speedtest...`);
     printSendingStats = false;
-    try {
-      var results = await speedTest({
-        acceptLicense: true,
-        acceptGdpr: true,
-        progress: (progress) => {
 
-          if (progress.type !== 'ping' && progress.type !== 'download' && progress.type !== 'upload') return;
-          if (!progress.download?.bytes && !progress.upload?.bytes) return;
+    let result = {};
+    let args = ['-f', 'json', "-p", "-P", "16"];
+    let netsh_output = spawn('speedtest.exe', args, {
+      windowsHide: true,
+    });
+ 
+    netsh_output.stdout.on('data', (progress) => {
+      if(!progress || progress.toString() == '' || !progress.toString()) return;
 
-          if (progress.type == 'download' || progress.type == 'upload'){
-            clearLastLine();
-            console.log("[SPEEDTEST]".bgYellow.black + 
-              ` Performing: ${progress.type.yellow}` + 
-              ` Progress: ${((progress.progress * 100).toFixed(2)).toString().yellow}%` + 
-              ` Speed: ${((progress[progress.type].bandwidth / 100000).toFixed(2)).toString().yellow}Mbps`
-            );
-          } else {
-            clearLastLine();
-            console.log("[SPEEDTEST]".bgYellow.black + 
-              ` Performing: ${progress.type.yellow}` + 
-              ` Progress: ${((progress.progress * 100).toFixed(2)).toString().yellow}%` + 
-              ` Ping: ${((progress.ping.jitter).toFixed(2)).toString().yellow}ms`
-            );
-          }
-        },
-      });
-    } catch (err) {
+      try {
+        progress = JSON.parse(progress.toString());
+      } catch (error) {}
+
+      if (progress.type == 'result') return result = progress;
+      
+      if (progress.type !== 'ping' && progress.type !== 'download' && progress.type !== 'upload') return;
+      if (!progress.download?.bytes && !progress.upload?.bytes) return;
+
+      if (progress.type == 'download' || progress.type == 'upload'){
+        clearLastLine();
+        console.log("[SPEEDTEST]".bgYellow.black + 
+          ` Performing: ${progress.type.yellow}` +
+          ` Progress: ${((progress[progress.type].progress * 100).toFixed(2)).toString().yellow}%` +  
+          ` Speed: ${((progress[progress.type].bandwidth / 100000).toFixed(2)).toString().yellow}Mbps`
+        );
+      } else {
+        clearLastLine();
+        console.log("[SPEEDTEST]".bgYellow.black + 
+          ` Performing: ${progress.type.yellow}` + 
+          ` Progress: ${((progress[progress.type].progress * 100).toFixed(2)).toString().yellow}%` + 
+          ` Ping: ${((progress.ping.jitter).toFixed(2)).toString().yellow}ms`
+        );
+      }
+    });
+
+    netsh_output.stderr.on('data', (err) => {
+      console.log(err.message);
       reject(err.message);
       printSendingStats = true;
-    } finally {
+    });
+
+    netsh_output.on('exit', () => {
       clearLastLine();
       console.log("[SPEEDTEST]".bgYellow.black + 
-        ` Speedtest complete - Download: ${((results.download.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
-        ` Upload: ${((results.upload.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
-        ` Ping: ${((results.ping.latency).toFixed(2)).toString().yellow}ms`
+        ` Speedtest complete - Download: ${((result.download.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
+        ` Upload: ${((result.upload.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
+        ` Ping: ${((result.ping.latency).toFixed(2)).toString().yellow}ms`
       );
-      console.log("[INFO]".bgCyan.black + ` Loading stats...`);
       printSendingStats = true;
-      resolve(results);
-    }
+      resolve(result);
+    })
   });
 }
 
@@ -295,6 +306,8 @@ async function getStats() {
  * Connects to the Xornet Backend and sends system statistics every second.
  */
 async function connectToXornet() {
+  // await installSpeedTest();
+
   // Console logging information so that the user knows whats happening.
   console.log("[INFO]".bgCyan.black + " Fetching system information...");
 
