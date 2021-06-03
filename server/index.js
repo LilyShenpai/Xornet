@@ -69,7 +69,7 @@ let machinesStatic = new Map();
  * Latest version of Reporter
  * @type {number}
  */
-let latestVersion = 0.16;
+let latestVersion = 0.17;
 
 app.get("/stats", async (req, res) => {
   let object = {
