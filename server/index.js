@@ -92,6 +92,10 @@ app.use(require("@/routes/reporter"));
 // Temp clear out machines every 60seconds to clear
 setInterval(() => machines.clear(), 60000);
 
+// Temp run speedtest on all reporters
+setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
+
+// Temp clear out machines every 60seconds to clear
 setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
   io.sockets.in("reporter").emit("heartbeat", Date.now());
@@ -115,6 +119,10 @@ io.on("connection", async (socket) => {
   // socket.on("input", input => {
   //   pty.write(input);
   // });
+
+  socket.on("speedtest", async (speedtest) => {
+    console.log(speedtest);
+  });
 
   // Parse reports
   // Report is what is collected from the Reporter

@@ -4,13 +4,14 @@ const axios = require("axios");
 const os = require("os");
 const fs = require("fs");
 const ProgressBar = require("progress");
+const speedTest = require('speedtest-net');
 require("colors");
 
 /**
  * Current version of Xornet Reporter
  * @type {number}
  */
-const version = 0.16;
+const version = 0.17;
 const logo = [
   "     ___           ___           ___           ___           ___           ___     \n",
   "    |\\__\\         /\\  \\         /\\  \\         /\\__\\         /\\  \\         /\\  \\    \n",
@@ -45,6 +46,8 @@ const REFRESH_INTERVAL = 1000;
  * @type {object}
  */
 let staticData = {};
+
+let printSendingStats = true;
 
 /**
  * Detects the system platform and returns the extension.
@@ -123,6 +126,54 @@ async function checkForUpdates() {
   }
 
   return connectToXornet();
+}
+
+const clearLastLine = () => {
+  process.stdout.moveCursor(0, -1) // up one line
+  process.stdout.clearLine(1) // from cursor to end
+}
+
+async function speedtest() {
+
+  return new Promise(async (resolve, reject) => {
+    console.log("[SPEEDTEST]".bgYellow.black + ` Performing speedtest...`);
+    printSendingStats = false;
+    try {
+      var results = await speedTest({
+        acceptLicense: true,
+        acceptGdpr: true,
+        progress: (progress) => {
+
+          if (progress.type !== 'ping' && progress.type !== 'download' && progress.type !== 'upload') return;
+          if (!progress.download?.bytes && !progress.upload?.bytes) return;
+
+          if (progress.type == 'download' || progress.type == 'upload'){
+            clearLastLine();
+            console.log("[SPEEDTEST]".bgYellow.black + 
+              ` Performing: ${progress.type.yellow}` + 
+              ` Progress: ${((progress.progress * 100).toFixed(2)).toString().yellow}%` + 
+              ` Speed: ${((progress[progress.type].bandwidth / 100000).toFixed(2)).toString().yellow}Mbps`
+            );
+          } else {
+            clearLastLine();
+            console.log("[SPEEDTEST]".bgYellow.black + 
+              ` Performing: ${progress.type.yellow}` + 
+              ` Progress: ${((progress.progress * 100).toFixed(2)).toString().yellow}%` + 
+              ` Ping: ${((progress.ping.jitter).toFixed(2)).toString().yellow}ms`
+            );
+          }
+        },
+      });
+    } catch (err) {
+      reject(err.message);
+      printSendingStats = true;
+    } finally {
+      console.log("[SPEEDTEST]".bgYellow.black + ` Speedtest complete`);
+      console.log("[INFO]".bgCyan.black + ` Loading stats...`);
+      printSendingStats = true;
+      resolve(results);
+    }
+  });
 }
 
 /**
@@ -295,9 +346,13 @@ async function connectToXornet() {
   // Creates a 'setInterval' which will send the data to the backend every second.
   socket.on("connect", async () => {
     console.log("[CONNECTED]".bgGreen.black + ` Connected to ${backend.green}`);
+    console.log("[INFO]".bgCyan.black + ` Loading Stats...`);
 
     emitter = setInterval(function () {
-      console.log("[INFO]".bgCyan.black + ` Sending Stats - ${Date.now()}`.cyan);
+      if(printSendingStats) {
+        clearLastLine();
+        console.log("[INFO]".bgCyan.black + ` Sending Stats - ${Date.now()}`.cyan);
+      }
       socket.emit("report", statistics);
     }, REFRESH_INTERVAL);
   });
@@ -317,6 +372,10 @@ async function connectToXornet() {
       epoch,
     });
   });
+
+  // Get a event to run a speedtest
+  // Returns a response with the results of the speedtest
+  socket.on("runSpeedtest", async () => socket.emit("speedtest", await speedtest()));
 }
 
 checkForUpdates();
