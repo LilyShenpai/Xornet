@@ -8,6 +8,14 @@ const upload = multer({ dest: "./temp/" });
 const router = express.Router();
 const Joi = require("joi");
 const User = require("@/models/User.js");
+const FileType = require('file-type');
+
+const jimpMimeTypes = [
+  "image/png",
+  "image/jpeg",
+  "image/tiff",
+  "image/bmp",
+];
 
 const schema = Joi.object({
   _id: Joi.string(),
@@ -27,27 +35,32 @@ const schema = Joi.object({
   email: Joi.string().email({ minDomainSegments: 2 }),
 });
 
-async function saveImage(image) {
+async function resizeSaveImage(image) {
   return new Promise(async (resolve, reject) => {
     let date = Date.now();
-    try {
-      Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
-        fs.unlink(`./temp/${image.filename}`, () => {});
-        if (err) throw err;
-        if (jimpImage.bitmap.width > 256) jimpImage.resize(Jimp.AUTO, 256);
-        jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
-        resolve({
-          url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
-          hasAlpha: jimpImage.hasAlpha(),
+    const filetype = await FileType.fromFile(`./temp/${image.filename}`);
+
+    console.log(filetype);
+    if (jimpMimeTypes.includes(filetype.mime)) {
+      try {
+        Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
+          fs.unlink(`./temp/${image.filename}`, () => {});
+          if (err) throw err;
+          if (jimpImage.bitmap.width > 256) jimpImage.resize(Jimp.AUTO, 256);
+          jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
+          resolve({
+            url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
+            hasAlpha: jimpImage.hasAlpha(),
+          });
         });
-      });
-    } catch (error) {
-      reject(error);
+      } catch (error) {
+        reject(error);
+      }
     }
   });
 }
 
-async function saveBanner(image) {
+async function saveImage(image) {
   return new Promise(async (resolve, reject) => {
     let date = Date.now();
     fs.rename(`./temp/${image.filename}`, `./uploads/images/${date}-${image.originalname}`, (err) => {
@@ -85,16 +98,27 @@ router.patch("/profile", auth, async (req, res) => {
   try {
     let profile = req.body.json;
     for (file of req.files) {
+      
+      // Check for valid mimetype
+      const filetype = await FileType.fromFile(`./temp/${file.filename}`);
+      if (!filetype.mime.startsWith("image")){
+        return res.status(400).json({ error: 'invalid file type' });
+      }
+
+      // Validate profile integrity
       switch (file.fieldname) {
         case "image":
-          profile.profileImage = await saveImage(file);
-          await schema.validateAsync(profile);
+          // If the image is a gif then simply save it without resizing
+          if(filetype.mime == 'image/gif') profile.profileImage = await saveImage(file);
+          else profile.profileImage = await resizeSaveImage(file);
           break;
         case "banner":
-          profile.profileBanner = await saveBanner(file);
-          await schema.validateAsync(profile);
+          profile.profileBanner = await saveImage(file);
           break;
       }
+
+      // Validate profile integrity
+      await schema.validateAsync(profile);
     }
     await User.update(req.user._id, profile);
     res.status(201).json({ message: "Profile updated", profile });

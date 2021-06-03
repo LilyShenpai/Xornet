@@ -65,7 +65,7 @@ schema.statics.update = async function (_id, newProfile) {
   return new Promise(async (resolve) => {
     const user = await this.findOne({ _id }).exec();
 
-    for (const [key, value] of Object.keys(newProfile)){
+    for (const [key, value] of Object.entries(newProfile)){
       user[key] = value;
     }
     if (newProfile.password) user.password = await bcrypt.hash(newProfile.password, saltRounds);
