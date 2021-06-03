@@ -93,7 +93,11 @@ app.use(require("@/routes/reporter"));
 setInterval(() => machines.clear(), 60000);
 
 // Temp run speedtest on all reporters
+// Run on startup
 setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
+
+// Run every hour
+setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
 
 // Temp clear out machines every 60seconds to clear
 setInterval(async () => {

@@ -168,7 +168,12 @@ async function speedtest() {
       reject(err.message);
       printSendingStats = true;
     } finally {
-      console.log("[SPEEDTEST]".bgYellow.black + ` Speedtest complete`);
+      clearLastLine();
+      console.log("[SPEEDTEST]".bgYellow.black + 
+        ` Speedtest complete - Download: ${((results.download.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
+        ` Upload: ${((results.upload.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
+        ` Ping: ${((results.ping.latency).toFixed(2)).toString().yellow}ms`
+      );
       console.log("[INFO]".bgCyan.black + ` Loading stats...`);
       printSendingStats = true;
       resolve(results);
