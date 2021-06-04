@@ -133,8 +133,9 @@ io.use(authSocket);
 
 // Websockets
 io.on("connection", async (socket) => {
-
   if (!socket.handshake.auth.type) return socket.disconnect();
+
+  console.log(`[WEBSOCKET] ${socket.handshake.auth.type} connected`);
 
   if (socket.handshake.auth.type === "client") {
     socket.join("client");
@@ -219,6 +220,10 @@ io.on("connection", async (socket) => {
       if (!report.rogue) await Stats.add(report);
     });
   }
+});
+
+io.on('disconnection', () => {
+  console.log("[WEBSOCKET] Disconnected");
 });
 
 https.listen(port, () => console.log(`Started on port ${port.toString()}`));
