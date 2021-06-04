@@ -42,6 +42,8 @@ const Machine = require("@/models/Machine.js");
 const User = require("@/models/User.js");
 const Stats = require("@/models/Stats.js");
 
+const authSocket = require("@/middleware/authSocket.js");
+
 const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
 
@@ -103,7 +105,7 @@ setInterval(() => machines.clear(), 60000);
 
 // Run every hour
 setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
-setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
+// setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
 
 // Temp clear out machines every 60seconds to clear
 setInterval(async () => {
@@ -127,77 +129,96 @@ async function calculateReportPoints(){
   return REPORT_BASE_REWARD + (Math.floor(Math.random() * REPORT_BASE_REWARD));
 }
 
+io.use(authSocket);
+
 // Websockets
 io.on("connection", async (socket) => {
-  if (socket.handshake.auth.type === "client") socket.join("client");
+
+  if (!socket.handshake.auth.type) return socket.disconnect();
+
+  if (socket.handshake.auth.type === "client") {
+    socket.join("client");
+
+    let userToGetPointsOf = socket.user.username;
+
+    const pointInterval = setInterval(async () => {
+      const points = (await User.findOne({username: userToGetPointsOf})).points;
+      socket.emit('points', points);
+    }, 1000);
+
+    socket.on('getPoints', username => {
+      userToGetPointsOf = username;
+    });
+
+    socket.on('disconnect', () => clearInterval(pointInterval));
+
+  }
   if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== "") {
     await Machine.add(socket.handshake.auth.static);
     socket.join("reporter");
+
+    // Calculate ping and append it to the machine map
+    socket.on("heartbeatResponse", (heartbeat) => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
+
+    // This should be moved into the reporters and be secured
+    // let pty = new PTYService(socket);
+    // socket.on("input", input => {
+    //   pty.write(input);
+    // });
+
+    socket.on("speedtest", async (speedtest) => {
+      delete speedtest.type;
+      const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
+      const user = await User.findOne({_id: userUUID}).exec();
+      user.addPoints(await calculateSpeedtestPoints());
+      user.speedtest = speedtest;
+      user.save();
+    });
+
+    // Parse reports
+    // Report is what is collected from the Reporter
+    socket.on("report", async (report) => {
+      // Return if the reporter hasn't authenticated
+      if (socket.handshake.auth.static?.reporter?.linked_account == null) return;
+
+      // Return if theres some value that is undefined
+      if (Object.values(report).some((field) => field == null)) return;
+
+      // Get the user from the database cus im an idiot so we can append the pfp / username to each report
+      // & replace the uuid with it
+      let user = await User.findOne({ _id: socket.handshake.auth.static.reporter.linked_account }).exec();
+
+      let points = 0;
+      points += await calculateReportPoints()
+      points += await calculateReporterUptimePoints(report.reporterUptime);
+
+      if (points != null) user.addPoints(points);
+
+      // Assign the linked account from the socket's auth to the report
+      // So it goes to the frontend
+      report.owner = {
+        username: user?.username,
+        profileImage: user?.profileImage?.url,
+      };
+
+      // Add geolocation data
+      // So it goes to the frontend
+      report.geolocation = socket.handshake.auth.static.geolocation;
+      if (report.geolocation) delete report.geolocation.ip;
+
+      // Validate / parse the report
+      report = parseReport(report, latestVersion, machinesPings);
+
+      // Assign statics
+      machinesStatic.set(report.uuid, socket.handshake.auth);
+
+      // Assign report
+      machines.set(report.uuid, report);
+
+      // Add to database
+      if (!report.rogue) await Stats.add(report);
+    });
   }
-  if (!socket.handshake.auth.type) return socket.disconnect();
-
-  // Calculate ping and append it to the machine map
-  socket.on("heartbeatResponse", (heartbeat) => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
-
-  // This should be moved into the reporters and be secured
-
-  // let pty = new PTYService(socket);
-  // socket.on("input", input => {
-  //   pty.write(input);
-  // });
-
-  socket.on("speedtest", async (speedtest) => {
-    delete speedtest.type;
-    const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
-    const user = await User.findOne({_id: userUUID}).exec();
-    user.addPoints(await calculateSpeedtestPoints());
-    user.speedtest = speedtest;
-    user.save();
-  });
-
-  // Parse reports
-  // Report is what is collected from the Reporter
-  socket.on("report", async (report) => {
-    // Return if the reporter hasn't authenticated
-    if (socket.handshake.auth.static?.reporter?.linked_account == null) return;
-
-    // Return if theres some value that is undefined
-    if (Object.values(report).some((field) => field == null)) return;
-
-    // Get the user from the database cus im an idiot so we can append the pfp / username to each report
-    // & replace the uuid with it
-    let user = await User.findOne({ _id: socket.handshake.auth.static.reporter.linked_account }).exec();
-
-    let points = 0;
-    points += await calculateReportPoints()
-    points += await calculateReporterUptimePoints(report.reporterUptime);
-
-    user.addPoints(points);
-
-    // Assign the linked account from the socket's auth to the report
-    // So it goes to the frontend
-    report.owner = {
-      username: user?.username,
-      profileImage: user?.profileImage?.url,
-    };
-
-    // Add geolocation data
-    // So it goes to the frontend
-    report.geolocation = socket.handshake.auth.static.geolocation;
-    if (report.geolocation) delete report.geolocation.ip;
-
-    // Validate / parse the report
-    report = parseReport(report, latestVersion, machinesPings);
-
-    // Assign statics
-    machinesStatic.set(report.uuid, socket.handshake.auth);
-
-    // Assign report
-    machines.set(report.uuid, report);
-
-    // Add to database
-    if (!report.rogue) await Stats.add(report);
-  });
 });
 
 https.listen(port, () => console.log(`Started on port ${port.toString()}`));
