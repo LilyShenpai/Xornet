@@ -11,6 +11,13 @@
 // Add machine to the datacenter / xornet through the website
 // Create add machine, add datacenter, add admins, wizards in the frontend
 
+// Points math
+// const REPORT_BASE_REWARD = 5;
+// const SPEEDTEST_BASE_REWARD = 5;
+
+// const point = REPORT_BASE_REWARD + (Math.floor(Math.random * REPORT_BASE_REWARD)) + REPORT_BASE_REWARD;
+// const point = SPEEDTEST_BASE_REWARD + (Math.floor(Math.random * SPEEDTEST_BASE_REWARD) + SPEEDTEST_BASE_REWARD);
+
 require("dotenv").config();
 require("module-alias/register");
 const express = require("express");
@@ -96,13 +103,29 @@ setInterval(() => machines.clear(), 60000);
 
 // Run every hour
 setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
-setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 5000);
+// setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 5000);
 
 // Temp clear out machines every 60seconds to clear
 setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
   io.sockets.in("reporter").emit("heartbeat", Date.now());
 }, 1000);
+
+
+const MINUTE_IN_MILLISECONDS = 60000;
+const MINUTE_IN_SECONDS = 60;
+const SPEEDTEST_BASE_REWARD = 30;
+const REPORT_BASE_REWARD = 5;
+
+async function calculateReporterUptimePoints(reporterUptime){
+  return Math.floor((((reporterUptime % MINUTE_IN_MILLISECONDS) / 1000) ** 0.8 ) / (MINUTE_IN_SECONDS / 10))
+}
+async function calculateSpeedtestPoints(){
+  return SPEEDTEST_BASE_REWARD + (Math.floor(Math.random() * SPEEDTEST_BASE_REWARD));
+}
+async function calculateReportPoints(){
+  return REPORT_BASE_REWARD + (Math.floor(Math.random() * REPORT_BASE_REWARD));
+}
 
 // Websockets
 io.on("connection", async (socket) => {
@@ -127,6 +150,7 @@ io.on("connection", async (socket) => {
     delete speedtest.type;
     const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
     const user = await User.findOne({_id: userUUID}).exec();
+    user.addPoints(await calculateSpeedtestPoints());
     user.speedtest = speedtest;
     user.save();
   });
@@ -143,6 +167,12 @@ io.on("connection", async (socket) => {
     // Get the user from the database cus im an idiot so we can append the pfp / username to each report
     // & replace the uuid with it
     let user = await User.findOne({ _id: socket.handshake.auth.static.reporter.linked_account }).exec();
+
+    let points = 0;
+    points += await calculateReportPoints()
+    points += await calculateReporterUptimePoints(report.reporterUptime);
+
+    user.addPoints(points);
 
     // Assign the linked account from the socket's auth to the report
     // So it goes to the frontend

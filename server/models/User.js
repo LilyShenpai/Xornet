@@ -114,6 +114,14 @@ schema.methods.getTotalCores = async function(){
   return totalRam.reduce((a, b) => a + b, 0);
 };
 
+/**
+ * @returns Adds points
+ */
+schema.methods.addPoints = async function(points){
+  this.points += points;
+  this.save();
+};
+
 let User = mongoose.model("User", schema);
 
 module.exports = User;
