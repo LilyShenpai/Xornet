@@ -37,25 +37,30 @@ const schema = Joi.object({
 
 async function resizeSaveImage(image) {
   return new Promise(async (resolve, reject) => {
-    let date = Date.now();
-    const filetype = await FileType.fromFile(`./temp/${image.filename}`);
 
-    console.log(filetype);
-    if (jimpMimeTypes.includes(filetype.mime)) {
-      try {
-        Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
-          fs.unlink(`./temp/${image.filename}`, () => {});
-          if (err) throw err;
-          if (jimpImage.bitmap.width > 256) jimpImage.resize(Jimp.AUTO, 256);
-          jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
-          resolve({
-            url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
-            hasAlpha: jimpImage.hasAlpha(),
-          });
+    // Get the date so we can append a unique number on the file name
+    // so all the files are unique and don't conflict
+    let date = Date.now();
+
+    try {
+      Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
+
+        // Delete from temp
+        fs.unlink(`./temp/${image.filename}`, () => {});
+        if (err) throw err;
+
+        // Resize the image to 256 if its bigger than that
+        if (jimpImage.bitmap.width > 256) jimpImage.resize(Jimp.AUTO, 256);
+
+        // Save the image
+        jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
+        resolve({
+          url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
+          hasAlpha: jimpImage.hasAlpha(),
         });
-      } catch (error) {
-        reject(error);
-      }
+      });
+    } catch (error) {
+      reject(error);
     }
   });
 }
@@ -63,13 +68,24 @@ async function resizeSaveImage(image) {
 async function saveImage(image) {
   return new Promise(async (resolve, reject) => {
     let date = Date.now();
+    // Moves the image file from the temporary file to the main uploads folder with a date appended to it
     fs.rename(`./temp/${image.filename}`, `./uploads/images/${date}-${image.originalname}`, (err) => {
-      if (err) console.log(err);
+      if (err) {
+        console.log(err);
+        reject(err);
+      };
       resolve({
         url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
       });
     });
   });
+}
+
+function deleteSensitiveInformation(user){
+  if (user.password) user.password = undefined;
+  if (user.machines) user.machines = undefined;
+  if (user.geolocation?.isp) user.geolocation.isp = undefined;
+  return user
 }
 
 router.use(upload.any());
@@ -78,19 +94,13 @@ router.get("/profile/:username", auth, async (req, res) => {
   if (req.params.username == undefined) return res.status(404);
   // If the user is the currently logged in one just send this back
   if (req.params.username == req.user.username) {
-    if (req.user.password) req.user.password = undefined;
-    if (req.user.machines) req.user.machines = undefined;
-    if (req.user.geolocation?.isp) req.user.geolocation.isp = undefined;
-    return res.status(200).json(req.user);
+    return res.status(200).json(deleteSensitiveInformation(req.user));
   }
 
   // If they arent logged in then that means they are trying to see
   // another user's profile so we fetch it from the database
   const user = await User.findOne({ username: req.params.username });
-  if (user.password) user.password = undefined;
-  if (user.machines) user.machines = undefined;
-  if (user.geolocation?.isp) user.geolocation.isp = undefined;
-  return res.status(200).json(user);
+  return res.status(200).json(deleteSensitiveInformation(user));
 });
 
 router.patch("/profile", auth, async (req, res) => {
