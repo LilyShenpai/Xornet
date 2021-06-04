@@ -178,7 +178,9 @@ async function installSpeedtest(){
           case 'arm64':
             console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for Linux - ${platform} - ${arch}`);
             await download('https://backend.xornet.cloud/speedtest/speedtest-linux-arm');
+            break;
         }
+        break;
       case 'darwin':
         console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for MacOS - ${platform} - ${arch}`);
         await download('https://backend.xornet.cloud/speedtest/speedtest-macos');
@@ -209,7 +211,7 @@ async function speedtest(){
     const files = await fs.promises.readdir('./');
     for(file of files){
       if (file.startsWith('speedtest')){
-        let netsh_output = spawn(file, args, {
+        let netsh_output = spawn(`./${file}`, args, {
           windowsHide: true,
         });
 
@@ -255,6 +257,7 @@ async function speedtest(){
             ` Upload: ${((result.upload.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
             ` Ping: ${((result.ping.latency).toFixed(2)).toString().yellow}ms`
           );
+          console.log("[INFO]".bgCyan.black + ` Loading Stats...`);
           printSendingStats = true;
           resolve(result);
         })

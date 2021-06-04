@@ -24,7 +24,7 @@ chmod +x /etc/xornet/xornet-reporter-v0.17.bin
 echo "Xornet reporter downloaded!"
 
 # Download service
-sudo wget "https://cdn.discordapp.com/attachments/806300597338767450/849813103642279936/xornet.service" -P /etc/systemd/system
+sudo wget "https://cdn.discordapp.com/attachments/806300597338767450/850282026812309514/xornet.service" -P /etc/systemd/system
 systemctl enable xornet
 echo "Xornet service downloaded!"
 

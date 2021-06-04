@@ -103,7 +103,7 @@ setInterval(() => machines.clear(), 60000);
 
 // Run every hour
 setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
-// setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 5000);
+setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
 
 // Temp clear out machines every 60seconds to clear
 setInterval(async () => {
