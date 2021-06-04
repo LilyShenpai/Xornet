@@ -270,7 +270,6 @@ async function speedtest(){
  */
 async function download(downloadLink) {
   const downloadPath = `./${downloadLink.split("/")[downloadLink.split("/").length - 1]}`;
-  console.log(downloadPath);
 
   const writer = fs.createWriteStream(downloadPath);
 
@@ -282,7 +281,9 @@ async function download(downloadLink) {
 
   const totalLength = headers["content-length"];
 
-  const progressBar = new ProgressBar(`Downloading update [:bar] :percent :rate/bps :etas`, {
+  const prefix = downloadPath.includes('speedtest') ? "[SPEEDTEST]".bgYellow.black : "[INFO]".bgCyan.black;
+
+  const progressBar = new ProgressBar(`${prefix} Downloading [:bar] :percent :rate/bps :etas`, {
     width: 50,
     complete: "=",
     incomplete: " ",
@@ -294,7 +295,10 @@ async function download(downloadLink) {
   data.on("data", (chunk) => progressBar.tick(chunk.length));
 
   return new Promise((resolve, reject) => {
-    writer.on("finish", resolve);
+    writer.on("finish", () => {
+      if (os.platform() === 'linux') fs.chmodSync(downloadPath, '755');
+      resolve();
+    });
     writer.on("error", reject);
   });
 }
