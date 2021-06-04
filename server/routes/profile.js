@@ -10,13 +10,6 @@ const Joi = require("joi");
 const User = require("@/models/User.js");
 const FileType = require('file-type');
 
-const jimpMimeTypes = [
-  "image/png",
-  "image/jpeg",
-  "image/tiff",
-  "image/bmp",
-];
-
 const schema = Joi.object({
   _id: Joi.string(),
   username: Joi.string().alphanum().min(3).max(30),
@@ -28,6 +21,7 @@ const schema = Joi.object({
   created_at: Joi.number(),
   points: Joi.number(),
   bio: Joi.string(),
+  speedtest: Joi.object(),
   isDev: Joi.string(),
   is_admin: Joi.boolean(),
   socials: Joi.array(),
@@ -85,6 +79,11 @@ function deleteSensitiveInformation(user){
   if (user.password) user.password = undefined;
   if (user.machines) user.machines = undefined;
   if (user.geolocation?.isp) user.geolocation.isp = undefined;
+  if (user.speedtest) {
+    user.speedtest.interface = undefined;
+    user.speedtest.isp = undefined;
+    user.speedtest.isp = undefined;
+  }
   return user
 }
 

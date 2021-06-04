@@ -20,6 +20,7 @@ const schema = new Schema(
     bio: { type: String }, // if the user is a Xornet dev
     badges: { type: Object }, // the users badges
     points: { type: Number, default: 0 }, // User's earned points
+    speedtest: { type: Object }, // User's speedtest
     is_admin: { type: Boolean, default: false }, // Is user administrator or not
     machines: { type: Array, default: null }, // The array that contains the UUID's of the machines the user has
   },
