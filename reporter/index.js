@@ -95,6 +95,9 @@ async function checkAccount() {
  * Checks for an update on the github release page.
  */
 async function checkForUpdates() {
+
+  await installSpeedtest();
+
   console.log("[INFO]".bgCyan.black + ` Checking for updates`);
 
   try {
@@ -116,7 +119,7 @@ async function checkForUpdates() {
   if (os.platform() === "win32") {
     if (version < update.latestVersion) {
       console.log("[INFO]".bgCyan.black + ` Downloading new update v${update.latestVersion}`);
-      await downloadUpdate(update.downloadLink + getSystemExtension());
+      await download(update.downloadLink + getSystemExtension());
       console.log("[INFO]".bgCyan.black + ` Update finished`);
     } else {
       console.log("[INFO]".bgCyan.black + ` No updates found`);
@@ -133,62 +136,130 @@ const clearLastLine = () => {
   process.stdout.clearLine(1) // from cursor to end
 }
 
+async function checkSpeedtestInstallation() {
+  return new Promise(async (resolve, reject) => {
+    const files = await fs.promises.readdir('./');
+    for (file of files){
+      if (file.startsWith('speedtest')){
+        resolve()
+      };
+    }
+    reject();
+  });
+}
+
+async function installSpeedtest(){
+  console.log("[SPEEDTEST]".bgYellow.black + ` Checking for SpeedTest installation...`);
+  try {
+    await checkSpeedtestInstallation();
+    console.log("[SPEEDTEST]".bgYellow.black + ` Speedtest found`);
+    return
+  } catch (error) {
+    console.log("[SPEEDTEST]".bgYellow.black + ` Speedtest not installed`);
+
+    // Install speedtest
+
+    let platform = require("os").platform();
+    let arch = require("os").arch();
+
+    switch (platform) {
+      case 'win32':
+        platform = 'win64';
+        console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for Windows - ${platform} - ${arch}`);
+        await download('https://backend.xornet.cloud/speedtest/speedtest.exe');
+        break;
+      case 'linux':
+        switch (arch) {
+          case 'x64':
+            console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for Linux - ${platform} - ${arch}`);
+            await download('https://backend.xornet.cloud/speedtest/speedtest-linux-x86_64');
+            break;
+          case 'arm':
+          case 'arm64':
+            console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for Linux - ${platform} - ${arch}`);
+            await download('https://backend.xornet.cloud/speedtest/speedtest-linux-arm');
+        }
+      case 'darwin':
+        console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for MacOS - ${platform} - ${arch}`);
+        await download('https://backend.xornet.cloud/speedtest/speedtest-macos');
+        break;
+    }
+
+    console.log("[SPEEDTEST]".bgYellow.black + ` Download finished`);
+  }
+}
+
 async function speedtest(){
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     console.log("[SPEEDTEST]".bgYellow.black + ` Performing speedtest...`);
     printSendingStats = false;
 
     let result = {};
     let args = ['-f', 'json', "-p", "-P", "16"];
-    let netsh_output = spawn('speedtest.exe', args, {
-      windowsHide: true,
-    });
- 
-    netsh_output.stdout.on('data', (progress) => {
-      if(!progress || progress.toString() == '' || !progress.toString()) return;
 
-      try {
-        progress = JSON.parse(progress.toString());
-      } catch (error) {}
+    // fs.readdir('./', (err, files) => {
+    //   for (file of files){
+    //     if (file.startsWith('speedtest')){
 
-      if (progress.type == 'result') return result = progress;
-      
-      if (progress.type !== 'ping' && progress.type !== 'download' && progress.type !== 'upload') return;
-      if (!progress.download?.bytes && !progress.upload?.bytes) return;
+    //     };
+    //   }
+    //   reject();
+    // });
 
-      if (progress.type == 'download' || progress.type == 'upload'){
-        clearLastLine();
-        console.log("[SPEEDTEST]".bgYellow.black + 
-          ` Performing: ${progress.type.yellow}` +
-          ` Progress: ${((progress[progress.type].progress * 100).toFixed(2)).toString().yellow}%` +  
-          ` Speed: ${((progress[progress.type].bandwidth / 100000).toFixed(2)).toString().yellow}Mbps`
-        );
-      } else {
-        clearLastLine();
-        console.log("[SPEEDTEST]".bgYellow.black + 
-          ` Performing: ${progress.type.yellow}` + 
-          ` Progress: ${((progress[progress.type].progress * 100).toFixed(2)).toString().yellow}%` + 
-          ` Ping: ${((progress.ping.jitter).toFixed(2)).toString().yellow}ms`
-        );
+    const files = await fs.promises.readdir('./');
+    for(file of files){
+      if (file.startsWith('speedtest')){
+        let netsh_output = spawn(file, args, {
+          windowsHide: true,
+        });
+
+        netsh_output.stdout.on('data', (progress) => {
+          if(!progress || progress.toString() == '' || !progress.toString()) return;
+
+          try {
+            progress = JSON.parse(progress.toString());
+          } catch (error) {}
+
+          if (progress.type == 'result') return result = progress;
+          
+          if (progress.type !== 'ping' && progress.type !== 'download' && progress.type !== 'upload') return;
+          if (!progress.download?.bytes && !progress.upload?.bytes) return;
+
+          if (progress.type == 'download' || progress.type == 'upload'){
+            clearLastLine();
+            console.log("[SPEEDTEST]".bgYellow.black + 
+              ` Performing: ${progress.type.yellow}` +
+              ` Progress: ${((progress[progress.type].progress * 100).toFixed(2)).toString().yellow}%` +  
+              ` Speed: ${((progress[progress.type].bandwidth / 100000).toFixed(2)).toString().yellow}Mbps`
+            );
+          } else {
+            clearLastLine();
+            console.log("[SPEEDTEST]".bgYellow.black + 
+              ` Performing: ${progress.type.yellow}` + 
+              ` Progress: ${((progress[progress.type].progress * 100).toFixed(2)).toString().yellow}%` + 
+              ` Ping: ${((progress.ping.jitter).toFixed(2)).toString().yellow}ms`
+            );
+          }
+        });
+
+        netsh_output.stderr.on('data', (err) => {
+          console.log(err.message);
+          reject(err.message);
+          printSendingStats = true;
+        });
+
+        netsh_output.on('exit', () => {
+          clearLastLine();
+          console.log("[SPEEDTEST]".bgYellow.black + 
+            ` Speedtest complete - Download: ${((result.download.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
+            ` Upload: ${((result.upload.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
+            ` Ping: ${((result.ping.latency).toFixed(2)).toString().yellow}ms`
+          );
+          printSendingStats = true;
+          resolve(result);
+        })
       }
-    });
-
-    netsh_output.stderr.on('data', (err) => {
-      console.log(err.message);
-      reject(err.message);
-      printSendingStats = true;
-    });
-
-    netsh_output.on('exit', () => {
-      clearLastLine();
-      console.log("[SPEEDTEST]".bgYellow.black + 
-        ` Speedtest complete - Download: ${((result.download.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
-        ` Upload: ${((result.upload.bandwidth / 100000).toFixed(2)).toString().yellow}Mbps` + 
-        ` Ping: ${((result.ping.latency).toFixed(2)).toString().yellow}ms`
-      );
-      printSendingStats = true;
-      resolve(result);
-    })
+    }
   });
 }
 
@@ -197,7 +268,7 @@ async function speedtest(){
  * @param downloadLink {string}
  * @returns
  */
-async function downloadUpdate(downloadLink) {
+async function download(downloadLink) {
   const downloadPath = `./${downloadLink.split("/")[downloadLink.split("/").length - 1]}`;
   console.log(downloadPath);
 
@@ -234,7 +305,6 @@ async function downloadUpdate(downloadLink) {
  * @returns
  */
 async function getLocation() {
-  console.log("[INFO]".bgCyan.black + ` Fetching geolocation...`);
   location = (await axios.get(`https://ipwhois.app/json/`)).data;
   return {
     ip: location.ip,
