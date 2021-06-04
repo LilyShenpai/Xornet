@@ -144,7 +144,7 @@ io.on("connection", async (socket) => {
 
     const pointInterval = setInterval(async () => {
       const points = (await User.findOne({username: userToGetPointsOf})).points;
-      socket.emit('points', points);
+      if (points) socket.emit('points', points);
     }, 1000);
 
     socket.on('getPoints', username => {
