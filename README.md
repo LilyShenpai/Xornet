@@ -30,4 +30,4 @@ The decompiled reporter can be ran using node.js at least on:
   - MacOS
   
 # Disclaimer
-We don't know how to code, if you get hacked, its your fault for not committing.
+We don't know how to code, if you don't like it, its your fault for not committing.
