@@ -22,17 +22,4 @@ schema.statics.add = async function (staticData) {
   await new this({ _id: staticData.system.uuid, static: staticData }).save();
 };
 
-/**
- * Gets all the total ram of an array of machines
- * @param {Array} machines the array of the machines to get
- * @returns total bytes of ram
- */
-schema.statics.getTotalRam = function(machines){
-  // Replace the array with a new one that sums up all the ram for each machine
-  machines = machines.map(machine => machine.static.memLayout.reduce((a, b) => a + b.size, 0));
-
-  // Sum up all the ram together and return
-  return machines.reduce((a, b) => a + b, 0);
-};
-
 module.exports = mongoose.model("Machine", schema);

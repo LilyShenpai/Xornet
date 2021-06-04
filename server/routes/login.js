@@ -38,9 +38,10 @@ router.post("/login", async (req, res) => {
   // Try matching
   try {
     const match = await bcrypt.compare(req.body.password, user.password);
+    console.log(match);
     if (match) {
       createToken(user, res);
-    } else throw "error"; // If password doesn't match throw error
+    } else throw "Password mismatch error"; // If password doesn't match throw error
   } catch (error) {
     console.log(error);
     if (error) res.status(400).json({ error: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });

@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const saltRounds = parseInt(process.env.SALTROUNDS);
 const Machine = require("@/models/Machine.js");
+const Stats = require("@/models/Stats.js");
 
 const schema = new Schema(
   {
@@ -92,12 +93,26 @@ schema.statics.addMachine = async function (_id, machineUUID) {
 };
 
 /**
- * Simply gets the user's machines
- * @returns {Array} of the user's machines
+ * @returns The user's total RAM throughout all of their machines
  */
-schema.method('getMachines', async function () {
-  return await Machine.find({_id: this.machines});
-});
+schema.methods.getTotalRam = async function(){
+  // Replace the array with a new one that sums up all the ram for each machine
+  let totalRam = (await Machine.find({_id: this.machines})).map(machine => machine.static.memLayout.reduce((a, b) => a + b.size, 0));
+
+  // Sum up all the ram together and return
+  return totalRam.reduce((a, b) => a + b, 0);
+};
+
+/**
+ * @returns The user's total shared cores throughout all of their machines
+ */
+schema.methods.getTotalCores = async function(){
+  // Replace the array with a new one that sums up all the ram for each machine
+  let totalRam = (await Machine.find({_id: this.machines})).map(machine => machine.static.cpu.cores);
+
+  // Sum up all the ram together and return
+  return totalRam.reduce((a, b) => a + b, 0);
+};
 
 let User = mongoose.model("User", schema);
 

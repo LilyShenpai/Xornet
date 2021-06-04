@@ -147,8 +147,8 @@ io.on("connection", async (socket) => {
     // Assign the linked account from the socket's auth to the report
     // So it goes to the frontend
     report.owner = {
-      username: user.username,
-      profileImage: user.profileImage.url,
+      username: user?.username,
+      profileImage: user?.profileImage?.url,
     };
 
     // Add geolocation data

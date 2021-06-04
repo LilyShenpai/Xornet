@@ -13,8 +13,8 @@ const FileType = require('file-type');
 
 const schema = Joi.object({
   _id: Joi.string(),
-  username: Joi.string().alphanum().min(3).max(30),
   profileImage: Joi.object(),
+  username: Joi.string(),
   profileBanner: Joi.object(),
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
   repeat_password: Joi.ref("password"),
@@ -95,7 +95,9 @@ router.use(upload.any());
 // Temporary function to append stuff to user
 async function appendExtraShit(user){
   let reducedUser = JSON.parse(JSON.stringify(user));
-  reducedUser.totalRam = Machine.getTotalRam(await user.getMachines());
+  reducedUser.totalRam = await user.getTotalRam();
+  reducedUser.totalCores = await user.getTotalCores();
+  // reducedUser.totalBandwidth = await user.getTotalBandwidth();
   return reducedUser;
 }
 
@@ -114,6 +116,12 @@ router.get("/profile/:username", auth, async (req, res) => {
 
 router.patch("/profile", auth, async (req, res) => {
   req.body.json = JSON.parse(req.body.json);
+  
+  // Delete this useless shit it doesn't add it to the database by accident
+  delete req.body.json.totalRam;
+  delete req.body.json.totalCores;
+  // delete req.body.json.totalBandwidth;
+  
   try {
     let profile = req.body.json;
     for (file of req.files) {
