@@ -4,6 +4,7 @@ mongoose.connect(process.env.MONGODB_HOST, { useNewUrlParser: true, useUnifiedTo
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const saltRounds = parseInt(process.env.SALTROUNDS);
+const Machine = require("@/models/Machine.js");
 
 const schema = new Schema(
   {
@@ -89,6 +90,14 @@ schema.statics.addMachine = async function (_id, machineUUID) {
     } else reject();
   });
 };
+
+/**
+ * Simply gets the user's machines
+ * @returns {Array} of the user's machines
+ */
+schema.method('getMachines', async function () {
+  return await Machine.find({_id: this.machines});
+});
 
 let User = mongoose.model("User", schema);
 

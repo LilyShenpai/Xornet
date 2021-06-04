@@ -8,6 +8,7 @@ const upload = multer({ dest: "./temp/" });
 const router = express.Router();
 const Joi = require("joi");
 const User = require("@/models/User.js");
+const Machine = require("@/models/Machine.js");
 const FileType = require('file-type');
 
 const schema = Joi.object({
@@ -20,6 +21,7 @@ const schema = Joi.object({
   geolocation: Joi.object(),
   created_at: Joi.number(),
   points: Joi.number(),
+  machines: Joi.array(),
   bio: Joi.string(),
   speedtest: Joi.object(),
   isDev: Joi.string(),
@@ -77,7 +79,6 @@ async function saveImage(image) {
 
 function deleteSensitiveInformation(user){
   if (user.password) user.password = undefined;
-  if (user.machines) user.machines = undefined;
   if (user.geolocation?.isp) user.geolocation.isp = undefined;
   if (user.speedtest) {
     user.speedtest.interface = undefined;
@@ -89,17 +90,26 @@ function deleteSensitiveInformation(user){
 
 router.use(upload.any());
 
+// DELETE THIS LATER N1KO23 PLEASE FIX
+// WE DONT KNOW HOW TO DO THIS
+// Temporary function to append stuff to user
+async function appendExtraShit(user){
+  let reducedUser = JSON.parse(JSON.stringify(user));
+  reducedUser.totalRam = Machine.getTotalRam(await user.getMachines());
+  return reducedUser;
+}
+
 router.get("/profile/:username", auth, async (req, res) => {
   if (req.params.username == undefined) return res.status(404);
   // If the user is the currently logged in one just send this back
   if (req.params.username == req.user.username) {
-    return res.status(200).json(deleteSensitiveInformation(req.user));
+    return res.status(200).json(deleteSensitiveInformation(await appendExtraShit(req.user)));
   }
 
   // If they arent logged in then that means they are trying to see
   // another user's profile so we fetch it from the database
-  const user = await User.findOne({ username: req.params.username });
-  return res.status(200).json(deleteSensitiveInformation(user));
+  let user = await User.findOne({ username: req.params.username });
+  return res.status(200).json(deleteSensitiveInformation(await appendExtraShit(user)));
 });
 
 router.patch("/profile", auth, async (req, res) => {
