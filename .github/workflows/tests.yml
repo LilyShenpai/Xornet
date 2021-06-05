@@ -62,7 +62,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          git push --force
+          git push --force --set-upstream origin reporter-releases
       
       # Merge it with the master to finishup
       - name: Merge with master
