@@ -28,9 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Go to release branch
-        run: git checkout -B $(node -p -e "require('./reporter/package.json').version")
+        run: git checkout -B reporter-releases
       - name: Merge with master
-        run: git merge Xornet/main --no-edit
+        run: git merge reporter-releases --no-edit
       - name: npm install
         working-directory: ./reporter
         run: npm i
