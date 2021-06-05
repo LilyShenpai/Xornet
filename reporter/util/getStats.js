@@ -34,8 +34,8 @@ module.exports = async function getStats(staticData) {
    * @type {string}
    */
   let uuid;
-  if (staticData.system.uuid !== "") {
-    uuid = staticData.system.uuid;
+  if (process.env.TEST_UUID || staticData.system.uuid !== "") {
+    uuid = process.env.TEST_UUID || staticData.system.uuid;
   } else {
     uuid = staticData.uuid.os;
   }

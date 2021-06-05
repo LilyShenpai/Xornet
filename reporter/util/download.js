@@ -8,7 +8,7 @@ const os = require('os');
  * @param downloadLink {string}
  * @returns
  */
-module.exports = async function download(downloadLink) {
+module.exports = async function download(downloadLink, hidden) {
   const downloadPath = `./${downloadLink.split("/")[downloadLink.split("/").length - 1]}`;
 
   const writer = fs.createWriteStream(downloadPath);
@@ -23,21 +23,23 @@ module.exports = async function download(downloadLink) {
 
   const prefix = downloadPath.includes("speedtest") ? "[SPEEDTEST]".bgYellow.black : "[INFO]".bgCyan.black;
 
-  const progressBar = new ProgressBar(`${prefix} Downloading [:bar] :percent :rate/bps :etas`, {
-    width: 50,
-    complete: "=",
-    incomplete: " ",
-    renderThrottle: 1,
-    total: parseInt(totalLength),
-  });
+  if (!hidden) {
+    const progressBar = new ProgressBar(`${prefix} Downloading [:bar] :percent :rate/bps :etas`, {
+      width: 50,
+      complete: "=",
+      incomplete: " ",
+      renderThrottle: 1,
+      total: parseInt(totalLength),
+    });
+    data.on("data", (chunk) => progressBar.tick(chunk.length));
+  }
 
   data.pipe(writer);
-  data.on("data", (chunk) => progressBar.tick(chunk.length));
 
   return new Promise((resolve, reject) => {
     writer.on("finish", () => {
       if (os.platform() === "linux") fs.chmodSync(downloadPath, "755");
-      resolve();
+      resolve(downloadPath);
     });
     writer.on("error", reject);
   });

@@ -4,6 +4,8 @@
  * Working on a better updater using Electron.
  * @returns
  */
+const os = require('os');
+
 module.exports = function getSystemExtension() {
   switch (os.platform()) {
     case "win32":

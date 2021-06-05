@@ -15,10 +15,22 @@ process.env.BACKEND_URL = "wss://backend.xornet.cloud";
 process.env.STARTTIME = Date.now();
 process.env.PRINT_SENDING_STATS = true;
 
+const INFO = "[INFO]".bgCyan.black;
+const WARN = "[WARN]".bgYellow.black;
+const CONNECTED = "[CONNECTED]".bgGreen.black;
+const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
+
 async function main(){
+  console.log(INFO + ` Fetching static data...`);
   const staticData = await getStaticData();
-  
-  if (!await isSpeedtestInstalled()) await installSpeedtest();
+  console.log(INFO + " System information collection finished".green);
+
+  console.log(SPEEDTEST + ` Checking for SpeedTest installation...`);
+  if (!await isSpeedtestInstalled()) {
+    console.log(SPEEDTEST + ` Speedtest not installed`);
+    await installSpeedtest();
+  }
+  console.log(SPEEDTEST + ` Speedtest found`);
 
   const isThereUpdate = await checkForUpdates(staticData);
   if (isThereUpdate) return await download(isThereUpdate.link); 
@@ -32,13 +44,13 @@ async function main(){
   let emitter = null;
 
   xornet.on("connect", () => {
-    console.log("[CONNECTED]".bgGreen.black + ` Connected to ${process.env.BACKEND_URL.green}`);
-    console.log("[INFO]".bgCyan.black + ` Loading Stats...`);
+    console.log(CONNECTED + ` Connected to ${process.env.BACKEND_URL.green}`);
+    console.log(INFO + ` Loading Stats...`);
   
     emitter = setInterval(function () {
       if(process.env.PRINT_SENDING_STATS === 'true') {
         clearLastLine();
-        console.log("[INFO]".bgCyan.black + ` Sending Stats - ${Date.now()}`.cyan);
+        console.log(INFO + ` Sending Stats - ${Date.now()}`.cyan);
       }
       xornet.emit("report", statistics);
     }, process.env.REFRESH_INTERVAL);
@@ -47,7 +59,7 @@ async function main(){
   // Warns the user if the reporter disconnects from the Xornet Backend.
   // Clears the emitters interval so that the reporter does not send any data until it reconnects.
   xornet.on("disconnect", async () => {
-    console.log("[WARN]".bgYellow.black + ` Disconnected from ${process.env.BACKEND_URL}`);
+    console.log(WARN + ` Disconnected from ${process.env.BACKEND_URL}`);
     clearInterval(emitter);
   });
 
@@ -55,7 +67,7 @@ async function main(){
   // Returns a response with the systems UUID which is then used later to calculate the ping.
   xornet.on("heartbeat", async (epoch) => {
     xornet.emit("heartbeatResponse", {
-      uuid: staticData.system.uuid,
+      uuid: process.env.TEST_UUID || staticData.system.uuid,
       epoch,
     });
   });

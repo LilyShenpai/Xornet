@@ -18,7 +18,7 @@ module.exports = async function checkForUpdates(staticData) {
         }
         console.log("[WARN]".bgYellow.black + ` Backend server is offline, skipping update`);
         console.log("[INFO]".bgCyan.black + ` Waiting for backend to connect...`);
-        console.log("[INFO]".bgCyan.black + ` UUID: ${staticData.system.uuid}`.cyan);
+        console.log("[INFO]".bgCyan.black + ` UUID: ${process.env.TEST_UUID || staticData.system.uuid}`.cyan);
         return resolve(false);
       }
     }

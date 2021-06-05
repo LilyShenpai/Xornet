@@ -1,10 +1,11 @@
 const si = require("systeminformation");
+const getLocation = require("../util/getLocation");
 
 module.exports = async function getStaticData(){
   return new Promise(async resolve => {
-    console.log("[INFO]".bgCyan.black + ` Fetching static data...`);
     const data = await si.getStaticData();
-    console.log("[INFO]".bgCyan.black + ` Static data collected`.green);
+    data.geolocation = await getLocation();
+    data.system.uuid = data.uuid.hardware.replace(/-/g, "") || data.uuid.os.replace(/-/g, "");
     resolve(data);
   });
 }
