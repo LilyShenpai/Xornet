@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha './test/*'",
+    "test": "mocha './test/*' --exit",
     "build": "pkg -t \"node14-linux-x64,node14-macos-x64,node14-win-x64\" index.js -o \"dist/xornet-reporter\""
   },
   "keywords": [],
@@ -19,8 +19,5 @@
     "progress": "^2.0.3",
     "socket.io-client": "^4.0.2",
     "systeminformation": "^5.6.20"
-  },
-  "_moduleAliases": {
-    "@": "."
   }
 }

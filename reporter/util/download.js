@@ -39,6 +39,7 @@ module.exports = async function download(downloadLink, hidden) {
   return new Promise((resolve, reject) => {
     writer.on("finish", () => {
       if (os.platform() === "linux") fs.chmodSync(downloadPath, "755");
+      writer.close();
       resolve(downloadPath);
     });
     writer.on("error", reject);
