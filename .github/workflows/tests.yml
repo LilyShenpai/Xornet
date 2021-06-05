@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Go to release branch
-        run: git checkout -B $(node -p -e "require('reporter/package.json').version")
+        run: git checkout -B $(node -p -e "require('./reporter/package.json').version")
       - name: Merge with master
         run: git merge origin/master --no-edit
       - name: Authenticate with GitHub package registry to be able to download from private repositories
@@ -47,4 +47,4 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git add -A
           git commit -m "Compiled new reporter version"
-          git push --force https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY $(node -p -e "require('reporter/package.json').version")
+          git push --force https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY $(node -p -e "require('./reporter/package.json').version")
