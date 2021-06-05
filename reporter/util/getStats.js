@@ -51,7 +51,7 @@ module.exports = async function getStats(staticData) {
     },
     cpu: data.currentLoad.currentLoad,
     network: data.networkStats,
-    reporterVersion: require('@/package.json').version,
+    reporterVersion: require('../package.json').version,
     disks: await si.fsSize(),
     uptime: os.uptime(),
     reporterUptime: Date.now() - parseInt(process.env.STARTTIME),

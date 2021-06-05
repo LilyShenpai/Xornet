@@ -24,7 +24,7 @@ module.exports = async function checkForUpdates(staticData) {
     }
 
     if (os.platform() === "win32") {
-      if (require('@/package.json').version < update.latestVersion) {
+      if (require('../package.json').version < update.latestVersion) {
         console.log("[INFO]".bgCyan.black + ` Downloading new update v${update.latestVersion}`);
         resolve({link: update.downloadLink});
         console.log("[INFO]".bgCyan.black + ` Update finished`);

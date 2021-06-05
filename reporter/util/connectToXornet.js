@@ -1,7 +1,7 @@
 const si = require("systeminformation");
 const io = require("socket.io-client");
-const getLocation = require("@/util/getLocation");
-const checkAccount = require("@/util/checkAccount");
+const getLocation = require("../util/getLocation");
+const checkAccount = require("../util/checkAccount");
 
 /**
  * Connects to the Xornet Backend and sends system statistics every second.

@@ -1,4 +1,4 @@
-const download = require("@/util/download");
+const download = require("../util/download");
 
 module.exports = async function installSpeedtest() {
   // Install speedtest
