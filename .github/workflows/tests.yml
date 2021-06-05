@@ -13,3 +13,16 @@ jobs:
       - name: Run tests
         working-directory: ./server
         run: npm test
+  build-reporter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        working-directory: ./reporter
+        run: npm i
+      - name: Install Compiler
+        working-directory: ./reporter
+        run: npm i -g pkg
+      - name: Compile
+        working-directory: ./reporter
+        run: pkg -t "node14-linux-x64,node14-macos-x64,node14-win-x64" index.js -o "dist/xornet-reporter"
