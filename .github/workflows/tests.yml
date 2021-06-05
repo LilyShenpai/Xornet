@@ -22,7 +22,7 @@ jobs:
         run: npm i
       - name: Install Compiler
         working-directory: ./reporter
-        run: npm i -g pkg
+        run: npm i pkg
       - name: Compile
         working-directory: ./reporter
-        run: pkg -t "node14-linux-x64,node14-macos-x64,node14-win-x64" index.js -o "dist/xornet-reporter"
+        run: sudo pkg -t "node14-linux-x64,node14-macos-x64,node14-win-x64" index.js -o "dist/xornet-reporter"
