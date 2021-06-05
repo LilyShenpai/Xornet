@@ -52,8 +52,6 @@ function parse(report, machinesPings) {
   // Remove dashes from UUID
   report.uuid = report.uuid?.replace(/-/g, "");
 
-  report.reporterVersion = parseFloat(report.reporterVersion);
-
   // Parse uptime
   report.uptime = {
     pure: report.uptime,
