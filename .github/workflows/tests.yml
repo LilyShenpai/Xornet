@@ -26,13 +26,9 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Go to release branch
         run: git checkout -B $(node -p -e "require('./reporter/package.json').version")
-      - name: Fetch master
-        run: git fetch Geoxor/Xornet
-      - name: Authenticate with GitHub package registry to be able to download from private repositories
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
       - name: npm install
         working-directory: ./reporter
         run: npm i
