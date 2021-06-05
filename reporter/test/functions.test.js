@@ -11,6 +11,8 @@ const connectToXornet = require("../util/connectToXornet");
 
 process.env.TEST_UUID = '00000000000000000000000000000000';
 
+let staticData = null;
+
 describe("All reporter functions", () => {
 
   it("Can detect if Speedtest is installed", async function(){ 
@@ -35,8 +37,6 @@ describe("All reporter functions", () => {
     assert.typeOf(downloadedFile, 'string');
   });
 
-  let staticData = null;
-
   it("Can fetch static data", async function(){
     this.timeout(10000);
     staticData = await getStaticData();
@@ -44,6 +44,7 @@ describe("All reporter functions", () => {
   });
 
   it("Can get stats", async function(){
+    this.timeout(10000);
     staticData = await getStats(staticData);
     assert.typeOf(staticData, 'object');
   });
