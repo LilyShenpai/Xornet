@@ -18,6 +18,7 @@
 // const point = REPORT_BASE_REWARD + (Math.floor(Math.random * REPORT_BASE_REWARD)) + REPORT_BASE_REWARD;
 // const point = SPEEDTEST_BASE_REWARD + (Math.floor(Math.random * SPEEDTEST_BASE_REWARD) + SPEEDTEST_BASE_REWARD);
 
+require("colors");
 require("dotenv").config();
 require("module-alias/register");
 const express = require("express");
@@ -93,13 +94,19 @@ app.use(require("@/routes/stats"));
 app.use(require("@/routes/reporter"));
 
 // Temp clear out machines every 60seconds to clear
-setInterval(() => machines.clear(), 60000);
+setInterval(() => {
+  machines.clear();
+}, 60000);
+
+setInterval(() => {
+  console.log(`Total Websocket connections: ${io.sockets.sockets.size}`.red)
+}, 10000);
 
 // Temp run speedtest on all reporters
 
 // Run every hour
 setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
-setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
+// setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
 
 // Temp clear out machines every 60seconds to clear
 setInterval(async () => {
@@ -185,7 +192,7 @@ io.on("connection", async (socket) => {
 
       let points = 0;
       points += await calculateReportPoints()
-      points += await calculateReporterUptimePoints(report.reporterUptime);
+      if (report.reporterUptime) points += await calculateReporterUptimePoints(report.reporterUptime);
 
       if (points != null) user.addPoints(points);
 

@@ -19,8 +19,8 @@ function parseReport(report, latestVersion, machinesPings) {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-    // console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
-    console.log(`[WARN] Got invalid Report from reporter`);
+    console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
+    // console.log(`[WARN] Got invalid Report from reporter`);
     if (process.env.APP_ENV === "testing") {
       console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
     }
@@ -110,7 +110,7 @@ function validate(report, latestVersion) {
   hasNoWhiteSpaces(report.hostname);
 
   // Validate reporterVersion
-  isValidNumber(report.reporterVersion);
+  isNotEmpty(report.reporterVersion);
   versionIsValid(report.reporterVersion, latestVersion);
 
   // Validate ram
