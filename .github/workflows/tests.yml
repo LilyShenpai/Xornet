@@ -18,10 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        working-directory: ./server
+        working-directory: ./reporter
         run: npm i
       - name: Run tests
-        working-directory: ./server
+        working-directory: ./reporter
         run: npm test
   build-reporter:
     runs-on: ubuntu-latest
