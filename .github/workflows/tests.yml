@@ -68,4 +68,4 @@ jobs:
       - name: Merge with master
         run: |
           git checkout main
-          git merge reporter-releases --no-edit
+          git merge reporter-releases
