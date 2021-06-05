@@ -13,36 +13,57 @@ jobs:
       - name: Run tests
         working-directory: ./server
         run: npm test
-  build-reporter:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        working-directory: ./reporter
-        run: npm i
-      - name: Compile
-        working-directory: ./reporter
-        run: npm run build
+  # build-reporter:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Install dependencies
+  #       working-directory: ./reporter
+  #       run: npm i
+  #     - name: Compile
+  #       working-directory: ./reporter
+  #       run: npm run build
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      # Make a new branch for the action to save the files in
       - name: Go to release branch
         run: git checkout -B reporter-releases
-      - name: Merge with master
-        run: git merge reporter-releases --no-edit
+
+      # Install dependencies 
       - name: npm install
         working-directory: ./reporter
         run: npm i
+
+      # Compile binaries
       - name: run build
         working-directory: ./reporter
         run: npm run build
-      - name: add and push
+      
+      # Tell the repository we wanna make changes
+      - name: add
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git add -A
+
+      # Commit the compiled binaries
+      - name: commit binaries
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
           git commit -m "Compiled new reporter version"
+
+      # Push the commit to the branch
+      - name: push
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
           git push --force https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY $(node -p -e "require('./reporter/package.json').version")
+      
+      # Merge it with the master to finishup
+      - name: Merge with master
+        run: git merge reporter-releases --no-edit
