@@ -43,6 +43,11 @@ describe("All reporter functions", () => {
     assert.typeOf(staticData, 'object');
   });
 
+  it("Can get stats", async function(){
+    staticData = await getStats(staticData);
+    assert.typeOf(staticData, 'object');
+  });
+
   it("Can connect to Xornet", async function(){
     this.timeout(10000);
     const xornet = await connectToXornet(staticData, true);
