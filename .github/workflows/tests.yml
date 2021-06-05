@@ -66,4 +66,6 @@ jobs:
       
       # Merge it with the master to finishup
       - name: Merge with master
-        run: git merge reporter-releases --no-edit
+        run: |
+          git checkout main
+          git merge reporter-releases --no-edit
