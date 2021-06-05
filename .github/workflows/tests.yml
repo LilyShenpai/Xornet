@@ -30,7 +30,7 @@ jobs:
       - name: Go to release branch
         run: git checkout -B $(node -p -e "require('./reporter/package.json').version")
       - name: Merge with master
-        run: git merge origin/master --no-edit
+        run: git merge Xornet/master --no-edit
       - name: npm install
         working-directory: ./reporter
         run: npm i
