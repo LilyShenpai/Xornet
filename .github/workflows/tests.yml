@@ -62,7 +62,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          git push --force https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY $(node -p -e "require('./reporter/package.json').version")
+          git push --force
       
       # Merge it with the master to finishup
       - name: Merge with master
