@@ -55,16 +55,18 @@ schema.statics.fetchDailyTraffic = async function (timeOffset) {
 schema.statics.fetchMachineNetwork = async function (machine) {
   const timestamp = new Date();
   let stats = await this.aggregate([
-    { $match: { machine_id: machine }},
-    { $match: { timestamp: { $gte: new Date(timestamp - MINUTE ) }}}, 
-    { $project: { 
-      _id: 0,
-      ram: 0,
-      cpu: 0,
-      disks: 0,
-      machine_id: 0,
-      'network.totalInterfaces': 0,
-    }}
+    { $match: { machine_id: machine } },
+    { $match: { timestamp: { $gte: new Date(timestamp - MINUTE * 5) } } },
+    {
+      $project: {
+        _id: 0,
+        ram: 0,
+        cpu: 0,
+        disks: 0,
+        machine_id: 0,
+        "network.totalInterfaces": 0,
+      },
+    },
   ]);
 
   return stats;
