@@ -118,6 +118,8 @@ function validate(report, latestVersion) {
   isValidNumber(report.ram.total);
   isValidNumber(report.ram.free);
   isNotNegative(report.ram.used);
+  isNotNegative(report.ram.total);
+  isNotNegative(report.ram.free);
 
   // Validate CPUs
   isValidNumber(report.cpu);

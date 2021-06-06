@@ -6,7 +6,7 @@ const TEST_UUID = '00000000000000000000000000000000';
 
 router.post("/reporter", async (req, res) => {
   if (req.body.uuid == TEST_UUID) {
-    res.status(200).json({ message: "Test reporter accepted" });
+    return res.status(200).json({ message: "Test reporter accepted" });
   }
 
   const user = await User.findOne({ machines: req.body.uuid });

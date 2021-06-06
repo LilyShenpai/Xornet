@@ -2,21 +2,11 @@
 // Masteradmin
 // Admins - Who own a datacenter
 // Users who use VMs/servers from a datacenter
-
 // Master admins will be able to see everything on Xornet
 // Admins will be able to see all their machines that have in their datacenter
-
 // Datacenter Model that assigns machines to a datacenter so we can determine which account owns what computers
-
 // Add machine to the datacenter / xornet through the website
 // Create add machine, add datacenter, add admins, wizards in the frontend
-
-// Points math
-// const REPORT_BASE_REWARD = 5;
-// const SPEEDTEST_BASE_REWARD = 5;
-
-// const point = REPORT_BASE_REWARD + (Math.floor(Math.random * REPORT_BASE_REWARD)) + REPORT_BASE_REWARD;
-// const point = SPEEDTEST_BASE_REWARD + (Math.floor(Math.random * SPEEDTEST_BASE_REWARD) + SPEEDTEST_BASE_REWARD);
 
 require("colors");
 require("dotenv").config();
@@ -38,16 +28,12 @@ const options = {
 const https = require("https").createServer(options, app);
 const io = require("socket.io")(https, { cors: { origin: "*" } });
 const parseReport = require("@/util/parseReport");
-
 const Machine = require("@/models/Machine.js");
 const User = require("@/models/User.js");
 const Stats = require("@/models/Stats.js");
-
 const authSocket = require("@/middleware/authSocket.js");
-
 const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
-
 const smtp = require("@/services/smtp.js");
 const SMTPServer = require("smtp-server").SMTPServer;
 
@@ -98,6 +84,7 @@ setInterval(() => {
   machines.clear();
 }, 60000);
 
+// Log amount of sockets connected every minute
 setInterval(() => {
   console.log(`Total Websocket connections: ${io.sockets.sockets.size}`.red)
 }, 10000);
@@ -114,7 +101,6 @@ setInterval(async () => {
   io.sockets.in("reporter").emit("heartbeat", Date.now());
 }, 1000);
 
-
 const MINUTE_IN_MILLISECONDS = 60000;
 const MINUTE_IN_SECONDS = 60;
 const SPEEDTEST_BASE_REWARD = 30;
@@ -130,9 +116,9 @@ async function calculateReportPoints(){
   return REPORT_BASE_REWARD + (Math.floor(Math.random() * REPORT_BASE_REWARD));
 }
 
+// Websockets
 io.use(authSocket);
 
-// Websockets
 io.on("connection", async (socket) => {
   if (!socket.handshake.auth.type) return socket.disconnect();
 
@@ -245,6 +231,7 @@ const smtpserv = new SMTPServer({
     callback(null, { user: 1 }); // where 123 is the user id or similar property
   },
 });
+
 smtpserv.listen(465, () => {
   console.log(`SMTP Server started on port 465`);
   //smtp.test();
