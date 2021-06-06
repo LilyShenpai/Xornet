@@ -19,4 +19,4 @@ module.exports = async function connectToXornet(staticData, mute) {
 
     resolve(socket);
   });
-}
+};

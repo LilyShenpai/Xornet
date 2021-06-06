@@ -10,4 +10,4 @@ module.exports = async function isSpeedtestInstalled() {
     }
     resolve(false);
   });
-}
+};

@@ -20,7 +20,7 @@ schema.statics.add = async function (staticData) {
   const machines = await this.find({ _id: staticData.system.uuid }).exec();
   if (machines.length !== 0) {
     // console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
-    return
+    return;
   }
   await new this({ _id: staticData.system.uuid, static: staticData }).save();
 };

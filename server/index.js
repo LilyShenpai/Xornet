@@ -59,7 +59,7 @@ let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
 
-let latestVersion = '0.0.17';
+let latestVersion = "0.0.17";
 
 app.get("/stats", async (req, res) => {
   let object = {
@@ -86,7 +86,7 @@ setInterval(() => {
 
 // Log amount of sockets connected every minute
 setInterval(() => {
-  console.log(`Total Websocket connections: ${io.sockets.sockets.size}`.red)
+  console.log(`Total Websocket connections: ${io.sockets.sockets.size}`.red);
 }, 10000);
 
 // Temp run speedtest on all reporters
@@ -106,14 +106,14 @@ const MINUTE_IN_SECONDS = 60;
 const SPEEDTEST_BASE_REWARD = 30;
 const REPORT_BASE_REWARD = 5;
 
-async function calculateReporterUptimePoints(reporterUptime){
-  return Math.floor((((reporterUptime % MINUTE_IN_MILLISECONDS) / 1000) ** 0.8 ) / (MINUTE_IN_SECONDS / 10))
+async function calculateReporterUptimePoints(reporterUptime) {
+  return Math.floor(((reporterUptime % MINUTE_IN_MILLISECONDS) / 1000) ** 0.8 / (MINUTE_IN_SECONDS / 10));
 }
-async function calculateSpeedtestPoints(){
-  return SPEEDTEST_BASE_REWARD + (Math.floor(Math.random() * SPEEDTEST_BASE_REWARD));
+async function calculateSpeedtestPoints() {
+  return SPEEDTEST_BASE_REWARD + Math.floor(Math.random() * SPEEDTEST_BASE_REWARD);
 }
-async function calculateReportPoints(){
-  return REPORT_BASE_REWARD + (Math.floor(Math.random() * REPORT_BASE_REWARD));
+async function calculateReportPoints() {
+  return REPORT_BASE_REWARD + Math.floor(Math.random() * REPORT_BASE_REWARD);
 }
 
 // Websockets
@@ -130,16 +130,15 @@ io.on("connection", async (socket) => {
     let userToGetPointsOf = socket.user.username;
 
     const pointInterval = setInterval(async () => {
-      const points = (await User.findOne({username: userToGetPointsOf}))?.points;
-      if (points) socket.emit('points', points);
+      const points = (await User.findOne({ username: userToGetPointsOf }))?.points;
+      if (points) socket.emit("points", points);
     }, 1000);
 
-    socket.on('getPoints', username => {
+    socket.on("getPoints", (username) => {
       userToGetPointsOf = username;
     });
 
-    socket.on('disconnect', () => clearInterval(pointInterval));
-
+    socket.on("disconnect", () => clearInterval(pointInterval));
   }
   if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== "") {
     await Machine.add(socket.handshake.auth.static);
@@ -157,7 +156,7 @@ io.on("connection", async (socket) => {
     socket.on("speedtest", async (speedtest) => {
       delete speedtest.type;
       const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
-      const user = await User.findOne({_id: userUUID}).exec();
+      const user = await User.findOne({ _id: userUUID }).exec();
       user.addPoints(await calculateSpeedtestPoints());
       user.speedtest = speedtest;
       user.save();
@@ -177,7 +176,7 @@ io.on("connection", async (socket) => {
       let user = await User.findOne({ _id: socket.handshake.auth.static.reporter.linked_account }).exec();
 
       let points = 0;
-      points += await calculateReportPoints()
+      points += await calculateReportPoints();
       if (report.reporterUptime) points += await calculateReporterUptimePoints(report.reporterUptime);
 
       if (points != null) user.addPoints(points);
@@ -209,7 +208,7 @@ io.on("connection", async (socket) => {
   }
 });
 
-io.on('disconnection', () => {
+io.on("disconnection", () => {
   console.log("[WEBSOCKET] Disconnected");
 });
 

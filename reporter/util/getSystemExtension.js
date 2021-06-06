@@ -4,7 +4,7 @@
  * Working on a better updater using Electron.
  * @returns
  */
-const os = require('os');
+const os = require("os");
 
 module.exports = function getSystemExtension() {
   switch (os.platform()) {
@@ -15,4 +15,4 @@ module.exports = function getSystemExtension() {
     case "darwin":
       return ".dmg";
   }
-}
+};

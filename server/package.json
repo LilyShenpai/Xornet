@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha './test/*'"
+    "test": "mocha './test/*'",
+    "prettify": "npx prettier --write \"./**/*.js\""
   },
   "keywords": [],
   "author": "",

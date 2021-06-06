@@ -1,7 +1,7 @@
 const ProgressBar = require("progress");
-const fs = require('fs');
+const fs = require("fs");
 const axios = require("axios");
-const os = require('os');
+const os = require("os");
 
 /**
  * Downloads the new update to the system if available.
@@ -44,4 +44,4 @@ module.exports = async function download(downloadLink, hidden) {
     });
     writer.on("error", reject);
   });
-}
+};

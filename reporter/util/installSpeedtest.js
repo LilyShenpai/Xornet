@@ -31,4 +31,4 @@ module.exports = async function installSpeedtest() {
   }
 
   console.log("[SPEEDTEST]".bgYellow.black + ` Download finished`);
-}
+};

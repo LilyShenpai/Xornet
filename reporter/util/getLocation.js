@@ -13,4 +13,4 @@ module.exports = async function getLocation() {
     countryCode: location.country_code,
     isp: location.isp,
   };
-}
+};

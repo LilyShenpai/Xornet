@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("@/models/User.js");
 
-const TEST_UUID = '00000000000000000000000000000000';
+const TEST_UUID = "00000000000000000000000000000000";
 
 router.post("/reporter", async (req, res) => {
   if (req.body.uuid == TEST_UUID) {

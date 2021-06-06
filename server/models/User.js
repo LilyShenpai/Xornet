@@ -68,7 +68,7 @@ schema.statics.update = async function (_id, newProfile) {
   return new Promise(async (resolve) => {
     const user = await this.findOne({ _id }).exec();
 
-    for (const [key, value] of Object.entries(newProfile)){
+    for (const [key, value] of Object.entries(newProfile)) {
       user[key] = value;
     }
     if (newProfile.password) user.password = await bcrypt.hash(newProfile.password, saltRounds);
@@ -95,9 +95,9 @@ schema.statics.addMachine = async function (_id, machineUUID) {
 /**
  * @returns The user's total RAM throughout all of their machines
  */
-schema.methods.getTotalRam = async function(){
+schema.methods.getTotalRam = async function () {
   // Replace the array with a new one that sums up all the ram for each machine
-  let totalRam = (await Machine.find({_id: this.machines})).map(machine => machine.static.memLayout.reduce((a, b) => a + b.size, 0));
+  let totalRam = (await Machine.find({ _id: this.machines })).map((machine) => machine.static.memLayout.reduce((a, b) => a + b.size, 0));
 
   // Sum up all the ram together and return
   return totalRam.reduce((a, b) => a + b, 0);
@@ -106,9 +106,9 @@ schema.methods.getTotalRam = async function(){
 /**
  * @returns The user's total shared cores throughout all of their machines
  */
-schema.methods.getTotalCores = async function(){
+schema.methods.getTotalCores = async function () {
   // Replace the array with a new one that sums up all the ram for each machine
-  let totalRam = (await Machine.find({_id: this.machines})).map(machine => machine.static.cpu.cores);
+  let totalRam = (await Machine.find({ _id: this.machines })).map((machine) => machine.static.cpu.cores);
 
   // Sum up all the ram together and return
   return totalRam.reduce((a, b) => a + b, 0);
@@ -117,7 +117,7 @@ schema.methods.getTotalCores = async function(){
 /**
  * @returns Adds points
  */
-schema.methods.addPoints = async function(points){
+schema.methods.addPoints = async function (points) {
   this.points += points;
   this.save();
 };

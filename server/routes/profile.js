@@ -9,7 +9,7 @@ const router = express.Router();
 const Joi = require("joi");
 const User = require("@/models/User.js");
 const Machine = require("@/models/Machine.js");
-const FileType = require('file-type');
+const FileType = require("file-type");
 
 const schema = Joi.object({
   _id: Joi.string(),
@@ -33,14 +33,12 @@ const schema = Joi.object({
 
 async function resizeSaveImage(image) {
   return new Promise(async (resolve, reject) => {
-
     // Get the date so we can append a unique number on the file name
     // so all the files are unique and don't conflict
     let date = Date.now();
 
     try {
       Jimp.read(`./temp/${image.filename}`, async (err, jimpImage) => {
-
         // Delete from temp
         fs.unlink(`./temp/${image.filename}`, () => {});
         if (err) throw err;
@@ -69,7 +67,7 @@ async function saveImage(image) {
       if (err) {
         console.log(err);
         reject(err);
-      };
+      }
       resolve({
         url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
       });
@@ -77,7 +75,7 @@ async function saveImage(image) {
   });
 }
 
-function deleteSensitiveInformation(user){
+function deleteSensitiveInformation(user) {
   if (user.password) user.password = undefined;
   if (user.geolocation?.isp) user.geolocation.isp = undefined;
   if (user.speedtest) {
@@ -85,7 +83,7 @@ function deleteSensitiveInformation(user){
     user.speedtest.isp = undefined;
     user.speedtest.isp = undefined;
   }
-  return user
+  return user;
 }
 
 router.use(upload.any());
@@ -93,7 +91,7 @@ router.use(upload.any());
 // DELETE THIS LATER N1KO23 PLEASE FIX
 // WE DONT KNOW HOW TO DO THIS
 // Temporary function to append stuff to user
-async function appendExtraShit(user){
+async function appendExtraShit(user) {
   let reducedUser = JSON.parse(JSON.stringify(user));
   reducedUser.totalRam = await user.getTotalRam();
   reducedUser.totalCores = await user.getTotalCores();
@@ -116,27 +114,26 @@ router.get("/profile/:username", auth, async (req, res) => {
 
 router.patch("/profile", auth, async (req, res) => {
   req.body.json = JSON.parse(req.body.json);
-  
+
   // Delete this useless shit it doesn't add it to the database by accident
   delete req.body.json.totalRam;
   delete req.body.json.totalCores;
   // delete req.body.json.totalBandwidth;
-  
+
   try {
     let profile = req.body.json;
     for (file of req.files) {
-      
       // Check for valid mimetype
       const filetype = await FileType.fromFile(`./temp/${file.filename}`);
-      if (!filetype.mime.startsWith("image")){
-        return res.status(400).json({ error: 'invalid file type' });
+      if (!filetype.mime.startsWith("image")) {
+        return res.status(400).json({ error: "invalid file type" });
       }
 
       // Validate profile integrity
       switch (file.fieldname) {
         case "image":
           // If the image is a gif then simply save it without resizing
-          if(filetype.mime == 'image/gif') profile.profileImage = await saveImage(file);
+          if (filetype.mime == "image/gif") profile.profileImage = await saveImage(file);
           else profile.profileImage = await resizeSaveImage(file);
           break;
         case "banner":

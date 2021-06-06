@@ -12,7 +12,7 @@ module.exports = async function checkAccount(staticData, mute) {
       staticData.reporter = {
         linked_account: response.data.account_uuid,
       };
-      if (!mute) console.log("[INFO]".bgCyan.black + " Authentication completed")
+      if (!mute) console.log("[INFO]".bgCyan.black + " Authentication completed");
       resolve();
     } catch (error) {
       if (!mute) console.log("[INFO]".bgCyan.black + " Backend server appears to be offline/unavailable");
@@ -24,4 +24,4 @@ module.exports = async function checkAccount(staticData, mute) {
       }
     }
   });
-}
+};

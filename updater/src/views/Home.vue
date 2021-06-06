@@ -1,16 +1,16 @@
 <template>
   <div class="home">
-    <loadingScreen/>
+    <loadingScreen />
   </div>
 </template>
 
 <script>
-import loadingScreen from '@/components/loadingScreen';
+import loadingScreen from "@/components/loadingScreen";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
-    loadingScreen
-  }
-}
+    loadingScreen,
+  },
+};
 </script>

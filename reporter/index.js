@@ -20,20 +20,20 @@ const WARN = "[WARN]".bgYellow.black;
 const CONNECTED = "[CONNECTED]".bgGreen.black;
 const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
 
-async function main(){
+async function main() {
   console.log(INFO + ` Fetching static data...`);
   const staticData = await getStaticData();
   console.log(INFO + " System information collection finished".green);
 
   console.log(SPEEDTEST + ` Checking for SpeedTest installation...`);
-  if (!await isSpeedtestInstalled()) {
+  if (!(await isSpeedtestInstalled())) {
     console.log(SPEEDTEST + ` Speedtest not installed`);
     await installSpeedtest();
   }
   console.log(SPEEDTEST + ` Speedtest found`);
 
   const isThereUpdate = await checkForUpdates(staticData);
-  if (isThereUpdate) return await download(isThereUpdate.link); 
+  if (isThereUpdate) return await download(isThereUpdate.link);
   const xornet = await connectToXornet(staticData);
 
   let statistics = {};
@@ -46,9 +46,9 @@ async function main(){
   xornet.on("connect", () => {
     console.log(CONNECTED + ` Connected to ${process.env.BACKEND_URL.green}`);
     console.log(INFO + ` Loading Stats...`);
-  
+
     emitter = setInterval(function () {
-      if(process.env.PRINT_SENDING_STATS === 'true') {
+      if (process.env.PRINT_SENDING_STATS === "true") {
         clearLastLine();
         console.log(INFO + ` Sending Stats - ${Date.now()}`.cyan);
       }

@@ -14,7 +14,7 @@ module.exports = async function checkForUpdates(staticData) {
         // console.log(error);
         if (error.response.status === 403) {
           console.log("[WARN]".bgYellow.black + ` GitHub API error, skipping...`);
-          return resolve(false);;
+          return resolve(false);
         }
         console.log("[WARN]".bgYellow.black + ` Backend server is offline, skipping update`);
         console.log("[INFO]".bgCyan.black + ` Waiting for backend to connect...`);
@@ -24,9 +24,9 @@ module.exports = async function checkForUpdates(staticData) {
     }
 
     if (os.platform() === "win32") {
-      if (require('../package.json').version < update.latestVersion) {
+      if (require("../package.json").version < update.latestVersion) {
         console.log("[INFO]".bgCyan.black + ` Downloading new update v${update.latestVersion}`);
-        resolve({link: update.downloadLink});
+        resolve({ link: update.downloadLink });
         console.log("[INFO]".bgCyan.black + ` Update finished`);
       } else {
         console.log("[INFO]".bgCyan.black + ` No updates found`);
