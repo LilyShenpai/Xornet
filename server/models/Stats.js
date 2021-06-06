@@ -4,6 +4,9 @@ const { v4: uuidv4 } = require("uuid");
 const Schema = mongoose.Schema;
 mongoose.connect(process.env.MONGODB_HOST, { useNewUrlParser: true, useUnifiedTopology: true });
 
+const HOUR = 36000000;
+const MINUTE = 60000;
+
 const schema = new Schema(
   {
     _id: String, // The mongo object ID
@@ -43,6 +46,28 @@ schema.statics.fetchDailyTraffic = async function (timeOffset) {
     total_megabits: networkTotal.toFixed(2),
     total_megabytes: (networkTotal / 8).toFixed(2),
   };
+};
+
+/**
+ * @param {String} machine The _id of the machine to fetch stats for
+ * @returns {Object} containing the upload/download of the past hour
+ */
+schema.statics.fetchMachineNetwork = async function (machine) {
+  const timestamp = new Date();
+  let stats = await this.aggregate([
+    { $match: { machine_id: machine }},
+    { $match: { timestamp: { $gte: new Date(timestamp - MINUTE * 5) }}}, 
+    { $project: { 
+      _id: 0,
+      ram: 0,
+      cpu: 0,
+      disks: 0,
+      machine_id: 0,
+      'network.totalInterfaces': 0,
+    }}
+  ]);
+
+  return stats;
 };
 
 /**
