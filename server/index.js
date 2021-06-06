@@ -78,6 +78,7 @@ app.use(require("@/routes/signup"));
 app.use(require("@/routes/profile"));
 app.use(require("@/routes/stats"));
 app.use(require("@/routes/reporter"));
+app.use(require("@/routes/search"));
 
 // Temp clear out machines every 60seconds to clear
 setInterval(() => {

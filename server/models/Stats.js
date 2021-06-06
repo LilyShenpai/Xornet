@@ -56,7 +56,7 @@ schema.statics.fetchMachineNetwork = async function (machine) {
   const timestamp = new Date();
   let stats = await this.aggregate([
     { $match: { machine_id: machine }},
-    { $match: { timestamp: { $gte: new Date(timestamp - MINUTE * 5) }}}, 
+    { $match: { timestamp: { $gte: new Date(timestamp - MINUTE ) }}}, 
     { $project: { 
       _id: 0,
       ram: 0,
