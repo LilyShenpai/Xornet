@@ -31,12 +31,12 @@ const parseReport = require("@/util/parseReport");
 const Machine = require("@/models/Machine.js");
 const User = require("@/models/User.js");
 const Stats = require("@/models/Stats.js");
+const Logs = require("@/models/Logs.js");
 const authSocket = require("@/middleware/authSocket.js");
 const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
 const smtp = require("@/services/smtp.js");
 const SMTPServer = require("smtp-server").SMTPServer;
-const Logs = require("@/models/Logs");
 
 app.use(bodyParser.json());
 app.use(express.static("uploads"));
@@ -202,7 +202,7 @@ io.on("connection", async (socket) => {
       if (report.geolocation) delete report.geolocation.ip;
 
       // Validate / parse the report
-      report = await parseReport(report, latestVersion, machinesPings);
+      report = parseReport(report, latestVersion, machinesPings);
 
       // Assign statics
       machinesStatic.set(report.uuid, socket.handshake.auth);

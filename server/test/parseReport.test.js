@@ -1,6 +1,8 @@
 const assert = require("assert");
 const parseReport = require("../util/parseReport");
 
+process.env.TESTING = 'true';
+
 describe("parseReport Test Suit", () => {
   it("Test parseReport with valid Windows Report", () => {
     const report = {
