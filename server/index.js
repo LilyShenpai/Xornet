@@ -119,11 +119,10 @@ async function calculateReportPoints() {
   return REPORT_BASE_REWARD + Math.floor(Math.random() * REPORT_BASE_REWARD);
 }
 
-process.on('uncaughtException', async (err, origin) => {
-  await Logs.add('API', {err});
+process.on("uncaughtException", async (err, origin) => {
+  await Logs.add("API", err);
   console.log(err);
 });
-
 
 // Websockets
 io.use(authSocket);
@@ -246,6 +245,6 @@ smtpserv.listen(465, () => {
 });
 
 smtpserv.on("error", (error) => {
-  Logs.add('SMTP', {error});
+  Logs.add("SMTP", { error });
   console.error(`[SMTP]: Error with smtp server: ${error}`);
 });

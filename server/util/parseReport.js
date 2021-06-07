@@ -1,5 +1,5 @@
 const formatSeconds = require("./formatSeconds");
-const uuidRegex = /[a-f0-9]{32}/;
+const uuidRegex = /([a-f0-9]{32})|([a-f0-9]{16})/;
 const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const whiteSpacesInStringRegex = /\s/;
 const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT", "UDF"];
@@ -20,17 +20,17 @@ async function parseReport(report, latestVersion, machinesPings) {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-    
+
     // Log this in the database
-    Logs.add('Report parser', {
-      error: error.message, 
-      stack: error.stack.split("\n")[2].trim(),
+    Logs.add("Report parser", "Got invalid Report from reporter", {
+      error: error.message,
+      stack: error.stack,
       report,
     });
 
     console.log(`[WARN] Got invalid Report from reporter`);
     if (process.env.APP_ENV === "testing") {
-      console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
+      console.log(`[DEBUG] "${error.message}" ${error.stack}`);
     }
   }
   return report;
