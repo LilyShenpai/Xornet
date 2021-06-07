@@ -5,6 +5,7 @@ const whiteSpacesInStringRegex = /\s/;
 const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT", "UDF"];
 const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs", "vfat"];
 const macosFileSystems = ["HFS", "APFS"];
+const Logs = require("@/models/Logs");
 
 /**
  * @param report {Object} A raw report from a reporter
@@ -12,20 +13,26 @@ const macosFileSystems = ["HFS", "APFS"];
  * @param machinesPings {Map} the machinesPings Map
  * @returns {Object} A validated and parsed report
  */
-function parseReport(report, latestVersion, machinesPings) {
+async function parseReport(report, latestVersion, machinesPings) {
   report = parse(report, machinesPings);
 
   try {
     validate(report, latestVersion);
   } catch (error) {
     report.rogue = true;
-    console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
-    // console.log(`[WARN] Got invalid Report from reporter`);
+    
+    // Log this in the database
+    Logs.add('Report parser', {
+      error: error.message, 
+      stack: error.stack.split("\n")[2].trim(),
+      report,
+    });
+
+    console.log(`[WARN] Got invalid Report from reporter`);
     if (process.env.APP_ENV === "testing") {
       console.log(`[DEBUG] "${error.message}" ${error.stack.split("\n")[2].trim()}`);
     }
   }
-
   return report;
 }
 
@@ -90,7 +97,6 @@ function parse(report, machinesPings) {
     disk.available = parseFloat((disk.available / 1024 / 1024 / 1024).toFixed(2));
     return disk;
   });
-
   return report;
 }
 

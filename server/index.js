@@ -36,6 +36,7 @@ const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
 const smtp = require("@/services/smtp.js");
 const SMTPServer = require("smtp-server").SMTPServer;
+const Logs = require("@/models/Logs");
 
 app.use(bodyParser.json());
 app.use(express.static("uploads"));
@@ -79,6 +80,7 @@ app.use(require("@/routes/profile"));
 app.use(require("@/routes/stats"));
 app.use(require("@/routes/reporter"));
 app.use(require("@/routes/search"));
+app.use(require("@/routes/logs"));
 
 // Temp clear out machines every 60seconds to clear
 setInterval(() => {
@@ -116,6 +118,11 @@ async function calculateSpeedtestPoints() {
 async function calculateReportPoints() {
   return REPORT_BASE_REWARD + Math.floor(Math.random() * REPORT_BASE_REWARD);
 }
+
+process.on('uncaughtException', async (err, origin) => {
+  await Logs.add('Server main thread', {err});
+  console.log(err);
+});
 
 // Websockets
 io.use(authSocket);
@@ -195,7 +202,7 @@ io.on("connection", async (socket) => {
       if (report.geolocation) delete report.geolocation.ip;
 
       // Validate / parse the report
-      report = parseReport(report, latestVersion, machinesPings);
+      report = await parseReport(report, latestVersion, machinesPings);
 
       // Assign statics
       machinesStatic.set(report.uuid, socket.handshake.auth);
@@ -238,5 +245,6 @@ smtpserv.listen(465, () => {
 });
 
 smtpserv.on("error", (error) => {
+  Logs.add('SMTP', {error});
   console.error(`[SMTP]: Error with smtp server: ${error}`);
 });
