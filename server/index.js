@@ -120,9 +120,10 @@ async function calculateReportPoints() {
 }
 
 process.on('uncaughtException', async (err, origin) => {
-  await Logs.add('Server main thread', {err});
+  await Logs.add('API', {err});
   console.log(err);
 });
+
 
 // Websockets
 io.use(authSocket);
