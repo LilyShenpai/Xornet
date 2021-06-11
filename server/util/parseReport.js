@@ -5,7 +5,7 @@ const whiteSpacesInStringRegex = /\s/;
 const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT", "UDF"];
 const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs", "vfat"];
 const macosFileSystems = ["HFS", "APFS"];
-if (!process.env.TESTING === "true") var Logs = require("@/models/Logs.js");
+const Logs = require("@/models/Logs.js");
 
 /**
  * @param report {Object} A raw report from a reporter

@@ -152,7 +152,7 @@ router.patch("/profile", auth, async (req, res) => {
   }
 });
 
-const uuidRegex = /[a-f0-9]{32}/;
+const uuidRegex = /([a-f0-9]{32})|([a-f0-9]{16})/;
 
 router.put("/profile/machine", auth, async (req, res) => {
   await User.addMachine(req.user._id, req.body.machine);

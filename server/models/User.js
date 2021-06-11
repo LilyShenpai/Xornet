@@ -25,6 +25,7 @@ const schema = new Schema(
     speedtest: { type: Object }, // User's speedtest
     is_admin: { type: Boolean, default: false }, // Is user administrator or not
     machines: { type: Array, default: null }, // The array that contains the UUID's of the machines the user has
+    datacenters: {type: Array, default: null}, // A list of the user's owned datacenters
   },
   {
     versionKey: false, // You should be aware of the outcome after set to false
@@ -77,6 +78,11 @@ schema.statics.update = async function (_id, newProfile) {
   });
 };
 
+
+// This should be refactored to be a method instead since that makes it so we don't
+// Have to query the database again for the user because we'll have it already
+// Instantiated from the method's class
+
 /**
  * Simply adds a machine to the user's database
  * @param {String} [_id] the uuid of the user
@@ -91,6 +97,20 @@ schema.statics.addMachine = async function (_id, machineUUID) {
     } else reject();
   });
 };
+
+/**
+ * Simply adds a datacenter to the user's database
+ * @param {String} [_id] the uuid of the user
+ * @param {String} [datacenterUUID] the uuid of the datacenter to add to the user
+ */
+schema.methods.addDatacenter = async function (datacenterUUID){
+  return new Promise(async (resolve, reject) => {
+    if (!datacenterUUID) reject();
+    if (!this.datacenters.includes(datacenterUUID)) this.datacenters.push(datacenterUUID);
+    await this.save();
+    resolve();
+  });
+}
 
 /**
  * @returns The user's total RAM throughout all of their machines
