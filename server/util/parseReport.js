@@ -21,13 +21,15 @@ function parseReport(report, latestVersion, machinesPings) {
   } catch (error) {
     report.rogue = true;
 
-    // Log this in the database
-    if (!process.env.TESTING === "true")
-      Logs.add("Report parser", "Got invalid Report from reporter", {
-        error: error.message,
-        stack: error.stack,
-        report,
-      });
+    Logs.add("Report parser", "Got invalid Report from reporter", {
+      error: error.message,
+      stack: error.stack,
+      report,
+    });
+
+    // // Log this in the database
+    // if (!process.env.TESTING === "true")
+      
 
     console.log(`[WARN] Got invalid Report from reporter`);
     if (process.env.APP_ENV === "testing") {

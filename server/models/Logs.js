@@ -18,7 +18,7 @@ const schema = new Schema(
  * @param {Object} [log] Log message
  */
 schema.statics.add = async function (at, summary, message) {
-  await new this({ at, summary, message, timestamp: Date.now() }).save();
+  await new this({ at, summary, message: JSON.stringify(message), timestamp: Date.now() }).save();
 };
 
 module.exports = mongoose.model("Logs", schema);
