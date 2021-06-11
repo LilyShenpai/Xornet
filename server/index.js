@@ -30,6 +30,7 @@ const io = require("socket.io")(https, { cors: { origin: "*" } });
 const parseReport = require("@/util/parseReport");
 const Machine = require("@/models/Machine.js");
 const User = require("@/models/User.js");
+const Datacenter = require("@/models/Datacenter.js");
 const Stats = require("@/models/Stats.js");
 const Logs = require("@/models/Logs.js");
 const authSocket = require("@/middleware/authSocket.js");
@@ -196,6 +197,10 @@ io.on("connection", async (socket) => {
         username: user?.username,
         profileImage: user?.profileImage?.url,
       };
+
+      // Assign datacenter
+      // TODO: Make this not query the DB on every report as its inneffienct
+      report.datacenter = await Datacenter.findOne({machines: socket.handshake.auth.uuid}).exec();
 
       // Add geolocation data
       // So it goes to the frontend

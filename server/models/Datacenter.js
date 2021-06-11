@@ -9,7 +9,7 @@ const userUUIDRegex = /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-
 const schema = new Schema(
   {
     _id: { type: String, required: true },
-    machines: { type: Array, default: [] },
+    machines: { type: [String], default: [] },
     owner: { type: String, required: true },
     name: { type: String, default: "My cool datacenter"},
     members: { type: Array, required: false, default: []},
