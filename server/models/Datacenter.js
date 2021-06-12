@@ -11,6 +11,7 @@ const schema = new Schema(
     name: { type: String },
     members: { type: Array, required: false, default: [] },
     logo: { type: String, required: false, default: null },
+    banner: { type: String, required: false, default: null },
     created_at: { type: Number, required: true },
   },
   {

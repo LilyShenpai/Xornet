@@ -51,24 +51,17 @@ router.patch("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
 
   try {
     for (file of req.files) {
-
-      // Check for valid mimetype
-      const filetype = await FileType.fromFile(`./temp/${file.filename}`);
-
-      if (!filetype.mime.startsWith("application/xml")) {
-        return res.status(400).json({ error: "Invalid filetype, please provide an SVG/XML" });
-      }
-
+     
       // Validate profile integrity
       switch (file.fieldname) {
         case "logo":
           // If the image is a gif then simply save it without resizing
-          if (filetype.mime == "application/xml") datacenter.logo = await saveImage(file);
+          if (file.mimetype == "image/svg+xml") datacenter.logo = (await saveImage(file)).url;
           else res.status(400).json({ error: "Invalid filetype, please provide an SVG/XML" });
           console.log("logo", datacenter.logo);
           break;
         case "banner":
-          if (filetype.mime == "image/*") datacenter.banner = await saveImage(file);
+          if (file.mimetype.startsWith("image/")) datacenter.banner = (await saveImage(file)).url;
           console.log("banner", datacenter.banner);
           break;
       }
