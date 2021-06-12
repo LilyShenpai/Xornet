@@ -22,7 +22,7 @@ router.get("/datacenter/all", async (req, res) => {
 router.get("/datacenter/:datacenterName?", datacenterAuth, async (req, res) => {
   res.status(200).json(await Datacenter.findOne({name: req.params.datacenterName}));
 });
-  
+
 router.put("/datacenter/:datacenterUUID?/add/machine/:machineUUID?", datacenterAuth, async (req, res) => {
   const query = await Datacenter.addMachine(req.params.datacenterUUID, req.params.machineUUID);
   const machine = await Machine.findOne({_id: req.params.machineUUID}).exec();
