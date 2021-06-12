@@ -6,7 +6,6 @@ const schema = new Schema(
   {
     _id: String, // String is shorthand for {type: String}
     static: { type: Object, default: null },
-    datacenter: { type: String, default: null}
   },
   {
     versionKey: false, // You should be aware of the outcome after set to false
