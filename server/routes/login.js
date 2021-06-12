@@ -18,9 +18,12 @@ async function createToken(user, res) {
       res.status(500).json({ message: err });
     }
 
+    delete user.password;
+
     res.status(200).cookie("token", token).json({
       message: "Logged in",
       token: token,
+      me: user,
     });
   });
 }

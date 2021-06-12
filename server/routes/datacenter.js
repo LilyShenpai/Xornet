@@ -16,25 +16,74 @@ router.post("/datacenter/new", async (req, res) => {
 });
 
 router.get("/datacenter/all", async (req, res) => {
-  res.status(200).json(await Datacenter.find());
+  let datacenters = [];
+  req.user.is_admin ? datacenters = await Datacenter.find() : datacenters = await Datacenter.find({ $or: [{owner: req.user._id}, {members: req.user._id}]});
+  for(datacenter of datacenters){
+    datacenter.owner == req.user;
+    let accumulator = [];
+    for(member of datacenter.members){
+      const {username, profileImage, _id} = await User.findOne({_id: member});
+      accumulator.push({username, profileImage, _id});
+    };
+    datacenter.members = accumulator;
+  }
+  res.status(200).json(datacenters)
 });
 
-router.get("/datacenter/:datacenterName?", datacenterAuth, async (req, res) => {
-  res.status(200).json(await Datacenter.findOne({name: req.params.datacenterName}));
+router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
+  const datacenter = await Datacenter.findOne({name: req.params.datacenter, owner: req.user._id});
+  datacenter.owner == req.user;
+  datacenter.members.map(async member => {
+    const {username, profileImage, _id} = await User.findOne({_id: member});
+    return {username, profileImage, _id};
+  });
+  res.status(200).json(datacenter);
 });
 
-router.put("/datacenter/:datacenterUUID?/add/machine/:machineUUID?", datacenterAuth, async (req, res) => {
-  const query = await Datacenter.addMachine(req.params.datacenterUUID, req.params.machineUUID);
-  const machine = await Machine.findOne({_id: req.params.machineUUID}).exec();
-  machine.datacenter = req.params.datacenterUUID;
+router.put("/datacenter/:datacenter/machine/:machine", datacenterAuth, async (req, res) => {
+  if (req.params.datacenter == null ||  req.params.machine == null) {
+    return res.status(403).json({message: "Undefined field"});
+  }
+
+  req.params.machine = req.params.machine.toLowerCase();
+
+  const query = await Datacenter.addMachine(req.params.datacenter, req.params.machine);
+  const machine = await Machine.findOne({_id: req.params.machine}).exec();
+  machine.datacenter = req.params.datacenter;
   await machine.save();
-  console.log(query)
   res.status(201).json(query);
 });
 
-router.put("/datacenter/:datacenterUUID?/add/user/:userUUID?", datacenterAuth, async (req, res) => {
-  const query = await Datacenter.addUser(req.params.datacenterUUID, req.params.userUUID);
-  console.log(query)
+router.delete("/datacenter/:datacenter/machine/:machine", datacenterAuth, async (req, res) => {
+  if (req.params.machine === 'undefined' ||  req.params.user === 'undefined') {
+    return res.status(403).json({message: "Undefined field"});
+  }
+
+  req.params.machine = req.params.machine.toLowerCase();
+
+  const query = await Datacenter.removeMachine(req.params.machine, req.params.user);
+  res.status(201).json(query);
+});
+
+router.put("/datacenter/:datacenter/user/:user", datacenterAuth, async (req, res) => {
+  if (req.params.datacenter === 'undefined' ||  req.params.user === 'undefined') {
+    return res.status(403).json({message: "Undefined field"});
+  }
+
+  req.params.user = req.params.user.toLowerCase();
+
+  const query = await Datacenter.addUser(req.params.datacenter, req.params.user);
+  res.status(201).json(query);
+});
+
+router.delete("/datacenter/:datacenter/user/:user", datacenterAuth, async (req, res) => {
+  if (req.params.datacenter === 'undefined' ||  req.params.user === 'undefined') {
+    return res.status(403).json({message: "Undefined field"});
+  }
+
+  req.params.user = req.params.user.toLowerCase();
+
+  const query = await Datacenter.removeUser(req.params.datacenter, req.params.user);
   res.status(201).json(query);
 });
 
