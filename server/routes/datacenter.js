@@ -6,8 +6,13 @@ const User = require("@/models/User.js");
 const Datacenter = require("@/models/Datacenter.js");
 const auth = require("@/middleware/auth.js");
 const datacenterAuth = require("@/middleware/datacenterAuth.js");
+const multer = require("multer");
+const upload = multer({ dest: "./temp/" });
+const FileType = require("file-type");
+const saveImage = require("@/util/saveImage.js");
 
 router.use(auth);
+router.use(upload.any());
 
 router.post("/datacenter/new", async (req, res) => {
   const datacenter = await Datacenter.add(req.user.id, req.body.name);
@@ -39,6 +44,43 @@ router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
   });
   res.status(200).json(datacenter);
 });
+
+router.patch("/datacenter/:datacenter", datacenterAuth, async (req, res) => {
+  const datacenter = await Datacenter.findOne({ name: req.params.datacenter });
+
+  console.log(req.files);
+
+  try {
+    for (file of req.files) {
+
+      // Check for valid mimetype
+      const filetype = await FileType.fromFile(`./temp/${file.filename}`);
+      if (!filetype.mime.startsWith("image/svg")) {
+        return res.status(400).json({ error: "invalid file type" });
+      }
+
+      // Validate profile integrity
+      switch (file.fieldname) {
+        case "logo":
+          // If the image is a gif then simply save it without resizing
+          if (filetype.mime == "image/svg") datacenter.logo = await saveImage(file);
+          else res.status(400).json({ error: "invalid file type" });
+          console.log(datacenter.logo);
+          break;
+        case "banner":
+          if (filetype.mime == "image/svg") datacenter.banner = await saveImage(file);
+          console.log(datacenter.banner);
+          break;
+      }
+    }
+    await datacenter.save();
+    res.status(201).json({ message: "datacenter updated", datacenter });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error });
+  }
+});
+
 
 router.put("/datacenter/:datacenter/machine/:machine", datacenterAuth, async (req, res) => {
   if (req.params.datacenter == null || req.params.machine == null) {
@@ -86,5 +128,6 @@ router.delete("/datacenter/:datacenter/user/:user", datacenterAuth, async (req, 
   const query = await Datacenter.removeUser(req.params.datacenter, req.params.user);
   res.status(201).json(query);
 });
+
 
 module.exports = router;
