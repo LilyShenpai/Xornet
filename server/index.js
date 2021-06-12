@@ -38,10 +38,13 @@ const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
 const smtp = require("@/services/smtp.js");
 const SMTPServer = require("smtp-server").SMTPServer;
+const multer = require("multer");
+const upload = multer({ dest: "./temp/" });
 
 app.use(bodyParser.json());
 app.use(express.static("uploads"));
 app.use(cookieParser());
+app.use(upload.any());
 app.use(morgan("dev")); // Enable HTTPs code logs
 app.use(
   cors({

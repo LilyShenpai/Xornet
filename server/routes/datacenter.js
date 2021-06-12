@@ -6,10 +6,10 @@ const User = require("@/models/User.js");
 const Datacenter = require("@/models/Datacenter.js");
 const auth = require("@/middleware/auth.js");
 const datacenterAuth = require("@/middleware/datacenterAuth.js");
-const multer = require("multer");
-const upload = multer({ dest: "./temp/" });
 const FileType = require("file-type");
 const saveImage = require("@/util/saveImage.js");
+const { route } = require("./profile");
+
 
 router.use(auth);
 
@@ -44,36 +44,32 @@ router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
   res.status(200).json(datacenter);
 });
 
-router.patch("/datacenter/:datacenter", upload.any(), datacenterAuth, async (req, res) => {
+router.patch("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
   
-  console.log(req.files);
-  console.log(req.body);
-
   if(req.files.length == 0) return res.status(403).json({ message: "no images provided"});
-
   const datacenter = await Datacenter.findOne({ name: req.params.datacenter });
-
 
   try {
     for (file of req.files) {
 
       // Check for valid mimetype
       const filetype = await FileType.fromFile(`./temp/${file.filename}`);
-      if (!filetype.mime.startsWith("image/svg")) {
-        return res.status(400).json({ error: "invalid file type" });
+
+      if (!filetype.mime.startsWith("application/xml")) {
+        return res.status(400).json({ error: "Invalid filetype, please provide an SVG/XML" });
       }
 
       // Validate profile integrity
       switch (file.fieldname) {
         case "logo":
           // If the image is a gif then simply save it without resizing
-          if (filetype.mime == "image/svg") datacenter.logo = await saveImage(file);
-          else res.status(400).json({ error: "invalid file type" });
-          console.log(datacenter.logo);
+          if (filetype.mime == "application/xml") datacenter.logo = await saveImage(file);
+          else res.status(400).json({ error: "Invalid filetype, please provide an SVG/XML" });
+          console.log("logo", datacenter.logo);
           break;
         case "banner":
-          if (filetype.mime == "image/svg") datacenter.banner = await saveImage(file);
-          console.log(datacenter.banner);
+          if (filetype.mime == "image/*") datacenter.banner = await saveImage(file);
+          console.log("banner", datacenter.banner);
           break;
       }
     }

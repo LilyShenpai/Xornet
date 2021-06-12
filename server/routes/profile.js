@@ -72,8 +72,6 @@ function deleteSensitiveInformation(user) {
   return user;
 }
 
-router.use(upload.any());
-
 // DELETE THIS LATER N1KO23 PLEASE FIX
 // WE DONT KNOW HOW TO DO THIS
 // Temporary function to append stuff to user
@@ -99,6 +97,7 @@ router.get("/profile/:username", auth, async (req, res) => {
 });
 
 router.patch("/profile", auth, async (req, res) => {
+  console.log(req.body);
   req.body.json = JSON.parse(req.body.json);
 
   // Delete this useless shit it doesn't add it to the database by accident
