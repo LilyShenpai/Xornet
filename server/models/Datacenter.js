@@ -11,8 +11,9 @@ const schema = new Schema(
     _id: { type: String, required: true },
     machines: { type: [String], default: [] },
     owner: { type: String, required: true },
-    name: { type: String, default: "My cool datacenter"},
+    name: { type: String },
     members: { type: Array, required: false, default: []},
+    logo: {type: String, required: false, default: null },
     created_at: { type: Number, required: true },
   },
   {
