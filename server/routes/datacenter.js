@@ -12,7 +12,6 @@ const FileType = require("file-type");
 const saveImage = require("@/util/saveImage.js");
 
 router.use(auth);
-router.use(upload.any());
 
 router.post("/datacenter/new", async (req, res) => {
   const datacenter = await Datacenter.add(req.user.id, req.body.name);
@@ -45,10 +44,15 @@ router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
   res.status(200).json(datacenter);
 });
 
-router.patch("/datacenter/:datacenter", datacenterAuth, async (req, res) => {
+router.patch("/datacenter/:datacenter", upload.any(), datacenterAuth, async (req, res) => {
+  
+  console.log(req.files);
+  console.log(req.body);
+
+  if(req.files.length == 0) return res.status(403).json({ message: "no images provided"});
+
   const datacenter = await Datacenter.findOne({ name: req.params.datacenter });
 
-  console.log(req.files);
 
   try {
     for (file of req.files) {
@@ -81,6 +85,10 @@ router.patch("/datacenter/:datacenter", datacenterAuth, async (req, res) => {
   }
 });
 
+router.get("/datacenter/:datacenter/machine/count", datacenterAuth, async (req, res) => {
+  const datacenter = await Datacenter.findOne({ name: req.params.datacenter });
+  res.status(200).json({count: datacenter.machines.length});
+});
 
 router.put("/datacenter/:datacenter/machine/:machine", datacenterAuth, async (req, res) => {
   if (req.params.datacenter == null || req.params.machine == null) {
