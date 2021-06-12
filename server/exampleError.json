@@ -1,0 +1,19 @@
+{
+  "message": "Request failed with status code 400",
+  "name": "Error",
+  "stack": "Error: Request failed with status code 400\n at createError (webpack-internal:///./node_modules/axios/lib/core/createError.js:16:15)\n at settle (webpack-internal:///./node_modules/axios/lib/core/settle.js:17:12)\n at XMLHttpRequest.handleLoad (webpack-internal:///./node_modules/axios/lib/adapters/xhr.js:62:7)",
+  "config": {
+    "url": "https://backend.xornet.cloud/datacenter/Remena",
+    "method": "patch",
+    "data": "[object FormData]",
+    "headers": { "Accept": "application/json, text/plain, */*" },
+    "transformRequest": [null],
+    "transformResponse": [null],
+    "timeout": 0,
+    "withCredentials": true,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "maxBodyLength": -1
+  }
+}
