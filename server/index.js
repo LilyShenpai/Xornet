@@ -41,8 +41,8 @@ const SMTPServer = require("smtp-server").SMTPServer;
 const multer = require("multer");
 const upload = multer({ dest: "./temp/" });
 
-app.use(bodyParser.json());
 app.use(express.static("uploads"));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(upload.any());
 app.use(morgan("dev")); // Enable HTTPs code logs
