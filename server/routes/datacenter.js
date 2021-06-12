@@ -17,46 +17,46 @@ router.post("/datacenter/new", async (req, res) => {
 
 router.get("/datacenter/all", async (req, res) => {
   let datacenters = [];
-  req.user.is_admin ? datacenters = await Datacenter.find() : datacenters = await Datacenter.find({ $or: [{owner: req.user._id}, {members: req.user._id}]});
-  for(datacenter of datacenters){
+  req.user.is_admin ? (datacenters = await Datacenter.find()) : (datacenters = await Datacenter.find({ $or: [{ owner: req.user._id }, { members: req.user._id }] }));
+  for (datacenter of datacenters) {
     datacenter.owner == req.user;
     let accumulator = [];
-    for(member of datacenter.members){
-      const {username, profileImage, _id} = await User.findOne({_id: member});
-      accumulator.push({username, profileImage, _id});
-    };
+    for (member of datacenter.members) {
+      const { username, profileImage, _id } = await User.findOne({ _id: member });
+      accumulator.push({ username, profileImage, _id });
+    }
     datacenter.members = accumulator;
   }
-  res.status(200).json(datacenters)
+  res.status(200).json(datacenters);
 });
 
 router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
-  const datacenter = await Datacenter.findOne({name: req.params.datacenter, owner: req.user._id});
+  const datacenter = await Datacenter.findOne({ name: req.params.datacenter, owner: req.user._id });
   datacenter.owner == req.user;
-  datacenter.members.map(async member => {
-    const {username, profileImage, _id} = await User.findOne({_id: member});
-    return {username, profileImage, _id};
+  datacenter.members.map(async (member) => {
+    const { username, profileImage, _id } = await User.findOne({ _id: member });
+    return { username, profileImage, _id };
   });
   res.status(200).json(datacenter);
 });
 
 router.put("/datacenter/:datacenter/machine/:machine", datacenterAuth, async (req, res) => {
-  if (req.params.datacenter == null ||  req.params.machine == null) {
-    return res.status(403).json({message: "Undefined field"});
+  if (req.params.datacenter == null || req.params.machine == null) {
+    return res.status(403).json({ message: "Undefined field" });
   }
 
   req.params.machine = req.params.machine.toLowerCase();
 
   const query = await Datacenter.addMachine(req.params.datacenter, req.params.machine);
-  const machine = await Machine.findOne({_id: req.params.machine}).exec();
+  const machine = await Machine.findOne({ _id: req.params.machine }).exec();
   machine.datacenter = req.params.datacenter;
   await machine.save();
   res.status(201).json(query);
 });
 
 router.delete("/datacenter/:datacenter/machine/:machine", datacenterAuth, async (req, res) => {
-  if (req.params.machine === 'undefined' ||  req.params.user === 'undefined') {
-    return res.status(403).json({message: "Undefined field"});
+  if (req.params.machine === "undefined" || req.params.user === "undefined") {
+    return res.status(403).json({ message: "Undefined field" });
   }
 
   req.params.machine = req.params.machine.toLowerCase();
@@ -66,8 +66,8 @@ router.delete("/datacenter/:datacenter/machine/:machine", datacenterAuth, async 
 });
 
 router.put("/datacenter/:datacenter/user/:user", datacenterAuth, async (req, res) => {
-  if (req.params.datacenter === 'undefined' ||  req.params.user === 'undefined') {
-    return res.status(403).json({message: "Undefined field"});
+  if (req.params.datacenter === "undefined" || req.params.user === "undefined") {
+    return res.status(403).json({ message: "Undefined field" });
   }
 
   req.params.user = req.params.user.toLowerCase();
@@ -77,8 +77,8 @@ router.put("/datacenter/:datacenter/user/:user", datacenterAuth, async (req, res
 });
 
 router.delete("/datacenter/:datacenter/user/:user", datacenterAuth, async (req, res) => {
-  if (req.params.datacenter === 'undefined' ||  req.params.user === 'undefined') {
-    return res.status(403).json({message: "Undefined field"});
+  if (req.params.datacenter === "undefined" || req.params.user === "undefined") {
+    return res.status(403).json({ message: "Undefined field" });
   }
 
   req.params.user = req.params.user.toLowerCase();

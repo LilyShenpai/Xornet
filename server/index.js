@@ -200,7 +200,7 @@ io.on("connection", async (socket) => {
 
       // Assign datacenter
       // TODO: Make this not query the DB on every report as its inneffienct
-      report.datacenter = await Datacenter.findOne({machines: socket.handshake.auth.uuid}).exec();
+      report.datacenter = await Datacenter.findOne({ machines: socket.handshake.auth.uuid }).exec();
 
       // Add geolocation data
       // So it goes to the frontend

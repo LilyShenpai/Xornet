@@ -29,7 +29,6 @@ function parseReport(report, latestVersion, machinesPings) {
 
     // // Log this in the database
     // if (!process.env.TESTING === "true")
-      
 
     console.log(`[WARN] Got invalid Report from reporter`);
     if (process.env.APP_ENV === "testing") {
