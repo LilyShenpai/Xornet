@@ -24,6 +24,7 @@ const schema = Joi.object({
   machines: Joi.array(),
   bio: Joi.string(),
   speedtest: Joi.object(),
+  datacenters: Joi.array(),
   isDev: Joi.string(),
   is_admin: Joi.boolean(),
   socials: Joi.array(),
