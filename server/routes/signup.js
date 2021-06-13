@@ -16,19 +16,17 @@ router.post("/signup", async (req, res) => {
   try {
     var form = await schema.validateAsync(req.body);
   } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
+    return res.status(400).json({message: error.details[0].message});
   }
 
   // Encrypt Passwords
   try {
     var response = await User.add(form);
   } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
+    return res.status(400).json({message: error});
   }
 
-  res.status(201).json(response);
+  return res.status(201).json(response);
 });
 
 module.exports = router;

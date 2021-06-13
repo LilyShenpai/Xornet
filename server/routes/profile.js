@@ -110,7 +110,7 @@ router.patch("/profile", auth, async (req, res) => {
       // Check for valid mimetype
       const filetype = await FileType.fromFile(`./temp/${file.filename}`);
       if (!filetype.mime.startsWith("image")) {
-        return res.status(400).json({ error: "invalid file type" });
+        return res.status(400).json({ message: "invalid file type" });
       }
 
       // Validate profile integrity
@@ -132,7 +132,7 @@ router.patch("/profile", auth, async (req, res) => {
     res.status(201).json({ message: "Profile updated", profile });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error: error });
+    res.status(400).json({ message: error });
   }
 });
 

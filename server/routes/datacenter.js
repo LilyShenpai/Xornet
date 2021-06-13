@@ -56,11 +56,11 @@ router.patch("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
         case "logo":
           // If the image is a gif then simply save it without resizing
           if (file.mimetype == "image/svg+xml") datacenter.logo = (await saveImage(file)).url;
-          else return res.status(400).json({ error: "Invalid filetype, please provide an SVG/XML" });
+          else return res.status(400).json({ message: "Invalid filetype, please provide an SVG/XML" });
           break;
         case "banner":
           if (file.mimetype.startsWith("image/")) datacenter.banner = (await saveImage(file)).url;
-          else return res.status(400).json({ error: "Invalid filetype, please provide an Image" });
+          else return res.status(400).json({ message: "Invalid filetype, please provide an Image" });
           break;
       }
     }
@@ -68,7 +68,7 @@ router.patch("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
     res.status(201).json({ message: "datacenter updated", datacenter });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error: error });
+    res.status(400).json({ message: error });
   }
 });
 

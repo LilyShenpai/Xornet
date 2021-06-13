@@ -33,7 +33,7 @@ router.post("/login", async (req, res) => {
   const user = await User.findOne({ username: req.body.username }).exec();
 
   // If there is no user with those credentials return this
-  if (!user) return res.status(400).json({ error: "User not found ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
+  if (!user) return res.status(400).json({ message: "User not found ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
 
   // This is for backwards compatibility
   if (!user.geolocation) await User.update(user._id, { geolocation: req.body.geolocation });
@@ -47,7 +47,7 @@ router.post("/login", async (req, res) => {
     } else throw "Password mismatch error"; // If password doesn't match throw error
   } catch (error) {
     console.log(error);
-    if (error) res.status(400).json({ error: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
+    if (error) res.status(400).json({ message: "Invalid Credentials ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
   }
 });
 
