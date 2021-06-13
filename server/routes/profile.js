@@ -139,7 +139,7 @@ router.patch("/profile", auth, async (req, res) => {
 const uuidRegex = /([a-f0-9]{32})|([a-f0-9]{16})/;
 
 router.put("/profile/machine", auth, async (req, res) => {
-  if (await User.findOne({machines: req.body.machine})) return res.status(403).json({ message: "this machine belongs to another user" });
+  if (await User.findOne({machines: req.body.machine})) return res.status(403).json({ message: "this machine is already bound to a user" });
   await User.addMachine(req.user._id, req.body.machine);
   if (!uuidRegex.test(req.body.machine)) return res.status(400).json({ message: "invalid uuid" });
   res.status(201).json({ message: "machine added" });
