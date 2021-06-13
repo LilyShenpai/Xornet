@@ -79,10 +79,15 @@ router.get("/datacenter/:datacenter/machine/count", datacenterAuth, async (req, 
 });
 
 router.put("/datacenter/:datacenter/machine/:machine", datacenterAuth, async (req, res) => {
+
+  if (!req.user.machines.includes(req.params.machine)) {
+    return res.status(403).json({ message: "That machine doesn't belong to you" });
+  }
+
   if (req.params.datacenter == null || req.params.machine == null) {
     return res.status(403).json({ message: "Undefined field" });
   }
-
+ 
   req.params.machine = req.params.machine.toLowerCase();
 
   const query = await Datacenter.addMachine(req.params.datacenter, req.params.machine);
