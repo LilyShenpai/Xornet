@@ -10,10 +10,11 @@ const FileType = require("file-type");
 const saveImage = require("@/util/saveImage.js");
 const { route } = require("./profile");
 
-
+  
 router.use(auth);
 
 router.post("/datacenter/new", async (req, res) => {
+  if (req.body.name.toLowerCase() === 'unassigned') return res.status(403).json({ message: "you can't call your datacenter 'unassigned'"});
   const datacenter = await Datacenter.add(req.user.id, req.body.name);
   await req.user.addDatacenter(datacenter._id);
   res.status(201).json(datacenter);
