@@ -141,7 +141,7 @@ io.on("connection", async (socket) => {
     socket.join("client");
     socket.emit("machines", Object.fromEntries(machines));
     socket.on("getMachines", () => socket.emit("machines", Object.fromEntries(machines)));
-    
+
     socket.on("getPoints", (username) => {
       userToGetPointsOf = username;
     });
@@ -150,7 +150,6 @@ io.on("connection", async (socket) => {
       const points = (await User.findOne({ username: userToGetPointsOf }))?.points;
       if (points) socket.emit("points", points);
     }, 1000);
-
 
     socket.on("disconnect", () => clearInterval(pointInterval));
   }
