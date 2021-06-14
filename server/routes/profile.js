@@ -13,21 +13,9 @@ const FileType = require("file-type");
 const saveImage = require("@/util/saveImage.js");
 
 const schema = Joi.object({
-  _id: Joi.string(),
   profileImage: Joi.object(),
-  username: Joi.string(),
   profileBanner: Joi.object(),
-  password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9!@#$%^&*()_+$]{3,30}")),
-  repeat_password: Joi.ref("password"),
-  geolocation: Joi.object(),
-  created_at: Joi.number(),
-  points: Joi.number(),
-  machines: Joi.array(),
-  bio: Joi.string(),
-  speedtest: Joi.object(),
-  datacenters: Joi.array(),
-  isDev: Joi.string(),
-  is_admin: Joi.boolean(),
+  bio: Joi.string().max(256),
   socials: Joi.array(),
   badges: Joi.object(),
   email: Joi.string().email({ minDomainSegments: 2 }),
@@ -99,40 +87,41 @@ router.get("/profile/:username", auth, async (req, res) => {
 router.patch("/profile", auth, async (req, res) => {
   req.body.json = JSON.parse(req.body.json);
 
+
   // Delete this useless shit it doesn't add it to the database by accident
   delete req.body.json.totalRam;
   delete req.body.json.totalCores;
   // delete req.body.json.totalBandwidth;
 
-  try {
-    let profile = req.body.json;
-    for (file of req.files) {
-      // Check for valid mimetype
-      const filetype = await FileType.fromFile(`./temp/${file.filename}`);
-      if (!filetype.mime.startsWith("image")) {
-        return res.status(400).json({ message: "invalid file type" });
-      }
-
-      // Validate profile integrity
-      switch (file.fieldname) {
-        case "image":
-          // If the image is a gif then simply save it without resizing
-          if (filetype.mime == "image/gif") profile.profileImage = await saveImage(file);
-          else profile.profileImage = await resizeSaveImage(file);
-          break;
-        case "banner":
-          profile.profileBanner = await saveImage(file);
-          break;
-      }
-
-      // Validate profile integrity
-      await schema.validateAsync(profile);
+  let body = req.body.json;
+  for (file of req.files) {
+    // Check for valid mimetype
+    const filetype = await FileType.fromFile(`./temp/${file.filename}`);
+    if (!filetype.mime.startsWith("image")) {
+      return res.status(400).json({ message: "invalid file type" });
     }
-    await User.update(req.user._id, profile);
-    res.status(201).json({ message: "Profile updated", profile });
+
+    // Validate profile integrity
+    switch (file.fieldname) {
+      case "image":
+        // If the image is a gif then simply save it without resizing
+        if (filetype.mime == "image/gif") body.profileImage = await saveImage(file);
+        else body.profileImage = await resizeSaveImage(file);
+        break;
+      case "banner":
+        body.profileBanner = await saveImage(file);
+        break;
+    }
+  }
+
+  try {
+    // Validate profile integrity
+    await schema.validateAsync(body);
+    const profile = await User.update(req.user._id, body);
+    return res.status(201).json({ message: "Profile updated", profile });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ message: error });
+    return res.status(400).json({ message: error.details[0].message });
   }
 });
 

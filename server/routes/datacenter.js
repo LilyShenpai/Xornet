@@ -18,8 +18,11 @@ router.post("/datacenter/new", async (req, res) => {
 
   // Validate name
   const schema = Joi.object({name: Joi.string().alphanum().min(2).max(30)});
-  req.body = await schema.validateAsync(req.body).catch(error => res.status(403).json({ message: error.details[0].message}));
-
+  try {
+    req.body = await schema.validateAsync(req.body);  
+  } catch (error) { 
+    return res.status(403).json({ message: error.details[0].message});
+  }
   const datacenter = await Datacenter.add(req.user.id, req.body.name);
   await req.user.addDatacenter(datacenter._id);
   res.status(201).json(datacenter);

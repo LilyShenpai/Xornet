@@ -72,9 +72,10 @@ schema.statics.update = async function (_id, newProfile) {
     for (const [key, value] of Object.entries(newProfile)) {
       user[key] = value;
     }
+    
     if (newProfile.password) user.password = await bcrypt.hash(newProfile.password, saltRounds);
-
-    resolve(user.save());
+    user.save();
+    resolve(user);
   });
 };
 
