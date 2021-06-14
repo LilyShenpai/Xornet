@@ -16,7 +16,12 @@ const schema = Joi.object({
   profileImage: Joi.object(),
   profileBanner: Joi.object(),
   bio: Joi.string().max(256),
-  socials: Joi.array(),
+  socials: Joi.array().items(
+    Joi.object({
+      name: Joi.string(),
+      url: Joi.string().uri(),
+    })
+  ),
   badges: Joi.object(),
   email: Joi.string().email({ minDomainSegments: 2 }),
 });
