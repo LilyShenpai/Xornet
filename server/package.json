@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha './test/*'"
+    "test": "mocha './test/*'",
+    "prettify": "npx prettier --write \"./**/*.js\""
   },
   "keywords": [],
   "author": "",
@@ -13,10 +14,12 @@
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
+    "colors": "^1.4.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
+    "file-type": "^16.5.0",
     "jimp": "^0.16.1",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
@@ -25,6 +28,8 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "node-pty-prebuilt-multiarch": "^0.10.1-pre.4",
+    "nodemailer": "^6.6.1",
+    "smtp-server": "^3.9.0",
     "socket.io": "^4.0.2",
     "socket.io-client": "^4.0.2",
     "systeminformation": "^5.6.19",
