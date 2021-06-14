@@ -89,7 +89,7 @@ router.put("/datacenter/:datacenterUUID/machine/:machineUUID", datacenterAuth, a
     return res.status(403).json({ message: "That machine doesn't belong to you" });
   }
 
-  if (req.params.datacenterUUID == null || req.params.machineUUID == null) {
+  if (req.params.datacenterUUID === "undefined" || req.params.machineUUID === "undefined") {
     return res.status(403).json({ message: "Undefined field" });
   }
  
@@ -121,7 +121,7 @@ router.put("/datacenter/:datacenterUUID/user/:userUUID", datacenterAuth, async (
     return res.status(403).json({ message: "That user doesn't exist in the database" });
   }
 
-  if (req.params.datacenterUUID == null || req.params.userUUID == null) {
+  if (req.params.datacenterUUID === "undefined" || req.params.userUUID === "undefined") {
     return res.status(403).json({ message: "Undefined field" });
   }
 
