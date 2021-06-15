@@ -9,6 +9,24 @@ https://discord.gg/geoxor
 Figma:
 https://www.figma.com/file/dURFohUnUHXzgO8lSd53jO/Xornet
 
+# Installation 
+Make sure you have Node.js v14+
+  1. Client: 
+     2. `npm i` to install dependancies
+     3. `npm run serve` to run the client
+     4. `npm run build` to compile the client
+  2. Reporter: 
+     1. `npm i` to install dependancies
+     2. `nodemon .` or `node .`
+     2. `npm run build.` to compile the reporter (binaries will go in the dist folder)
+  3. Server:
+     1. `npm i` to install dependancies
+     2. `nodemon .` or `node .`
+
+# Information for pull requests
+Theres some scripts you should run before doing pull requests
+  `npm run prettify` on each folder to fix the formatting so it matches the rest of the repo
+
 # Reporter
 The reporter is the main binary app that you can easily download and install on your VMs or servers, it takes care of reporting system information to https://xornet.cloud!
 
