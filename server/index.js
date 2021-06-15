@@ -13,7 +13,6 @@ require("dotenv").config();
 require("module-alias/register");
 const express = require("express");
 const morgan = require("morgan");
-const axios = require("axios");
 const fs = require("fs");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -36,8 +35,6 @@ const Logs = require("@/models/Logs.js");
 const authSocket = require("@/middleware/authSocket.js");
 const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
-const smtp = require("@/services/smtp.js");
-const SMTPServer = require("smtp-server").SMTPServer;
 const multer = require("multer");
 const upload = multer({ dest: "./temp/" });
 
@@ -78,7 +75,6 @@ app.get("/stats", async (req, res) => {
 });
 
 app.use(require("@/routes/login"));
-app.use(require("@/routes/updates"));
 app.use(require("@/routes/signup"));
 app.use(require("@/routes/profile"));
 app.use(require("@/routes/stats"));
@@ -101,7 +97,7 @@ setInterval(() => {
 
 // Run every hour
 setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
-// setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
+setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
 
 // Temp clear out machines every 60seconds to clear
 setInterval(async () => {
@@ -126,9 +122,9 @@ async function calculateReportPoints() {
 
 process.on("uncaughtException", async (err, origin) => {
   await Logs.add("API", err);
-  console.log(err);
+  console.log(err); 
 });
-
+ 
 // Websockets
 io.use(authSocket);
 
@@ -167,6 +163,7 @@ io.on("connection", async (socket) => {
     // });
 
     socket.on("speedtest", async (speedtest) => {
+      if(!speedtest?.type) return;
       delete speedtest.type;
       const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
       const user = await User.findOne({ _id: userUUID }).exec();
@@ -230,30 +227,3 @@ io.on("disconnection", () => {
 });
 
 https.listen(port, () => console.log(`Started on port ${port.toString()}`));
-
-const smtpserv = new SMTPServer({
-  //name: "xornet.cloud",
-  secure: true,
-  key: options.key,
-  cert: options.cert,
-  onConnect(session, callback) {
-    console.log(session);
-    return callback(); // Accept the connection
-  },
-  onAuth(auth, session, callback) {
-    if (auth.username !== "kekw@xornet.cloud" || auth.password !== "yay") {
-      return callback(new Error("Invalid username or password"));
-    }
-    callback(null, { user: 1 }); // where 123 is the user id or similar property
-  },
-});
-
-smtpserv.listen(465, () => {
-  console.log(`SMTP Server started on port 465`);
-  //smtp.test();
-});
-
-smtpserv.on("error", (error) => {
-  Logs.add("SMTP", { error });
-  console.error(`[SMTP]: Error with smtp server: ${error}`);
-});

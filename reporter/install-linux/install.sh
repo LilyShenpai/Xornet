@@ -19,12 +19,12 @@ echo "Xornet uninstalled!"
 mkdir /etc/xornet
 
 # Download
-wget "https://github.com/Geoxor/Xornet/releases/download/v0.17/xornet-reporter-v0.17.bin" -P /etc/xornet
-chmod +x /etc/xornet/xornet-reporter-v0.17.bin
+wget "https://github.com/Geoxor/Xornet/releases/download/v0.0.17/xornet-reporter-linux-v0.0.17.bin" -P /etc/xornet
+chmod +x /etc/xornet/xornet-reporter-linux-v0.0.17.bin
 echo "Xornet reporter downloaded!"
 
 # Download service
-sudo wget "https://cdn.discordapp.com/attachments/806300597338767450/850282026812309514/xornet.service" -P /etc/systemd/system
+sudo wget "https://cdn.discordapp.com/attachments/806300597338767450/854143904449691649/xornet.service" -P /etc/systemd/system
 systemctl enable xornet
 echo "Xornet service downloaded!"
 
