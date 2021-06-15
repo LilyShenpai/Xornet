@@ -12,9 +12,9 @@ https://www.figma.com/file/dURFohUnUHXzgO8lSd53jO/Xornet
 # Installation 
 Make sure you have Node.js v14+
   1. Client: 
-     2. `npm i` to install dependancies
-     3. `npm run serve` to run the client
-     4. `npm run build` to compile the client
+     1. `npm i` to install dependancies
+     2. `npm run serve` to run the client
+     3. `npm run build` to compile the client
   2. Reporter: 
      1. `npm i` to install dependancies
      2. `nodemon .` or `node .`
