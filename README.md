@@ -18,7 +18,7 @@ Make sure you have Node.js v14+
   2. Reporter: 
      1. `npm i` to install dependancies
      2. `nodemon .` or `node .`
-     2. `npm run build.` to compile the reporter (binaries will go in the dist folder)
+     2. `npm run build` to compile the reporter (binaries will go in the dist folder)
   3. Server:
      1. `npm i` to install dependancies
      2. `nodemon .` or `node .`
