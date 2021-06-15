@@ -6,9 +6,6 @@ We are XORNET this is a fun little project started by @Geoxor for people who hav
 Heres the discord server for you to join
 https://discord.gg/geoxor
 
-Figma:
-https://www.figma.com/file/dURFohUnUHXzgO8lSd53jO/Xornet
-
 # Installation 
 Make sure you have Node.js v14+
   1. Client: 
