@@ -1,13 +1,3 @@
-// We will have 3 types of user types
-// Masteradmin
-// Admins - Who own a datacenter
-// Users who use VMs/servers from a datacenter
-// Master admins will be able to see everything on Xornet
-// Admins will be able to see all their machines that have in their datacenter
-// Datacenter Model that assigns machines to a datacenter so we can determine which account owns what computers
-// Add machine to the datacenter / xornet through the website
-// Create add machine, add datacenter, add admins, wizards in the frontend
-
 require("colors");
 require("dotenv").config();
 require("module-alias/register");
