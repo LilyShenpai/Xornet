@@ -18,7 +18,6 @@ const INFO = "[INFO]".bgCyan.black;
 const WARN = "[WARN]".bgYellow.black;
 const CONNECTED = "[CONNECTED]".bgGreen.black;
 const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
-
 async function main() {
   console.log(INFO + ` Fetching static data...`);
   const staticData = await getStaticData();

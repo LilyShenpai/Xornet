@@ -61,7 +61,7 @@ let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
 
-let latestVersion = "0.0.17";
+let latestVersion = "0.0.18";
 
 app.get("/stats", async (req, res) => {
   let object = {
