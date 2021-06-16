@@ -1,4 +1,4 @@
-![Xornet Logo](https://cdn.discordapp.com/attachments/806300597338767450/840561743804891166/unknown.png)
+![Xornet Logo](https://cdn.discordapp.com/attachments/851974319370010655/854669456793534494/unknown.png)
 
 # Information
 We are XORNET this is a fun little project started by @Geoxor for people who have servers and don’t have shit to do with them, our goal is to let people use our software to manage their servers!
