@@ -4,21 +4,23 @@ const isSpeedtestInstalled = require("../util/isSpeedtestInstalled");
 const installSpeedtest = require("../util/installSpeedtest");
 const { osInfo } = require("systeminformation");
 const os = require('os');
-const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
+const tran = require("../util/translationTable");
+const lang = "jp";
 
 module.exports = async function speedtest() {
   // Disable speedtests on liinux because when the reporter
   // Runs as a service it crashes from permissions
   if (os.platform() !== 'win32') return;
+  
 
   return new Promise(async (resolve, reject) => {
-    console.log(SPEEDTEST + ` Checking for SpeedTest installation...`);
+    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Checking for SpeedTest installation...`);
     if (!(await isSpeedtestInstalled())) {
-      console.log(SPEEDTEST + ` Speedtest not installed`);
+      console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest not installed`);
       await installSpeedtest();
     }
-    console.log(SPEEDTEST + ` Speedtest found`);
-    console.log(SPEEDTEST + ` Performing speedtest...`);
+    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest found`);
+    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Performing speedtest...`);
     process.env.PRINT_SENDING_STATS = false;
 
     let result = {};
@@ -68,7 +70,7 @@ module.exports = async function speedtest() {
           console.log(
             SPEEDTEST +
               ` Speedtest complete - Download: ${(result.download?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
-              ` Upload: ${(result.upload.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
+              ` Upload: ${(result.upload?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
               ` Ping: ${result.ping.latency.toFixed(2).toString().yellow}ms`
           );
           console.log("[INFO]".bgCyan.black + ` Loading Stats...`);

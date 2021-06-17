@@ -8,6 +8,8 @@ const getStats = require("./util/getStats");
 const getStaticData = require("./util/getStaticData");
 const clearLastLine = require("./util/clearLastLine");
 const speedtest = require("./util/speedtest");
+const tran = require("./util/translationTable");
+const lang = "jp";
 
 process.env.REFRESH_INTERVAL = 1000;
 process.env.BACKEND_URL = "wss://backend.xornet.cloud";
@@ -17,18 +19,17 @@ process.env.PRINT_SENDING_STATS = true;
 const INFO = "[INFO]".bgCyan.black;
 const WARN = "[WARN]".bgYellow.black;
 const CONNECTED = "[CONNECTED]".bgGreen.black;
-const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
 async function main() {
   console.log(INFO + ` Fetching static data...`);
   const staticData = await getStaticData();
   console.log(INFO + " System information collection finished".green);
 
-  console.log(SPEEDTEST + ` Checking for SpeedTest installation...`);
+  console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Checking for SpeedTest installation...`);
   if (!(await isSpeedtestInstalled())) {
-    console.log(SPEEDTEST + ` Speedtest not installed`);
+    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest not installed`);
     await installSpeedtest();
   }
-  console.log(SPEEDTEST + ` Speedtest found`);
+  console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest found`);
 
   const xornet = await connectToXornet(staticData);
 
