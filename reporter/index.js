@@ -3,7 +3,6 @@ require("./util/printLogo");
 
 const isSpeedtestInstalled = require("./util/isSpeedtestInstalled");
 const installSpeedtest = require("./util/installSpeedtest");
-const checkForUpdates = require("./util/checkForUpdates");
 const connectToXornet = require("./util/connectToXornet");
 const getStats = require("./util/getStats");
 const getStaticData = require("./util/getStaticData");
@@ -19,7 +18,6 @@ const INFO = "[INFO]".bgCyan.black;
 const WARN = "[WARN]".bgYellow.black;
 const CONNECTED = "[CONNECTED]".bgGreen.black;
 const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
-
 async function main() {
   console.log(INFO + ` Fetching static data...`);
   const staticData = await getStaticData();
@@ -32,8 +30,6 @@ async function main() {
   }
   console.log(SPEEDTEST + ` Speedtest found`);
 
-  const isThereUpdate = await checkForUpdates(staticData);
-  if (isThereUpdate) return await download(isThereUpdate.link);
   const xornet = await connectToXornet(staticData);
 
   let statistics = {};

@@ -3,6 +3,7 @@ const UUIDRegex = /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f
 
 let auth = async (req, res, next) => {
   if (!req.params.datacenterUUID) return res.status(401).json({ message: "You didn't specify a name or UUID in your parameters" });
+  req.params.datacenterUUID = decodeURI(req.params.datacenterUUID.trim());
 
   if (UUIDRegex.test(req.params.datacenterUUID)) req.user.datacenters = await Datacenter.find({ _id: req.params.datacenterUUID }).exec();
   else req.user.datacenters = await Datacenter.find({ name: req.params.datacenterUUID }).exec();

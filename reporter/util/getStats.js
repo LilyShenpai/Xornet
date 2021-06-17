@@ -20,7 +20,7 @@ module.exports = async function getStats(staticData) {
 
   let valueObject = {
     networkStats: `(*) tx_sec, rx_sec`,
-    currentLoad: "currentLoad",
+    currentLoad: "currentLoad cpus",
   };
 
   /**

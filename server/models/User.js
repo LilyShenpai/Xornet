@@ -139,7 +139,7 @@ schema.methods.getTotalCores = async function () {
  */
 schema.methods.addPoints = async function (points) {
   this.points += points;
-  this.save();
+  await this.save();
 };
 
 let User = mongoose.model("User", schema);

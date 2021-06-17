@@ -1,19 +1,8 @@
-// We will have 3 types of user types
-// Masteradmin
-// Admins - Who own a datacenter
-// Users who use VMs/servers from a datacenter
-// Master admins will be able to see everything on Xornet
-// Admins will be able to see all their machines that have in their datacenter
-// Datacenter Model that assigns machines to a datacenter so we can determine which account owns what computers
-// Add machine to the datacenter / xornet through the website
-// Create add machine, add datacenter, add admins, wizards in the frontend
-
 require("colors");
 require("dotenv").config();
 require("module-alias/register");
 const express = require("express");
 const morgan = require("morgan");
-const axios = require("axios");
 const fs = require("fs");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -36,8 +25,6 @@ const Logs = require("@/models/Logs.js");
 const authSocket = require("@/middleware/authSocket.js");
 const PTYService = require("@/services/PTYService");
 const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
-const smtp = require("@/services/smtp.js");
-const SMTPServer = require("smtp-server").SMTPServer;
 const multer = require("multer");
 const upload = multer({ dest: "./temp/" });
 
@@ -64,7 +51,7 @@ let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
 
-let latestVersion = "0.0.17";
+let latestVersion = "0.0.18 ";
 
 app.get("/stats", async (req, res) => {
   let object = {
@@ -78,7 +65,6 @@ app.get("/stats", async (req, res) => {
 });
 
 app.use(require("@/routes/login"));
-app.use(require("@/routes/updates"));
 app.use(require("@/routes/signup"));
 app.use(require("@/routes/profile"));
 app.use(require("@/routes/stats"));
@@ -86,6 +72,7 @@ app.use(require("@/routes/reporter"));
 app.use(require("@/routes/search"));
 app.use(require("@/routes/logs"));
 app.use(require("@/routes/datacenter"));
+app.use(require("@/routes/machines"));
 
 // Temp clear out machines every 60seconds to clear
 setInterval(() => {
@@ -107,15 +94,13 @@ setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
 setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
   io.sockets.in("reporter").emit("heartbeat", Date.now());
-}, 1000);
+}, 2500);
 
-const MINUTE_IN_MILLISECONDS = 60000;
-const MINUTE_IN_SECONDS = 60;
 const SPEEDTEST_BASE_REWARD = 30;
 const REPORT_BASE_REWARD = 5;
 
 async function calculateReporterUptimePoints(reporterUptime) {
-  return Math.floor(((reporterUptime % MINUTE_IN_MILLISECONDS) / 1000) ** 0.8 / (MINUTE_IN_SECONDS / 10));
+  return Math.floor(reporterUptime / 86400);
 }
 async function calculateSpeedtestPoints() {
   return SPEEDTEST_BASE_REWARD + Math.floor(Math.random() * SPEEDTEST_BASE_REWARD);
@@ -126,9 +111,9 @@ async function calculateReportPoints() {
 
 process.on("uncaughtException", async (err, origin) => {
   await Logs.add("API", err);
-  console.log(err);
+  console.log(err); 
 });
-
+ 
 // Websockets
 io.use(authSocket);
 
@@ -166,11 +151,14 @@ io.on("connection", async (socket) => {
     //   pty.write(input);
     // });
 
+    let pausePoints = false;
+
     socket.on("speedtest", async (speedtest) => {
+      if(!speedtest?.type) return;
       delete speedtest.type;
       const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
       const user = await User.findOne({ _id: userUUID }).exec();
-      user.addPoints(await calculateSpeedtestPoints());
+      await user.addPoints(await calculateSpeedtestPoints());
       user.speedtest = speedtest;
       user.save();
     });
@@ -190,9 +178,9 @@ io.on("connection", async (socket) => {
 
       let points = 0;
       points += await calculateReportPoints();
-      if (report.reporterUptime) points += await calculateReporterUptimePoints(report.reporterUptime);
+      if (report.reporterUptime) points += await calculateReporterUptimePoints(report.uptime);
 
-      if (points != null) user.addPoints(points);
+      if (points != null && !pausePoints) user.addPoints(points);
 
       // Assign the linked account from the socket's auth to the report
       // So it goes to the frontend
@@ -230,30 +218,3 @@ io.on("disconnection", () => {
 });
 
 https.listen(port, () => console.log(`Started on port ${port.toString()}`));
-
-const smtpserv = new SMTPServer({
-  //name: "xornet.cloud",
-  secure: true,
-  key: options.key,
-  cert: options.cert,
-  onConnect(session, callback) {
-    console.log(session);
-    return callback(); // Accept the connection
-  },
-  onAuth(auth, session, callback) {
-    if (auth.username !== "kekw@xornet.cloud" || auth.password !== "yay") {
-      return callback(new Error("Invalid username or password"));
-    }
-    callback(null, { user: 1 }); // where 123 is the user id or similar property
-  },
-});
-
-smtpserv.listen(465, () => {
-  console.log(`SMTP Server started on port 465`);
-  //smtp.test();
-});
-
-smtpserv.on("error", (error) => {
-  Logs.add("SMTP", { error });
-  console.error(`[SMTP]: Error with smtp server: ${error}`);
-});
