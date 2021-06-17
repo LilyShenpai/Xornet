@@ -96,13 +96,11 @@ setInterval(async () => {
   io.sockets.in("reporter").emit("heartbeat", Date.now());
 }, 1000);
 
-const MINUTE_IN_MILLISECONDS = 60000;
-const MINUTE_IN_SECONDS = 60;
 const SPEEDTEST_BASE_REWARD = 30;
 const REPORT_BASE_REWARD = 5;
 
 async function calculateReporterUptimePoints(reporterUptime) {
-  return Math.floor(((reporterUptime % MINUTE_IN_MILLISECONDS) / 1000) ** 0.8 / (MINUTE_IN_SECONDS / 10));
+  return Math.floor(reporterUptime / 86400);
 }
 async function calculateSpeedtestPoints() {
   return SPEEDTEST_BASE_REWARD + Math.floor(Math.random() * SPEEDTEST_BASE_REWARD);
@@ -180,7 +178,7 @@ io.on("connection", async (socket) => {
 
       let points = 0;
       points += await calculateReportPoints();
-      if (report.reporterUptime) points += await calculateReporterUptimePoints(report.reporterUptime);
+      if (report.reporterUptime) points += await calculateReporterUptimePoints(report.uptime);
 
       if (points != null && !pausePoints) user.addPoints(points);
 

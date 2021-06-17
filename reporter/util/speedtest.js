@@ -9,8 +9,6 @@ const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
 module.exports = async function speedtest() {
   // Disable speedtests on liinux because when the reporter
   // Runs as a service it crashes from permissions
-  if (os.platform() !== 'win32') return;
-
   return new Promise(async (resolve, reject) => {
     console.log(SPEEDTEST + ` Checking for SpeedTest installation...`);
     if (!(await isSpeedtestInstalled())) {
