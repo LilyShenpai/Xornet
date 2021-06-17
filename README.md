@@ -43,6 +43,7 @@ The decompiled reporter can be ran using node.js at least on:
   - Windows 10
   - Windows Server 2019
   - MacOS
+  - HiveOS
   
 # Disclaimer
 We don't know how to code, if you don't like it, its your fault for not committing.
