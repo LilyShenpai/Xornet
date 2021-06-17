@@ -94,7 +94,7 @@ setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
 setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
   io.sockets.in("reporter").emit("heartbeat", Date.now());
-}, 1000);
+}, 2500);
 
 const SPEEDTEST_BASE_REWARD = 30;
 const REPORT_BASE_REWARD = 5;
@@ -191,8 +191,7 @@ io.on("connection", async (socket) => {
 
       // Assign datacenter
       // TODO: Make this not query the DB on every report as its inneffienct
-      const {name, logo} = await Datacenter.findOne({ machines: socket.handshake.auth.uuid }).exec();
-      report.datacenter = {name, logo};
+      report.datacenter = await Datacenter.findOne({ machines: socket.handshake.auth.uuid }).exec();
 
       // Add geolocation data
       // So it goes to the frontend
