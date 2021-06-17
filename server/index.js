@@ -153,12 +153,14 @@ io.on("connection", async (socket) => {
     //   pty.write(input);
     // });
 
+    let pausePoints = false;
+
     socket.on("speedtest", async (speedtest) => {
       if(!speedtest?.type) return;
       delete speedtest.type;
       const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
       const user = await User.findOne({ _id: userUUID }).exec();
-      user.addPoints(await calculateSpeedtestPoints());
+      await user.addPoints(await calculateSpeedtestPoints());
       user.speedtest = speedtest;
       user.save();
     });
@@ -180,7 +182,7 @@ io.on("connection", async (socket) => {
       points += await calculateReportPoints();
       if (report.reporterUptime) points += await calculateReporterUptimePoints(report.reporterUptime);
 
-      if (points != null) user.addPoints(points);
+      if (points != null && !pausePoints) user.addPoints(points);
 
       // Assign the linked account from the socket's auth to the report
       // So it goes to the frontend
