@@ -22,7 +22,7 @@ module.exports = async function speedtest() {
     process.env.PRINT_SENDING_STATS = false;
 
     let result = {};
-    let args = ["-f", "json", "-p", "-P", "16"];
+    let args = ["-f", "json", "-p", "-P", "16", '--accept-license', '--accept-gdpr'];
 
     const files = await fs.promises.readdir("./");
     for (file of files) {
@@ -68,8 +68,8 @@ module.exports = async function speedtest() {
           console.log(
             SPEEDTEST +
               ` Speedtest complete - Download: ${(result.download?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
-              ` Upload: ${(result.upload.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
-              ` Ping: ${result.ping.latency.toFixed(2).toString().yellow}ms`
+              ` Upload: ${(result.upload?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
+              ` Ping: ${result.ping?.latency.toFixed(2).toString().yellow}ms`
           );
           console.log("[INFO]".bgCyan.black + ` Loading Stats...`);
           process.env.PRINT_SENDING_STATS = true;
