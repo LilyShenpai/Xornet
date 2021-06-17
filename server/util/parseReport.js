@@ -1,9 +1,10 @@
 const formatSeconds = require("./formatSeconds");
 const uuidRegex = /([a-f0-9]{32})|([a-f0-9]{16})/;
-const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+const hostnameRegex = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-_]*[A-Za-z0-9])$/;
 const whiteSpacesInStringRegex = /\s/;
 const windowsFileSystems = ["FAT", "FAT32", "NTFS", "exFAT", "UDF"];
-const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs", "vfat"];
+const linuxFileSystems = ["ext2", "ext3", "ext4", "XFS", "JFS", "btrfs", "vfat", "fuseblk"];
+const Logs = require("@/models/Logs.js")
 const macosFileSystems = ["HFS", "APFS"];
 // const Logs = require("@/models/Logs.js");
 
@@ -21,11 +22,11 @@ function parseReport(report, latestVersion, machinesPings) {
   } catch (error) {
     report.rogue = true;
 
-    // Logs.add("Report parser", "Got invalid Report from reporter", {
-    //   error: error.message,
-    //   stack: error.stack,
-    //   report,
-    // });
+    Logs.add("Report parser", "Got invalid Report from reporter", {
+      error: error.message,
+      stack: error.stack,
+      report,
+    });
 
     // // Log this in the database
     // if (!process.env.TESTING === "true")
