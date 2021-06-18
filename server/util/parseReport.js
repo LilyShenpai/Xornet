@@ -9,6 +9,8 @@ const macosFileSystems = ["HFS", "APFS"];
 // const Logs = require("@/models/Logs.js");
 
 /**
+ * @author its-treason
+ * 
  * @param report {Object} A raw report from a reporter
  * @param latestVersion {number} the latest version of Xornet
  * @param machinesPings {Map} the machinesPings Map

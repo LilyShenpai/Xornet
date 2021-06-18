@@ -31,6 +31,11 @@ router.get("/stats/machine/:machineUUID?", auth, async (req, res) => {
   // TODO: probably should make it so these don't exist in the first place
   // and add some sort of validation on the staticData
   delete machine.static.version;
+  machine.static.ram = machine.static.memLayout;
+  machine.static.disk = machine.static.diskLayout;
+  delete machine.static.memLayout;
+  delete machine.static.diskLayout;
+
   res.status(200).json(cleanObject(machine.static));
 });
 

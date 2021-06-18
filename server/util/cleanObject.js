@@ -9,6 +9,8 @@ function isValidSpecProperty(value) {
 }
 
 /**
+ * @author Geoxor
+ * 
  * Recursively removes empty strings and 'Default string' properties
  * From an object
  *
