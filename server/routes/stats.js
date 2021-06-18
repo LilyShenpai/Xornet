@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Stats = require("@/models/Stats.js");
 const Machine = require("@/models/Machine.js");
+const Datacenter = require("@/models/Datacenter.js");
 const auth = require("@/middleware/auth.js");
 const cleanObject = require("@/util/cleanObject.js");
 
@@ -18,11 +19,12 @@ router.get("/stats/network/:machine", auth, async (req, res) => {
 // TODO: Add the user's ID in the machine so we can auth the machines to users
 // so random people wont be able to get people's details cus they kinda
 // important to keep a secret you know?
-router.get("/stats/machine/:machineUUID?", async (req, res) => {
+router.get("/stats/machine/:machineUUID?", auth, async (req, res) => {
   const machine = await Machine.findOne({ _id: req.params.machineUUID });
+  const datacenter = await Datacenter.findOne({ machines: req.params.machineUUID });
 
   // TODO: turn these into a middleware for future use
-  if (!req.user.machines.includes(machine._id)) return res.status(403).json({message: "you don't have permission to view this machine"});
+  if (!req.user.machines.includes(machine._id) && !datacenter?.members.includes(req.user._id) && !req.user.is_admin) return res.status(403).json({message: "you don't have permission to view this machine"});
   if (!machine) return res.status(404).json({message: "machine not found"});
 
   // Delete this useless property
