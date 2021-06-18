@@ -1,4 +1,14 @@
 /**
+ * Checks if a property is basically valid meaning it shouldn't have an empty string
+ * dashes or 'Default string' etc in the property
+ * @param {String} value to test
+ * @returns {Boolean} if the valid is correct or not
+ */
+function isValidSpecProperty(value) {
+  return value && value !== "" && !/(default string)|(unknown)|[-]/gi.test(value);
+}
+
+/**
  * Recursively removes empty strings and 'Default string' properties
  * From an object
  *
@@ -11,7 +21,7 @@ module.exports = function cleanObject(object) {
   if (!object) return {};
   let newObject = {};
   for (const [key, value] of Object.entries(object)) {
-    if (value !== "" && value !== "Default string") {
+    if (isValidSpecProperty(value)) {
       if (value instanceof Object) {
         newObject[key] = cleanObject(value);
       } else if (Array.isArray(value)) {
