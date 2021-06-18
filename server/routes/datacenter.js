@@ -17,7 +17,12 @@ router.post("/datacenter/new", async (req, res) => {
   if (req.body.name.toLowerCase() === "unassigned") return res.status(403).json({ message: "you can't call your datacenter 'unassigned'" });
 
   // Validate name
-  const schema = Joi.object({ name: Joi.string().regex(/^[a-z\d\-_\s]+$/i).min(2).max(30) });
+  const schema = Joi.object({
+    name: Joi.string()
+      .regex(/^[a-z\d\-_\s]+$/i)
+      .min(2)
+      .max(30),
+  });
   try {
     req.body = await schema.validateAsync(req.body);
   } catch (error) {

@@ -10,7 +10,7 @@ Restart=always
 
 Type=simple
 
-ExecStart=/etc/xornet/xornet-reporter-linux-v0.0.18.bin
+ExecStart=/etc/xornet/xornet-reporter-linux-v0.0.19.bin
 
 [Install]
 

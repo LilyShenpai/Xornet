@@ -51,7 +51,7 @@ let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
 
-let latestVersion = "0.0.18 ";
+let latestVersion = "0.0.19";
 
 app.get("/stats", async (req, res) => {
   let object = {
@@ -111,9 +111,9 @@ async function calculateReportPoints() {
 
 process.on("uncaughtException", async (err, origin) => {
   await Logs.add("API", err);
-  console.log(err); 
+  console.log(err);
 });
- 
+
 // Websockets
 io.use(authSocket);
 
@@ -154,7 +154,7 @@ io.on("connection", async (socket) => {
     let pausePoints = false;
 
     socket.on("speedtest", async (speedtest) => {
-      if(!speedtest?.type) return;
+      if (!speedtest?.type) return;
       delete speedtest.type;
       const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
       const user = await User.findOne({ _id: userUUID }).exec();
