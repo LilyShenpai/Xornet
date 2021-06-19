@@ -1,0 +1,42 @@
+{
+    "msgIden" : {
+        "info" : "[INFO]",
+        "warn" : "[WARN]",
+        "err" : "[ERROR]",
+        "test" : "[SPEEDTEST]",
+        "con" : "[CONNECTED]",
+        "dis" : "[DISCONNECTED]"
+    },
+    
+    "infoMsg" : {
+        "stats": "Sending stats...",
+        "fetch": "Fetching static data...",
+        "sysInf": "System information collection finished",
+        "load": "Loading Stats...",
+        "send": "Sending Stats - ",
+        "accChk": "Checking for account linked to this machine"
+    },
+
+    "warnMsg" : {
+        "test": "test"
+    },
+
+    "errMsg" : {
+        "test": "test"
+    },
+
+    "testMsg" : {
+        "instChk": "Checking for SpeedTest installation...",
+        "noTest": "Speedtest not installed",
+        "isTest": "Speedtest found",
+        "runTest": "Performing speedtest...",
+        "perf": "Performing",
+        "prog": "Progress",
+        "spd": "Speed"
+    },
+
+    "conMsg" : {
+        "con" : "Connected to ",
+        "dis" : "Disconnected from "
+    }
+}

@@ -4,23 +4,21 @@ const isSpeedtestInstalled = require("../util/isSpeedtestInstalled");
 const installSpeedtest = require("../util/installSpeedtest");
 const { osInfo } = require("systeminformation");
 const os = require('os');
-const tran = require("../util/translationTable");
-const lang = "jp";
+const logger = require('../util/logger');
 
 module.exports = async function speedtest() {
   // Disable speedtests on liinux because when the reporter
   // Runs as a service it crashes from permissions
   if (os.platform() !== 'win32') return;
-  
 
   return new Promise(async (resolve, reject) => {
-    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Checking for SpeedTest installation...`);
+    logger.test("instChk");
     if (!(await isSpeedtestInstalled())) {
-      console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest not installed`);
+      logger.test("noTest");
       await installSpeedtest();
     }
-    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest found`);
-    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Performing speedtest...`);
+    logger.test("isTest");
+    logger.test("runTest");
     process.env.PRINT_SENDING_STATS = false;
 
     let result = {};
@@ -44,36 +42,34 @@ module.exports = async function speedtest() {
 
           if (progress.type !== "ping" && progress.type !== "download" && progress.type !== "upload") return;
           if (!progress.download?.bytes && !progress.upload?.bytes) return;
-
+          // TODO : Find a way to have "active text" be localizeable
           if (progress.type == "download" || progress.type == "upload") {
             clearLastLine();
-            console.log(
-              SPEEDTEST +
+            logger.test(
                 ` Performing: ${progress.type.yellow}` +
                 ` Progress: ${(progress[progress.type].progress * 100).toFixed(2).toString().yellow}%` +
                 ` Speed: ${(progress[progress.type].bandwidth / 100000).toFixed(2).toString().yellow}Mbps`
             );
           } else {
             clearLastLine();
-            console.log(SPEEDTEST + ` Performing: ${progress.type.yellow}` + ` Progress: ${(progress[progress.type]?.progress * 100).toFixed(2).toString().yellow}%` + ` Ping: ${progress.ping.jitter.toFixed(2).toString().yellow}ms`);
+            logger.test(` Performing: ${progress.type.yellow}` + ` Progress: ${(progress[progress.type]?.progress * 100).toFixed(2).toString().yellow}%` + ` Ping: ${progress.ping.jitter.toFixed(2).toString().yellow}ms`);
           }
         });
 
         netsh_output.stderr.on("data", (err) => {
-          console.log(err.message);
+          logger.error(err.message);
           reject(err.message);
           process.env.PRINT_SENDING_STATS = true;
         });
 
         netsh_output.on("exit", () => {
           clearLastLine();
-          console.log(
-            SPEEDTEST +
+          logger.test(
               ` Speedtest complete - Download: ${(result.download?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
               ` Upload: ${(result.upload?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
               ` Ping: ${result.ping.latency.toFixed(2).toString().yellow}ms`
           );
-          console.log("[INFO]".bgCyan.black + ` Loading Stats...`);
+          logger.info(" Loading Stats...");
           process.env.PRINT_SENDING_STATS = true;
           resolve(result);
         });

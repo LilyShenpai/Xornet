@@ -1,6 +1,5 @@
 require("colors");
 require("./util/printLogo");
-
 const isSpeedtestInstalled = require("./util/isSpeedtestInstalled");
 const installSpeedtest = require("./util/installSpeedtest");
 const connectToXornet = require("./util/connectToXornet");
@@ -8,28 +7,24 @@ const getStats = require("./util/getStats");
 const getStaticData = require("./util/getStaticData");
 const clearLastLine = require("./util/clearLastLine");
 const speedtest = require("./util/speedtest");
-const tran = require("./util/translationTable");
-const lang = "jp";
+const logger = require("./util/logger");
 
 process.env.REFRESH_INTERVAL = 1000;
 process.env.BACKEND_URL = "wss://backend.xornet.cloud";
 process.env.STARTTIME = Date.now();
 process.env.PRINT_SENDING_STATS = true;
 
-const INFO = "[INFO]".bgCyan.black;
-const WARN = "[WARN]".bgYellow.black;
-const CONNECTED = "[CONNECTED]".bgGreen.black;
 async function main() {
-  console.log(INFO + ` Fetching static data...`);
+  logger.info("fetch");
   const staticData = await getStaticData();
-  console.log(INFO + " System information collection finished".green);
+  logger.info("sysInf", "", ["green"]);
 
-  console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Checking for SpeedTest installation...`);
+  logger.test("instChk");
   if (!(await isSpeedtestInstalled())) {
-    console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest not installed`);
+    logger.test("noTest");
     await installSpeedtest();
   }
-  console.log(tran.tranTab.get("[SPEEDTEST]").get(lang) + ` Speedtest found`);
+  logger.test("isTest");
 
   const xornet = await connectToXornet(staticData);
 
@@ -41,13 +36,13 @@ async function main() {
   let emitter = null;
 
   xornet.on("connect", () => {
-    console.log(CONNECTED + ` Connected to ${process.env.BACKEND_URL.green}`);
-    console.log(INFO + ` Loading Stats...`);
+    logger.con("con", process.env.BACKEND_URL.green);
+    logger.info("load");
 
     emitter = setInterval(function () {
       if (process.env.PRINT_SENDING_STATS === "true") {
         clearLastLine();
-        console.log(INFO + ` Sending Stats - ${Date.now()}`.cyan);
+        logger.info("send", Date.now().toString().cyan, ["cyan"]);
       }
       xornet.emit("report", statistics);
     }, process.env.REFRESH_INTERVAL);
@@ -56,7 +51,7 @@ async function main() {
   // Warns the user if the reporter disconnects from the Xornet Backend.
   // Clears the emitters interval so that the reporter does not send any data until it reconnects.
   xornet.on("disconnect", async () => {
-    console.log(WARN + ` Disconnected from ${process.env.BACKEND_URL}`);
+    logger.con("dis", process.env.BACKEND_URL.red);
     clearInterval(emitter);
   });
 
