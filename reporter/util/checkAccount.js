@@ -1,8 +1,9 @@
 const axios = require("axios");
+const logger = require("./logger");
 
 module.exports = async function checkAccount(staticData, mute) {
   return new Promise(async (resolve) => {
-    if (!mute) console.log("[INFO]".bgCyan.black + ` Checking for account linked to this machine`);
+    if (!mute) logger.info("accChk");
     try {
       let response = await axios.post(`https://backend.xornet.cloud/reporter`, {
         uuid: process.env.TEST_UUID || staticData.system.uuid,
