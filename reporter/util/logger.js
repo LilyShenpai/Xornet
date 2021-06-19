@@ -8,6 +8,13 @@ const localeTable = (() => {
 })();
 
 // Used to log information to the console
+class Localizable {
+    constructor(msg) {
+        this.msg = msg;
+    }    
+}
+let bruh = new Localizable("bruh");
+
 class Logger {
     stylize(msg, style) {
         if (style === "") style = new Array("white");
@@ -16,13 +23,13 @@ class Logger {
         }
       return msg;
     }
+    
     info(msg, data = "", style = "") { // General Info Messages
         const prefix = this.stylize(localeTable.msgIden.info, ["bgGrey", "black"]);
         console.log(
             prefix,
             (msg == "") ? msg : this.stylize(localeTable.infoMsg[msg], style), // Fallback to allow manual coloring on hyper complex msgs's
             data
-
        )
     }
     warn(msg, data = "", style = "") { // Warning Messages
@@ -60,6 +67,7 @@ class Logger {
 }
 
 // Ez export pog
+module.exports 
 module.exports = new Logger();
 
 

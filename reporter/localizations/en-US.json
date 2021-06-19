@@ -9,7 +9,6 @@
     },
     
     "infoMsg" : {
-        "stats": "Sending stats...",
         "fetch": "Fetching static data...",
         "sysInf": "System information collection finished",
         "load": "Loading Stats...",

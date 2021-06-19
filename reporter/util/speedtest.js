@@ -45,26 +45,30 @@ module.exports = async function speedtest() {
           // TODO : Find a way to have "active text" be localizeable
           if (progress.type == "download" || progress.type == "upload") {
             clearLastLine();
-            logger.test(
+            logger.test( "",
                 ` Performing: ${progress.type.yellow}` +
                 ` Progress: ${(progress[progress.type].progress * 100).toFixed(2).toString().yellow}%` +
                 ` Speed: ${(progress[progress.type].bandwidth / 100000).toFixed(2).toString().yellow}Mbps`
             );
           } else {
             clearLastLine();
-            logger.test(` Performing: ${progress.type.yellow}` + ` Progress: ${(progress[progress.type]?.progress * 100).toFixed(2).toString().yellow}%` + ` Ping: ${progress.ping.jitter.toFixed(2).toString().yellow}ms`);
+            logger.test("", 
+                ` Performing: ${progress.type.yellow}` + 
+                ` Progress: ${(progress[progress.type]?.progress * 100).toFixed(2).toString().yellow}%` + 
+                ` Ping: ${progress.ping.jitter.toFixed(2).toString().yellow}ms`
+            );
           }
         });
 
         netsh_output.stderr.on("data", (err) => {
-          logger.error(err.message);
+          logger.error("", err.message);
           reject(err.message);
           process.env.PRINT_SENDING_STATS = true;
         });
 
         netsh_output.on("exit", () => {
           clearLastLine();
-          logger.test(
+          logger.test( "",
               ` Speedtest complete - Download: ${(result.download?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
               ` Upload: ${(result.upload?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
               ` Ping: ${result.ping.latency.toFixed(2).toString().yellow}ms`
