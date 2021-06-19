@@ -3,7 +3,7 @@ const fs = require("fs");
 const isSpeedtestInstalled = require("../util/isSpeedtestInstalled");
 const installSpeedtest = require("../util/installSpeedtest");
 const { osInfo } = require("systeminformation");
-const os = require('os');
+const os = require("os");
 const SPEEDTEST = "[SPEEDTEST]".bgYellow.black;
 
 module.exports = async function speedtest() {
@@ -20,7 +20,7 @@ module.exports = async function speedtest() {
     process.env.PRINT_SENDING_STATS = false;
 
     let result = {};
-    let args = ["-f", "json", "-p", "-P", "16", '--accept-license', '--accept-gdpr'];
+    let args = ["-f", "json", "-p", "-P", "16", "--accept-license", "--accept-gdpr"];
 
     const files = await fs.promises.readdir("./");
     for (file of files) {
@@ -44,10 +44,7 @@ module.exports = async function speedtest() {
           if (progress.type == "download" || progress.type == "upload") {
             clearLastLine();
             console.log(
-              SPEEDTEST +
-                ` Performing: ${progress.type.yellow}` +
-                ` Progress: ${(progress[progress.type].progress * 100).toFixed(2).toString().yellow}%` +
-                ` Speed: ${(progress[progress.type].bandwidth / 100000).toFixed(2).toString().yellow}Mbps`
+              SPEEDTEST + ` Performing: ${progress.type.yellow}` + ` Progress: ${(progress[progress.type].progress * 100).toFixed(2).toString().yellow}%` + ` Speed: ${(progress[progress.type].bandwidth / 100000).toFixed(2).toString().yellow}Mbps`
             );
           } else {
             clearLastLine();
