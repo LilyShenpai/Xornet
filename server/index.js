@@ -51,7 +51,7 @@ let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
 
-let latestVersion = "0.0.19";
+let latestVersion = "0.0.20";
 
 app.get("/stats", async (req, res) => {
   let object = {
@@ -94,19 +94,19 @@ setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
 setInterval(async () => {
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
   io.sockets.in("reporter").emit("heartbeat", Date.now());
-}, 2500);
+}, 1000);
 
 const SPEEDTEST_BASE_REWARD = 30;
 const REPORT_BASE_REWARD = 5;
 
 async function calculateReporterUptimePoints(reporterUptime) {
-  return Math.floor(reporterUptime / 86400);
+  return ~~(reporterUptime / 86400);
 }
 async function calculateSpeedtestPoints() {
-  return SPEEDTEST_BASE_REWARD + Math.floor(Math.random() * SPEEDTEST_BASE_REWARD);
+  return SPEEDTEST_BASE_REWARD + ~~(Math.random() * SPEEDTEST_BASE_REWARD);
 }
 async function calculateReportPoints() {
-  return REPORT_BASE_REWARD + Math.floor(Math.random() * REPORT_BASE_REWARD);
+  return REPORT_BASE_REWARD + ~~(Math.random() * REPORT_BASE_REWARD);
 }
 
 process.on("uncaughtException", async (err, origin) => {
