@@ -6,6 +6,9 @@ We are XORNET this is a fun little project started by @Geoxor for people who hav
 Heres the discord server for you to join
 https://discord.gg/geoxor
 
+# Dashboard
+![Xornet Dashboard](https://cdn.discordapp.com/attachments/810834301704863744/855708458472570880/preview.png)
+
 # Installation 
 Make sure you have Node.js v14+
   1. Client: 
