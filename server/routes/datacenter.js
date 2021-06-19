@@ -28,9 +28,15 @@ router.post("/datacenter/new", async (req, res) => {
   } catch (error) {
     return res.status(403).json({ message: error.details[0].message });
   }
-  const datacenter = await Datacenter.add(req.user.id, req.body.name);
-  await req.user.addDatacenter(datacenter._id);
-  res.status(201).json(datacenter);
+  try {
+    const datacenter = await Datacenter.add(req.user.id, req.body.name);
+    await req.user.addDatacenter(datacenter._id);
+    res.status(201).json(datacenter);
+  } catch (error) {
+    if (error.code == 11000) {
+      res.status(403).json({message: `Datacenter with name of ${req.body.name} is taken!`});
+    }
+  }
 });
 
 router.get("/datacenter/all", async (req, res) => {
