@@ -41,35 +41,37 @@ router.get("/stats/machine/:machineUUID?", auth, async (req, res) => {
 });
 
 router.get("/stats/processes/:machineUUID?", auth, async (req, res) => {
-  return res.status(200).json(await new Promise(async resolve => {
-    const machine = await Machine.findOne({ _id: req.params.machineUUID });
-    const datacenter = await Datacenter.findOne({ machines: req.params.machineUUID });
+  return res.status(200).json(
+    await new Promise(async (resolve) => {
+      const machine = await Machine.findOne({ _id: req.params.machineUUID });
+      const datacenter = await Datacenter.findOne({ machines: req.params.machineUUID });
 
-    // TODO: turn these into a middleware for future use
-    if (!req.user.machines.includes(machine._id) && !datacenter?.members.includes(req.user._id) && !req.user.is_admin) return res.status(403).json({ message: "you don't have permission to view this machine" });
-    if (!machine) return res.status(404).json({ message: "machine not found" });
+      // TODO: turn these into a middleware for future use
+      if (!req.user.machines.includes(machine._id) && !datacenter?.members.includes(req.user._id) && !req.user.is_admin) return res.status(403).json({ message: "you don't have permission to view this machine" });
+      if (!machine) return res.status(404).json({ message: "machine not found" });
 
-    // Send a event to get the processes to this specific reporter
-    io.sockets.in(`reporter-${req.params.machineUUID}`).emit("getProcesses");
+      // Send a event to get the processes to this specific reporter
+      io.sockets.in(`reporter-${req.params.machineUUID}`).emit("getProcesses");
 
-    // After 5 seconds send a rejection if the machine doesn't respond
-    const timeout = setTimeout(() => res.status(404).json({ message: "machine did not respond to request" }), 5000);
+      // After 5 seconds send a rejection if the machine doesn't respond
+      const timeout = setTimeout(() => res.status(404).json({ message: "machine did not respond to request" }), 5000);
 
-    // Get the room that reporter is in
-    const room = io.sockets.adapter.rooms.get(`reporter-${req.params.machineUUID}`);
+      // Get the room that reporter is in
+      const room = io.sockets.adapter.rooms.get(`reporter-${req.params.machineUUID}`);
 
-    // Respond if the machine isn't online
-    if (!room) return res.status(404).json({ message: "machine not online" });
+      // Respond if the machine isn't online
+      if (!room) return res.status(404).json({ message: "machine not online" });
 
-    // Get the socket instance from that room since theres always gonna be only 1 reporter on each room
-    const socket = io.sockets.sockets.get(Array.from(room)[0]);
+      // Get the socket instance from that room since theres always gonna be only 1 reporter on each room
+      const socket = io.sockets.sockets.get(Array.from(room)[0]);
 
-    // When we get the response from the reporter resole the HTTP request
-    socket.on('processes', processes => {
-      clearTimeout(timeout);
-      resolve(processes);
-    });
-  }));
+      // When we get the response from the reporter resole the HTTP request
+      socket.on("processes", (processes) => {
+        clearTimeout(timeout);
+        resolve(processes);
+      });
+    })
+  );
 });
 
 module.exports = router;

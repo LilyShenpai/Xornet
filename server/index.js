@@ -16,7 +16,7 @@ const options = {
 const https = require("https").createServer(options, app);
 const io = require("socket.io")(https, { cors: { origin: "*" } });
 module.exports = io;
-require("@/services/sockets")
+require("@/services/sockets");
 
 const Stats = require("@/models/Stats.js");
 const Logs = require("@/models/Logs.js");
@@ -45,7 +45,6 @@ app.use(
     credentials: true,
   })
 );
-
 
 // app.get("/stats", async (req, res) => {
 //   let object = {

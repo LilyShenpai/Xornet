@@ -1,5 +1,4 @@
-
-const io = require('@/index.js');
+const io = require("@/index.js");
 const parseReport = require("@/util/parseReport");
 const Machine = require("@/models/Machine.js");
 const User = require("@/models/User.js");
@@ -36,7 +35,6 @@ let machinesStatic = new Map();
 setInterval(() => {
   console.log(`Total Websocket connections: ${io.sockets.sockets.size}`.red);
 }, 10000);
-
 
 // Run every hour
 setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000 * 8);
@@ -96,7 +94,7 @@ io.on("connection", async (socket) => {
       user.save();
     });
 
-    socket.on("processes", async processes => {
+    socket.on("processes", async (processes) => {
       console.log(processes.length);
     });
 
