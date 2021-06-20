@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon .",
     "test": "mocha './test/*'",
     "prettify": "npx prettier --write \"./**/*.js\""
   },

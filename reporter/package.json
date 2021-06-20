@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon .",
     "test": "mocha './test/*' --exit",
     "build": "pkg -t \"node14-linux-x64,node14-macos-x64,node14-win-x64\" index.js -o \"dist/xornet-reporter\"",
     "prettify": "npx prettier --write \"./**/*.js\""
