@@ -12,17 +12,9 @@ module.exports = async function installSpeedtest() {
       await download("https://backend.xornet.cloud/speedtest/speedtest.exe");
       break;
     case "linux":
-      switch (arch) {
-        case "x64":
-          console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for Linux - ${platform} - ${arch}`);
-          await download("https://backend.xornet.cloud/speedtest/speedtest-linux-x86_64");
-          break;
-        case "arm":
-        case "arm64":
-          console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for Linux - ${platform} - ${arch}`);
-          await download("https://backend.xornet.cloud/speedtest/speedtest-linux-arm");
-          break;
-      }
+      (arch == "x64") 
+        ?  await download("https://backend.xornet.cloud/speedtest/speedtest-linux-x86_64")
+        :  await download("https://backend.xornet.cloud/speedtest/speedtest-linux-arm");
       break;
     case "darwin":
       console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for MacOS - ${platform} - ${arch}`);
