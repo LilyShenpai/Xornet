@@ -1,0 +1,50 @@
+{
+  "msgIden" : {
+    "info" : "[INFO]",
+    "warn" : "[WARNUNG]",
+    "err" : "[FEHLER]",
+    "test" : "[SPEEDTEST]",
+    "net" : "[NETZWERK]"
+  },
+
+  "infoMsg" : {
+    "fetch": "Sammle Systeminformationen...",
+    "sysInf": "Sammeln von Systeminformationen abgeschlossen",
+    "load": "Lade Statistiken...",
+    "send": "Sende Statistiken -",
+    "accChk": "Überprüfe ob ein Account mit diesem Computer verbunden ist",
+    "authCmp": "Authentifizierung abgeschlossen"
+  },
+
+  "warnMsg" : {
+    "svrDn": "Der Server scheint momentan nicht erreichbar zu sein",
+    "goToURL": "Öffne den Link, um diesen Computer mit deinem Account zu Verknüpfen. Starte den Reporter anschließen neu"
+  },
+
+  "errMsg" : {
+    "test": "test"
+  },
+
+  "testMsg" : {
+    "winDL": "Lade Speedtest für Windows herunter -",
+    "linDL": "Lade Speedtest für Linux herunter -",
+    "osxDL": "Lade Speedtest für MacOS herunter -",
+    "dlFin": "Herunterladen abgeschlossen",
+    "instChk": "Überprüfe ob der Speedtest installiert ist...",
+    "noTest": "Speedtest ist nicht installiert",
+    "isTest": "Speedtest gefunden",
+    "runTest": "Führe Speedtest aus...",
+    "testDone": "Speedtest abgeschlossen -",
+    "perf": "Teste:",
+    "prog": "Fortschritt:",
+    "spd": "Geschwindigkeit:",
+    "ping": "Ping:",
+    "upL": "Upload:",
+    "dnL": "Download:"
+  },
+
+  "netMsg" : {
+    "con" : "Verbunden mit",
+    "dis" : "Verbindung unterbrochen mit"
+  }
+}
