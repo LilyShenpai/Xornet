@@ -6,7 +6,7 @@ const localeTable = (() => {
 
   // If UNIX asks for default locale then pass them england is my city
   if (systemLocale === "C") {
-    var rawJson = fs.readFileSync('lang/en-US.json');
+    var rawJson = fs.readFileSync("lang/en-US.json");
   } else {
     var rawJson = fs.readFileSync(`lang/${systemLocale}.json`);
   }

@@ -2,7 +2,7 @@ const fs = require("fs");
 
 /**
  * @author Geoxor
- * 
+ *
  * Saves an image to the backend
  * @param {image} The image blob from JIMP
  * @returns {URL} Of where the file is on the backend

@@ -6,7 +6,7 @@ const uuidRegex = /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f
 
 // This accepts either a username or a user's UUID
 router.get("/search/user/:user", auth, async (req, res) => {
-  if (req.params.user == '*') return res.status(200).json(await User.find());
+  if (req.params.user == "*") return res.status(200).json(await User.find());
   else if (uuidRegex.test(req.params.user.toLowerCase())) {
     res.status(200).json(await User.find({ _id: { $regex: req.params.user.toLowerCase(), $options: "i" } }));
   }
