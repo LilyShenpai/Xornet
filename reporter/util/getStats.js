@@ -6,33 +6,16 @@ const si = require("systeminformation");
  * @returns {Object} with all stats for the report
  */
 module.exports = async function getStats(staticData) {
-  /**
-   * Systems Hostname
-   * @type {string}
-   */
   const hostname = os.hostname();
-
-  /**
-   * Operating System
-   * @type {string} 'win32' | 'linux' | 'darwin'
-   */
   const platform = os.platform();
 
   let valueObject = {
     networkStats: `(*) tx_sec, rx_sec`,
-    //currentLoad: "currentLoad cpus",
   };
 
-  /**
-   * Data about Network and CPU loads.
-   * @type {object}
-   */
+  // This guy creates HUGE lag spikes on windows every second
   const data = await si.get(valueObject);
 
-  /**
-   * Systems Unique Identifier
-   * @type {string}
-   */
   let uuid;
   if (process.env.TEST_UUID || staticData.system.uuid !== "") {
     uuid = process.env.TEST_UUID || staticData.system.uuid;
