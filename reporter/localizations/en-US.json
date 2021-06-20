@@ -12,11 +12,13 @@
         "sysInf": "System information collection finished",
         "load": "Loading Stats...",
         "send": "Sending Stats - ",
-        "accChk": "Checking for account linked to this machine"
+        "accChk": "Checking for account linked to this machine",
+        "authCmp": "Authentication completed"
     },
 
     "warnMsg" : {
-        "test": "test"
+        "svrDn": "Backend server appears to be offline/unavailable",
+        "goToURL": "Go to this URL to add this machine to your account and restart the reporter"
     },
 
     "errMsg" : {
