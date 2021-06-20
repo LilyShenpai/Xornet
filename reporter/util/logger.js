@@ -85,7 +85,7 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.warn, ["bgYellow", "black"]);
         console.log(
             prefix,
-            this.processList("warnMsg", items)
+            (Array.isArray(items)) ? this.processList("warnMsg", items) : items
         )
     }
 
@@ -93,7 +93,7 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.err, ["bgRed", "black"]);
         console.log(
             prefix,
-            this.processList("errMsg", items)           
+            (Array.isArray(items)) ? this.processList("errMsg", items) : items        
         )
     }
 
@@ -101,7 +101,7 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.test, ["bgBlue", "black"]);
         console.log(
             prefix,
-            this.processList("testMsg", items)            
+            (Array.isArray(items)) ? this.processList("testMsg", items) : items          
         )
     }
     
@@ -109,7 +109,7 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.con, ["bgCyan", "black"]);
         console.log(
             prefix,
-            this.processList("conMsg", items) 
+            (Array.isArray(items)) ? this.processList("conMsg", items) : items
         )
     }
 }
