@@ -40,7 +40,8 @@ Will output https://i.imgur.com/sg59cn0.png
 
 class Logger {
     stylize(msg, style) {
-        if (typeof style == array) {
+        console.log(style);
+        if (Array.isArray(style)) {
             for (let i = 0; i < style.length; i++) {
                 msg = colors[style[i]](msg)
             }
