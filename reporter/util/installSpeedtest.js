@@ -14,11 +14,9 @@ module.exports = async function installSpeedtest() {
       break;
     case "linux":
       logger.test(["linDL", `- ${platform} - ${arch}`]);
-        if (arch == "x64") {
-            await download("https://backend.xornet.cloud/speedtest/speedtest-linux-x86_64");
-        } else {
-            await download("https://backend.xornet.cloud/speedtest/speedtest-linux-arm");
-        }
+      arch == "x64"
+        ? await download("https://backend.xornet.cloud/speedtest/speedtest-linux-x86_64")
+        : await download("https://backend.xornet.cloud/speedtest/speedtest-linux-arm");
       break;
     case "darwin":
       logger.test(["osxDL", `- ${platform} - ${arch}`]);
