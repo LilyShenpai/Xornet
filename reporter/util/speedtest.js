@@ -4,7 +4,7 @@ const isSpeedtestInstalled = require("../util/isSpeedtestInstalled");
 const installSpeedtest = require("../util/installSpeedtest");
 const { osInfo } = require("systeminformation");
 const os = require("os");
-const logger = require('../util/logger');
+const logger = require("../util/logger");
 
 module.exports = async function speedtest() {
   // Disable speedtests on liinux because when the reporter
@@ -43,20 +43,12 @@ module.exports = async function speedtest() {
           // TODO : Find a way to have "active text" be localizeable
           if (progress.type == "download" || progress.type == "upload") {
             clearLastLine();
-            logger.test([
-                "perf", [progress.type, "yellow"],
-                "prog", [(progress[progress.type].progress * 100).toFixed(2), "yellow"], "%",
-                "spd",  [(progress[progress.type].bandwidth / 100000).toFixed(2),"yellow"], "Mbps",
-            ]);
+            logger.test(["perf", [progress.type, "yellow"], "prog", [(progress[progress.type].progress * 100).toFixed(2), "yellow"], "%", "spd", [(progress[progress.type].bandwidth / 100000).toFixed(2), "yellow"], "Mbps"]);
           } else {
             clearLastLine();
-            logger.test([
-              "perf", [progress.type, "yellow"],
-              "prog", [(progress[progress.type].progress * 100).toFixed(2), "yellow"], "%",
-              "ping", [progress.ping.jitter.toFixed(2), "yellow"], "ms"
-            ]);
+            logger.test(["perf", [progress.type, "yellow"], "prog", [(progress[progress.type].progress * 100).toFixed(2), "yellow"], "%", "ping", [progress.ping.jitter.toFixed(2), "yellow"], "ms"]);
           }
-        })
+        });
 
         netsh_output.stderr.on("data", (err) => {
           logger.error("", err.message);
@@ -66,11 +58,7 @@ module.exports = async function speedtest() {
 
         netsh_output.on("exit", () => {
           clearLastLine();
-          logger.test([
-              "testDone", "dnL", [(result.download?.bandwidth / 100000).toFixed(2), "yellow"], "Mbps",
-              "upL", [(result.upload?.bandwidth / 100000).toFixed(2), "yellow"], "Mbps",
-              "ping", [result.ping.latency.toFixed(2), "yellow"], "ms"
-          ]);
+          logger.test(["testDone", "dnL", [(result.download?.bandwidth / 100000).toFixed(2), "yellow"], "Mbps", "upL", [(result.upload?.bandwidth / 100000).toFixed(2), "yellow"], "Mbps", "ping", [result.ping.latency.toFixed(2), "yellow"], "ms"]);
           logger.info("load");
           process.env.PRINT_SENDING_STATS = true;
           resolve(result);

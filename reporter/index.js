@@ -42,7 +42,10 @@ async function main() {
     emitter = setInterval(function () {
       if (process.env.PRINT_SENDING_STATS === "true") {
         clearLastLine();
-        logger.info([["send", "cyan"], [Date.now(), "cyan"]]);
+        logger.info([
+          ["send", "cyan"],
+          [Date.now(), "cyan"],
+        ]);
       }
       xornet.emit("report", statistics);
     }, process.env.REFRESH_INTERVAL);
