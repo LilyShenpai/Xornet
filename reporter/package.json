@@ -12,11 +12,10 @@
     "compile-win": "pkg -t \"node14-win-x64\" index.js -o \"xornet-reporter-win-0.0.21\" --compress Brotli",
     "compress-linux": "bestzip build/xornet-reporter-linux-0.0.21.zip xornet-reporter-linux-0.0.21.bin lang",
     "make-build-folder": "mkdir build",
-    "clean-build-folder": "rmdir build /s /q",
     "compress-macos": "bestzip build/xornet-reporter-macos-0.0.21.zip xornet-reporter-macos-0.0.21 lang",
     "compress-win": "bestzip build/xornet-reporter-win-0.0.21.zip xornet-reporter-win-0.0.21.exe lang",
     "delete-binaries": "del xornet-reporter-win-0.0.21.exe && del xornet-reporter-macos-0.0.21 && del xornet-reporter-linux-0.0.21.bin",
-    "build": "npm run clean-build-folder && npm run prettify && npm run compile-linux && npm run compile-macos && npm run compile-win && npm run make-build-folder && npm run compress-linux && npm run compress-macos && npm run compress-win && npm run delete-binaries"
+    "build": "npm run prettify && npm run compile-linux && npm run compile-macos && npm run compile-win && npm run make-build-folder && npm run compress-linux && npm run compress-macos && npm run compress-win && npm run delete-binaries"
   },
   "keywords": [],
   "author": "Geoxor",
