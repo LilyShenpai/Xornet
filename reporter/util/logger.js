@@ -4,7 +4,7 @@ const fs = require("fs");
 const ReporterSettings = require("./settings");
 
 const localeTable = (() => {
-  const systemLocale = ReporterSettings.language === 'auto' ? locale.sync() : ReporterSettings.language;
+  const systemLocale = ReporterSettings.language === "auto" ? locale.sync() : ReporterSettings.language;
 
   // If UNIX asks for default locale then pass them england is my city
   if (systemLocale === "C") {

@@ -1,26 +1,26 @@
-const fs = require('fs');
+const fs = require("fs");
 
 class Settings {
-  constructor(){
+  constructor() {
     const dir = fs.readdirSync("./");
-    dir.includes("settings.json") ? this.settings = require("../settings.json") : this.createNewSettings();
+    dir.includes("settings.json") ? (this.settings = require("../settings.json")) : this.createNewSettings();
   }
 
-  createNewSettings(){
+  createNewSettings() {
     this.settings = {
       language: "en-US",
       speedtests: true,
       verbose: true,
-      language: 'auto',
-    }
+      language: "auto",
+    };
     this.save();
   }
 
-  save(){
-    fs.writeFileSync('settings.json', JSON.stringify(this.settings));
+  save() {
+    fs.writeFileSync("settings.json", JSON.stringify(this.settings));
   }
 }
 
-const { settings } = new Settings;
+const { settings } = new Settings();
 
 module.exports = settings;

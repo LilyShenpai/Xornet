@@ -1,6 +1,6 @@
 require("colors");
 require("./util/printLogo");
-const settings = require("./util/settings");
+require("./util/settings");
 const isSpeedtestInstalled = require("./util/isSpeedtestInstalled");
 const installSpeedtest = require("./util/installSpeedtest");
 const connectToXornet = require("./util/connectToXornet");
@@ -9,7 +9,6 @@ const getStaticData = require("./util/getStaticData");
 const clearLastLine = require("./util/clearLastLine");
 const speedtest = require("./util/speedtest");
 const logger = require("./util/logger");
-
 process.env.REFRESH_INTERVAL = 1000;
 process.env.BACKEND_URL = "wss://backend.xornet.cloud";
 process.env.STARTTIME = Date.now();
