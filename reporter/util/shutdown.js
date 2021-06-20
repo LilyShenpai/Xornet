@@ -6,6 +6,6 @@ const ReporterSettings = require("../util/settings");
 module.exports = function shutdown(){
   return new Promise(resolve => {
     if (ReporterSettings.allowShutdown) exec('shutdown /s', (error, stdout, stderr) => resolve(stdout));
-    resolve();
+    else resolve();
   });
 }
