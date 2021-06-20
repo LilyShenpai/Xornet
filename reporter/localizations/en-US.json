@@ -4,8 +4,7 @@
         "warn" : "[WARN]",
         "err" : "[ERROR]",
         "test" : "[SPEEDTEST]",
-        "con" : "[CONNECTED]",
-        "dis" : "[DISCONNECTED]"
+        "net" : "[NETWORK]"
     },
     
     "infoMsg" : {

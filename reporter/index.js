@@ -36,7 +36,7 @@ async function main() {
   let emitter = null;
 
   xornet.on("connect", () => {
-    logger.con([["con"], [process.env.BACKEND_URL, "green"]]);
+    logger.net([["con"], [process.env.BACKEND_URL, "green"]]);
     logger.info([["load"]]);
 
     emitter = setInterval(function () {
@@ -51,7 +51,7 @@ async function main() {
   // Warns the user if the reporter disconnects from the Xornet Backend.
   // Clears the emitters interval so that the reporter does not send any data until it reconnects.
   xornet.on("disconnect", async () => {
-    logger.con([["dis"], [process.env.BACKEND_URL, "red"]]);
+    logger.net([["dis"], [process.env.BACKEND_URL, "red"]]);
     clearInterval(emitter);
   });
 

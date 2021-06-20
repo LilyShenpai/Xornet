@@ -105,11 +105,11 @@ class Logger {
         )
     }
     
-    con(items) { // Connectivity Messages
+    net(items) { // Networking Messages
         const prefix = this.stylize(localeTable.msgIden.con, ["bgCyan", "black"]);
         console.log(
             prefix,
-            (Array.isArray(items)) ? this.processList("conMsg", items) : items
+            (Array.isArray(items)) ? this.processList("netMsg", items) : items
         )
     }
 }
