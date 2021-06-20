@@ -24,7 +24,7 @@
         "test": "test"
     },
 
-    "testMsg" : {
+    "testMsg" : { 
         "winDL": "Downloading speedtest binaries for Windows -",
         "linDL": "Downloading speedtest binaries for Linux -",
         "osxDL": "Downloading speedtest binaries for MacOS -",
@@ -33,9 +33,13 @@
         "noTest": "Speedtest not installed",
         "isTest": "Speedtest found",
         "runTest": "Performing speedtest...",
-        "perf": "Performing",
-        "prog": "Progress",
-        "spd": "Speed"
+        "testDone": "Speedtest complete -",
+        "perf": "Performing:",
+        "prog": "Progress:",
+        "spd": "Speed:",
+        "ping": "Ping:",
+        "upL": "Upload:",
+        "dnL": "Download:"
     },
 
     "conMsg" : {

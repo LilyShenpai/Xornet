@@ -12,13 +12,13 @@ module.exports = async function speedtest() {
   if (os.platform() !== 'win32') return;
 
   return new Promise(async (resolve, reject) => {
-    logger.test("instChk");
+    logger.test([["instChk"]]);
     if (!(await isSpeedtestInstalled())) {
-      logger.test("noTest");
+      logger.test([["noTest"]]);
       await installSpeedtest();
     }
-    logger.test("isTest");
-    logger.test("runTest");
+    logger.test([["isTest"]]);
+    logger.test([["runTest"]]);
     process.env.PRINT_SENDING_STATS = false;
 
     let result = {};
@@ -45,18 +45,18 @@ module.exports = async function speedtest() {
           // TODO : Find a way to have "active text" be localizeable
           if (progress.type == "download" || progress.type == "upload") {
             clearLastLine();
-            logger.test( "",
-                ` Performing: ${progress.type.yellow}` +
-                ` Progress: ${(progress[progress.type].progress * 100).toFixed(2).toString().yellow}%` +
-                ` Speed: ${(progress[progress.type].bandwidth / 100000).toFixed(2).toString().yellow}Mbps`
-            );
+            logger.test([
+                ["perf"], [progress.type, "yellow"],
+                ["prog"], [(progress[progress.type].progress * 100).toFixed(2), "yellow"], ["%"],
+                ["spd"],  [(progress[progress.type].bandwidth / 100000).toFixed(2),"yellow"],["Mbps"],
+            ]);
           } else {
             clearLastLine();
-            logger.test("", 
-                ` Performing: ${progress.type.yellow}` + 
-                ` Progress: ${(progress[progress.type]?.progress * 100).toFixed(2).toString().yellow}%` + 
-                ` Ping: ${progress.ping.jitter.toFixed(2).toString().yellow}ms`
-            );
+            logger.test([
+              ["perf"], [progress.type, "yellow"],
+              ["prog"], [(progress[progress.type].progress * 100).toFixed(2), "yellow"], ["%"],
+              ["ping"], [progress.ping.jitter.toFixed(2), "yellow"], ["ms"]
+            ]);
           }
         });
 
@@ -68,12 +68,12 @@ module.exports = async function speedtest() {
 
         netsh_output.on("exit", () => {
           clearLastLine();
-          logger.test( "",
-              ` Speedtest complete - Download: ${(result.download?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
-              ` Upload: ${(result.upload?.bandwidth / 100000).toFixed(2).toString().yellow}Mbps` +
-              ` Ping: ${result.ping.latency.toFixed(2).toString().yellow}ms`
-          );
-          logger.info(" Loading Stats...");
+          logger.test([
+              ["testDone"], ["dnL"], [(result.download?.bandwidth / 100000).toFixed(2), "yellow"], ["Mbps"],
+              ["upL"], [(result.upload?.bandwidth / 100000).toFixed(2), "yellow"], ["Mbps"],
+              ["ping"], [result.ping.latency.toFixed(2), "yellow"], ["ms"]
+          ]);
+          logger.info([["load"]]);
           process.env.PRINT_SENDING_STATS = true;
           resolve(result);
         });
