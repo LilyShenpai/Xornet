@@ -1,9 +1,9 @@
 <template>
-  <router-link :to="{ name: 'machines', params: { machine: machine.uuid } }" class="button" :class="{ thin: thin, rogue: machine.rogue, disconnected: Date.now() > machine.timestamp + 15000 }">
+  <router-link :to="{ name: 'specs', params: { machine: machine.uuid } }" class="button" :class="{ thin: thin, rogue: machine.rogue, disconnected: Date.now() > machine.timestamp + 15000 }">
     <!-- Icons Column -->
-    <img v-if="!machine.rogue && Date.now() < machine.timestamp + 15000" class="machineType" :src="require(`@/assets/icons/filled/${type}.svg`)" alt="" />
-    <img v-if="machine.rogue && Date.now() < machine.timestamp + 15000" class="machineType" :src="require(`@/assets/icons/filled/warning.svg`)" alt="" />
-    <img v-if="Date.now() > machine.timestamp + 15000" class="machineType" :src="require(`@/assets/icons/filled/disconnected.svg`)" alt="" />
+    <Icon :icon="type" v-if="!machine.rogue && Date.now() < machine.timestamp + 15000" class="machineType"/>
+    <Icon icon="warning" v-if="machine.rogue && Date.now() < machine.timestamp + 15000" class="machineType"/>
+    <Icon icon="disconnected" v-if="Date.now() > machine.timestamp + 15000" class="machineType"/>
 
     <!-- UUID Column -->
     <div class="info">
@@ -48,7 +48,9 @@
     <div class="field uptime">{{ machine.uptime.formatted.d }}:{{ machine.uptime.formatted.h }}:{{ machine.uptime.formatted.m }}:{{ machine.uptime.formatted.s }}</div>
 
     <!-- Owner Column -->
-    <router-link class="field owner" :to="{ name: 'profile', params: { username: machine?.owner?.username } }"><img :src="machine?.owner?.profileImage" :alt="machine?.owner?.username" />{{ machine.owner.username }}</router-link>
+    <router-link class="field owner" :to="{ name: 'profile', params: { username: machine?.owner?.username } }"
+      ><img :src="machine?.owner?.profileImage ?? 'https://cdn.discordapp.com/attachments/816028632269979668/855437868825444372/unknown.png'" :alt="machine?.owner?.username" />{{ machine.owner.username }}</router-link
+    >
 
     <!-- Datacenter Column -->
     <router-link class="field datacenter" :to="{ name: 'datacenters', params: { name: machine.datacenter?.name } }"
@@ -66,8 +68,12 @@
 </template>
 
 <script>
+import Icon from "@/components/misc/Icon";
 export default {
   name: "ServerListButton",
+  components: {
+    Icon
+  },
   computed: {
     type: function() {
       return this.machine.isVirtual ? "slave" : "master";

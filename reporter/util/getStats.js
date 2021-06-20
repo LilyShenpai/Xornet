@@ -20,7 +20,7 @@ module.exports = async function getStats(staticData) {
 
   let valueObject = {
     networkStats: `(*) tx_sec, rx_sec`,
-    currentLoad: "currentLoad cpus",
+    //currentLoad: "currentLoad cpus",
   };
 
   /**
@@ -49,7 +49,7 @@ module.exports = async function getStats(staticData) {
       total: os.totalmem(),
       free: os.freemem(),
     },
-    cpu: data.currentLoad.currentLoad,
+    cpu: await require("./getCpuUsage.js")(),
     network: data.networkStats,
     reporterVersion: require("../package.json").version,
     disks: await si.fsSize(),

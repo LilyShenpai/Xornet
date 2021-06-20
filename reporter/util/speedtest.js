@@ -3,14 +3,12 @@ const fs = require("fs");
 const isSpeedtestInstalled = require("../util/isSpeedtestInstalled");
 const installSpeedtest = require("../util/installSpeedtest");
 const { osInfo } = require("systeminformation");
-const os = require('os');
+const os = require("os");
 const logger = require('../util/logger');
 
 module.exports = async function speedtest() {
   // Disable speedtests on liinux because when the reporter
   // Runs as a service it crashes from permissions
-  if (os.platform() !== 'win32') return;
-
   return new Promise(async (resolve, reject) => {
     logger.test("instChk");
     if (!(await isSpeedtestInstalled())) {
@@ -22,7 +20,7 @@ module.exports = async function speedtest() {
     process.env.PRINT_SENDING_STATS = false;
 
     let result = {};
-    let args = ["-f", "json", "-p", "-P", "16"];
+    let args = ["-f", "json", "-p", "-P", "16", "--accept-license", "--accept-gdpr"];
 
     const files = await fs.promises.readdir("./");
     for (file of files) {

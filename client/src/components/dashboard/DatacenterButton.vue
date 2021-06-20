@@ -4,7 +4,8 @@
       <Icon icon="datacenter" />
       <h1>{{ datacenter.name }}</h1>
     </div>
-    <img class="logo" :src="datacenter.logo || require('@/assets/icons/filled/stack.svg')" :alt="datacenter.name" />
+    <Icon v-if="!datacenter.logo" icon="datacenter" class="logo" />
+    <img v-else class="logo" :src="datacenter.logo" :alt="datacenter.name" />
     <div class="footer">
       <h1 v-if="datacenter.owner === me._id" class="primary">Primary</h1>
 
@@ -40,13 +41,14 @@ export default {
     me: function() {
       return JSON.parse(localStorage.getItem("me"));
     }
-  },
+  }
 };
 </script>
 
 <style scoped>
 .datacenter {
   aspect-ratio: 1;
+  max-height: 256px;
   border-radius: 8px;
   background-color: var(--background-color);
   cursor: pointer;
@@ -62,6 +64,7 @@ export default {
 .datacenter:hover {
   box-shadow: rgb(0 0 0 / 10%) 0px 10px 20px;
   transform: translateY(-1px);
+  border: 1px solid var(--theme-color);
 }
 
 .datacenter:active {
@@ -69,7 +72,7 @@ export default {
 }
 
 .datacenter img {
-  filter: invert(var(--filter));
+  filter: invert(var(--filter)) grayscale(1);
 }
 
 .datacenter .logo {
@@ -106,10 +109,9 @@ export default {
   background-color: #8171ff44;
   border-radius: 167px;
   color: var(--theme-color) !important;
-  border: 2px solid var(--theme-color);
+  border: 1px solid var(--theme-color);
   font-weight: 600;
   text-transform: uppercase;
   font-size: 10px;
 }
-
 </style>

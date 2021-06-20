@@ -17,15 +17,26 @@ router.post("/datacenter/new", async (req, res) => {
   if (req.body.name.toLowerCase() === "unassigned") return res.status(403).json({ message: "you can't call your datacenter 'unassigned'" });
 
   // Validate name
-  const schema = Joi.object({ name: Joi.string().regex(/^[a-z\d\-_\s]+$/i).min(2).max(30) });
+  const schema = Joi.object({
+    name: Joi.string()
+      .regex(/^[a-z\d\-_\s]+$/i)
+      .min(2)
+      .max(30),
+  });
   try {
     req.body = await schema.validateAsync(req.body);
   } catch (error) {
     return res.status(403).json({ message: error.details[0].message });
   }
-  const datacenter = await Datacenter.add(req.user.id, req.body.name);
-  await req.user.addDatacenter(datacenter._id);
-  res.status(201).json(datacenter);
+  try {
+    const datacenter = await Datacenter.add(req.user.id, req.body.name);
+    await req.user.addDatacenter(datacenter._id);
+    res.status(201).json(datacenter);
+  } catch (error) {
+    if (error.code == 11000) {
+      res.status(403).json({message: `Datacenter with name of ${req.body.name} is taken!`});
+    }
+  }
 });
 
 router.get("/datacenter/all", async (req, res) => {

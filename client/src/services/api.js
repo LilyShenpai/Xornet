@@ -4,13 +4,14 @@ import eventHandler from "./eventHandler";
 let ROOT_PATH = "https://backend.xornet.cloud";
 
 /**
+ * @author Geoxor & Niko Huuskonen
+
  * Main API class that interfaces with the backend
  * It contains functions and debugging logs to easily
  * handle requests with the backend
  *
  * Note: The data from here can be taken to create API docs in the future
  * @private
- * @copyright George Tsotsos & Niko Huuskonen
  */
 
 class API {
@@ -167,6 +168,7 @@ class Datacenter extends API {
 
   /**
    * Post signup credentials into backend and returns the result of signup process
+   * @param {String} datacenter The name of the datacenter
    * @param {Blob} logo image Blob, which contains image class from the refs
    * @param {Blob} banner image Blob, which contains image class from the refs
    */
@@ -174,6 +176,8 @@ class Datacenter extends API {
     let formData = new FormData();
     formData.append("logo", logo);
     formData.append("banner", banner);
+
+    datacenter = datacenter.trim();
 
     return super.request("patch", `datacenter/${datacenter}`, { "Content-Type": "multipart/form-data" }, formData);
   }
@@ -285,6 +289,10 @@ class Machine extends API {
 
   async getNetwork(machineUUID) {
     return (await super.request("get", `stats/network/${machineUUID}`)).data;
+  }
+
+  async getMachineSpecs(machineUUID) {
+    return (await super.request("get", `stats/machine/${machineUUID}`)).data;
   }
 }
 

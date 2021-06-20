@@ -3,16 +3,16 @@ name: Node.js CI
 on: [push]
 
 jobs:
-  test-server:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        working-directory: ./server
-        run: npm i
-      - name: Run tests
-        working-directory: ./server
-        run: npm test
+#   test-server:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Install dependencies
+#         working-directory: ./server
+#         run: npm i
+#       - name: Run tests
+#         working-directory: ./server
+#         run: npm test
   test-reporter:
     runs-on: ubuntu-latest
     steps:

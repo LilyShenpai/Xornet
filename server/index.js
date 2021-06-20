@@ -51,7 +51,7 @@ let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
 
-let latestVersion = "0.0.18 ";
+let latestVersion = "0.0.20";
 
 app.get("/stats", async (req, res) => {
   let object = {
@@ -88,7 +88,7 @@ setInterval(() => {
 
 // Run every hour
 setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
-setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
+// setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
 
 // Temp clear out machines every 60seconds to clear
 setInterval(async () => {
@@ -96,26 +96,24 @@ setInterval(async () => {
   io.sockets.in("reporter").emit("heartbeat", Date.now());
 }, 1000);
 
-const MINUTE_IN_MILLISECONDS = 60000;
-const MINUTE_IN_SECONDS = 60;
 const SPEEDTEST_BASE_REWARD = 30;
 const REPORT_BASE_REWARD = 5;
 
 async function calculateReporterUptimePoints(reporterUptime) {
-  return Math.floor(((reporterUptime % MINUTE_IN_MILLISECONDS) / 1000) ** 0.8 / (MINUTE_IN_SECONDS / 10));
+  return ~~(reporterUptime / 86400);
 }
 async function calculateSpeedtestPoints() {
-  return SPEEDTEST_BASE_REWARD + Math.floor(Math.random() * SPEEDTEST_BASE_REWARD);
+  return SPEEDTEST_BASE_REWARD + ~~(Math.random() * SPEEDTEST_BASE_REWARD);
 }
 async function calculateReportPoints() {
-  return REPORT_BASE_REWARD + Math.floor(Math.random() * REPORT_BASE_REWARD);
+  return REPORT_BASE_REWARD + ~~(Math.random() * REPORT_BASE_REWARD);
 }
 
 process.on("uncaughtException", async (err, origin) => {
   await Logs.add("API", err);
-  console.log(err); 
+  console.log(err);
 });
- 
+
 // Websockets
 io.use(authSocket);
 
@@ -153,12 +151,14 @@ io.on("connection", async (socket) => {
     //   pty.write(input);
     // });
 
+    let pausePoints = false;
+
     socket.on("speedtest", async (speedtest) => {
-      if(!speedtest?.type) return;
+      if (!speedtest?.type) return;
       delete speedtest.type;
       const userUUID = socket.handshake.auth.static?.reporter?.linked_account;
       const user = await User.findOne({ _id: userUUID }).exec();
-      user.addPoints(await calculateSpeedtestPoints());
+      await user.addPoints(await calculateSpeedtestPoints());
       user.speedtest = speedtest;
       user.save();
     });
@@ -178,9 +178,9 @@ io.on("connection", async (socket) => {
 
       let points = 0;
       points += await calculateReportPoints();
-      if (report.reporterUptime) points += await calculateReporterUptimePoints(report.reporterUptime);
+      if (report.reporterUptime) points += await calculateReporterUptimePoints(report.uptime);
 
-      if (points != null) user.addPoints(points);
+      if (points != null && !pausePoints) user.addPoints(points);
 
       // Assign the linked account from the socket's auth to the report
       // So it goes to the frontend

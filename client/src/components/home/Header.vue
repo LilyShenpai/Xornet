@@ -4,20 +4,25 @@
       <img :src="route == 'home' ? require('@/assets/logos/logo.svg') : require('@/assets/logos/logo2.svg')" alt="Xornet" />
     </router-link>
     <div class="buttons">
-      <router-link class="button" :to="{ name: 'home', params: { page: 'about' } }"> <Icon icon="details" /> 
-        <p> What is Xornet </p> 
+      <router-link class="button" :to="{ name: 'home', params: { page: 'about' } }">
+        <Icon icon="details" />
+        <p>What is Xornet</p>
       </router-link>
-      <a class="button" href="https://github.com/Geoxor/Xornet" target="_blank"> <Icon icon="repository" /> 
-        <p> Repository </p>
+      <a class="button" href="https://github.com/Geoxor/Xornet" target="_blank">
+        <Icon icon="repository" />
+        <p>Repository</p>
       </a>
-      <router-link class="button" :to="{ name: 'home', params: { page: 'downloads' } }"> <Icon icon="downloads" /> 
-        <p> Downloads </p>
+      <router-link class="button" :to="{ name: 'downloads' }">
+        <Icon icon="downloads" />
+        <p>Downloads</p>
       </router-link>
-      <router-link class="button" v-if="isLoggedIn" :to="{ name: 'machines' }"> <Icon icon="dashboard" /> 
-        <p> Dashboard </p>
+      <router-link class="button" v-if="isLoggedIn" :to="{ name: 'machines' }">
+        <Icon icon="dashboard" />
+        <p>Dashboard</p>
       </router-link>
-      <router-link class="button" v-if="!isLoggedIn" :to="{ name: 'login' }"> <Icon icon="login" /> 
-        <p> Login </p>
+      <router-link class="button" v-if="!isLoggedIn" :to="{ name: 'login' }">
+        <Icon icon="login" />
+        <p>Login</p>
       </router-link>
     </div>
   </header>
@@ -65,7 +70,6 @@ header .buttons {
 header .buttons .button {
   border: none;
   background-color: var(--theme-color);
-  width: min-content;
   padding: 4px 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -93,7 +97,7 @@ header .buttons .button img {
 }
 
 header .buttons .button p {
-  color: var(--white);
+  color: white;
   font-family: "Montserrat", sans-serif;
   font-style: normal;
   font-weight: 600;
@@ -110,6 +114,4 @@ header .buttons .button p {
     display: none;
   }
 }
-
-
 </style>

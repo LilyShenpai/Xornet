@@ -56,6 +56,7 @@ async function resizeSaveImage(image) {
 
 function deleteSensitiveInformation(user) {
   if (user.password) user.password = undefined;
+  if (user.email) user.email = undefined;
   if (user.geolocation?.isp) user.geolocation.isp = undefined;
   if (user.speedtest) {
     user.speedtest.interface = undefined;
