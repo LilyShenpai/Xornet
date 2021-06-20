@@ -52,6 +52,9 @@ router.get("/stats/processes/:machineUUID?", auth, async (req, res) => {
     // Send a event to get the processes to this specific reporter
     io.sockets.in(`reporter-${req.params.machineUUID}`).emit("getProcesses");
 
+    // After 5 seconds send a rejection if the machine doesn't respond
+    const timeout = setTimeout(() => res.status(404).json({ message: "machine did not respond to request" }), 5000);
+
     // Get the room that reporter is in
     const room = io.sockets.adapter.rooms.get(`reporter-${req.params.machineUUID}`);
 
@@ -62,7 +65,10 @@ router.get("/stats/processes/:machineUUID?", auth, async (req, res) => {
     const socket = io.sockets.sockets.get(Array.from(room)[0]);
 
     // When we get the response from the reporter resole the HTTP request
-    socket.on('processes', processes => resolve(processes));
+    socket.on('processes', processes => {
+      clearTimeout(timeout);
+      resolve(processes);
+    });
   }));
 });
 
