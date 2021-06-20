@@ -3,7 +3,13 @@ const locale = require("os-locale");
 const fs = require("fs");
 const localeTable = (() => {
   const systemLocale = locale.sync();
-  const rawJson = fs.readFileSync(`lang/${systemLocale}.json`);
+  let rawJson = fs.readFileSync(`lang/${systemLocale}.json`);
+
+  // If UNIX asks for default locale then pass them england is my city
+  if (systemLocale === "C") {
+    rawJson = fs.readFileSync('lang/en-US.json');
+  }
+
   return JSON.parse(rawJson);
 })();
 
