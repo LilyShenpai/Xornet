@@ -1,0 +1,50 @@
+{
+    "msgIden" : {
+        "info" : "[TIETO]",
+        "warn" : "[VAROITUS]",
+        "err" : "[VIRHE]",
+        "test" : "[NOPEUSTESTI]",
+        "net" : "[VERKKO]"
+    },
+    
+    "infoMsg" : {
+        "fetch": "Haetaan staattisia tietoja...",
+        "sysInf": "Järjestelmätietojen kerääminen suoritettu",
+        "load": "Ladataan tilastotietoja...",
+        "send": "Lähetetään tilastotietoja - ",
+        "accChk": "Tarkistetaan, onko käyttäjätiliä linkitetty tähän laitteeseen",
+        "authCmp": "Autentikointi valmis"
+    },
+  
+    "warnMsg" : {
+        "svrDn": "Palvelimeen ei voitu muodostaa yhteyttä",
+        "goToURL": "Mene tähän URL-osoitteeseen lisätäksesi tämän laitteen käyttäjätilillesi ja käynnistä ohjelma tämän jälkeen uudelleen"
+    },
+  
+    "errMsg" : {
+        "test": "testi"
+    },
+  
+    "testMsg" : { 
+        "winDL": "Ladataan nopeustestiohjelmaa Windowsille -",
+        "linDL": "Ladataan nopeustestiohjelmaa Linuxille -",
+        "osxDL": "Ladataan nopeustestiohjelmaa MacOS:lle -",
+        "dlFin": "Lataus valmis",
+        "instChk": "Tarkistetaan, onko nopeustesti asennettu...",
+        "noTest": "Nopeustestiä ei ole asennettu",
+        "isTest": "Nopeustesti on asennettu",
+        "runTest": "Suoritetaan nopeustesti...",
+        "testDone": "Nopeustesti valmis -",
+        "perf": "Suoritetaan:",
+        "prog": "Edistyminen:",
+        "spd": "Nopeus:",
+        "ping": "Viive:",
+        "upL": "Lähetysnopeus:",
+        "dnL": "Latausnopeus:"
+    },
+  
+    "netMsg" : {
+        "con" : "Yhdistetty palvelimeen ",
+        "dis" : "Yhteys katkennut palvelimeen "
+    }
+  }
