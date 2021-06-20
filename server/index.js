@@ -87,7 +87,7 @@ setInterval(() => {
 // Temp run speedtest on all reporters
 
 // Run every hour
-setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000);
+setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000 * 8);
 // setTimeout(() => io.sockets.in("reporter").emit("runSpeedtest"), 10000);
 
 // Temp clear out machines every 60seconds to clear
