@@ -1,5 +1,6 @@
 require("colors");
 require("./util/printLogo");
+const settings = require("./util/settings");
 const isSpeedtestInstalled = require("./util/isSpeedtestInstalled");
 const installSpeedtest = require("./util/installSpeedtest");
 const connectToXornet = require("./util/connectToXornet");
