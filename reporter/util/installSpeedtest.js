@@ -9,11 +9,11 @@ module.exports = async function installSpeedtest() {
   switch (platform) {
     case "win32":
       platform = "win64";
-      logger.test([["windDL"], [`${platform} - ${arch}`]]);
+      logger.test(["windDL", `${platform} - ${arch}`]);
       await download("https://backend.xornet.cloud/speedtest/speedtest.exe");
       break;
     case "linux":
-      logger.test([["linDL"], [`- ${platform} - ${arch}`]]);
+      logger.test(["linDL", `- ${platform} - ${arch}`]);
       switch (arch) {
         case "x64":
           await download("https://backend.xornet.cloud/speedtest/speedtest-linux-x86_64");
@@ -25,10 +25,10 @@ module.exports = async function installSpeedtest() {
       }
       break;
     case "darwin":
-      logger.test([["osxDL"], [`- ${platform} - ${arch}`]]);
+      logger.test(["osxDL", `- ${platform} - ${arch}`]);
       await download("https://backend.xornet.cloud/speedtest/speedtest-macos");
       break;
   }
 
-  logger.test([["dlFin"]]);
+  logger.test("dlFin");
 };

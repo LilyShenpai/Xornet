@@ -15,16 +15,16 @@ process.env.STARTTIME = Date.now();
 process.env.PRINT_SENDING_STATS = true;
 
 async function main() {
-  logger.info([["fetch"]]);
+  logger.info("fetch");
   const staticData = await getStaticData();
-  logger.info([["sysInf", "green"]]);
+  logger.info("sysInf", "green");
 
-  logger.test([["instChk"]]);
+  logger.test("instChk");
   if (!(await isSpeedtestInstalled())) {
-    logger.test([["noTest"]]);
+    logger.test("noTest");
     await installSpeedtest();
   }
-  logger.test([["isTest"]]);
+  logger.test("isTest");
 
   const xornet = await connectToXornet(staticData);
 
@@ -36,8 +36,8 @@ async function main() {
   let emitter = null;
 
   xornet.on("connect", () => {
-    logger.net([["con"], [process.env.BACKEND_URL, "green"]]);
-    logger.info([["load"]]);
+    logger.net(["con", [process.env.BACKEND_URL, "green"]]);
+    logger.info("load");
 
     emitter = setInterval(function () {
       if (process.env.PRINT_SENDING_STATS === "true") {
@@ -51,7 +51,7 @@ async function main() {
   // Warns the user if the reporter disconnects from the Xornet Backend.
   // Clears the emitters interval so that the reporter does not send any data until it reconnects.
   xornet.on("disconnect", async () => {
-    logger.net([["dis"], [process.env.BACKEND_URL, "red"]]);
+    logger.net(["dis", [process.env.BACKEND_URL, "red"]]);
     clearInterval(emitter);
   });
 
