@@ -7,7 +7,6 @@ const localeTable = (() => {
   return JSON.parse(rawJson);
 })();
 
-
 // DOCUMENTATION 
 /*
 
@@ -24,15 +23,13 @@ const localeTable = (() => {
     ]
 ]
 
-// EXAMPLE
-logger.info(
-  [ 
-    "send",
-    [123, "bgCyan"],
-    ["load", ["bgRed", "white", "underline"]],
-  ]
-);
-Will output https://i.imgur.com/sg59cn0.png
+// EXAMPLE (Also used for testing)
+logger.info("fetch");
+logger.info(["fetch", "data"]);
+logger.info(["fetch", [123, "cyan"]]);
+logger.info([["fetch", "green"], "data"])
+logger.info(["fetch", [process.env.BACKEND_URL, "green"], ["load", ["yellow", "underline", "bgCyan"]]]);
+Will output https://i.imgur.com/AB1hia8.png
 // EXAMPLE
 
 */
@@ -50,19 +47,23 @@ class Logger {
       return msg;
     }
 
+    getTableValue(primaryKey, msg, isArray = false) { // Determine is item is localizable message or data (msg on pass, data on fail)
+        // Translate
+        let secondaryKey = (isArray) ? msg[0] : msg;
+        let tableValue = localeTable[primaryKey][secondaryKey];
+
+        // Check translation, replace with key if not in localeTable (This means its data)
+        return (tableValue != undefined) ? tableValue : secondaryKey;
+
+    }
+
     processList(primaryKey, items) { // Used to translate keys into their correnspending json value, or return the key itself (for Displaying Data), upon failure to find a value for the key
         let processedText = new String();
         items.forEach((element) => {
             // Check if element is array
             let isArray = Array.isArray(element);
-
-            // Translate
-            let secondaryKey = (isArray) ? element[0] : element;
-            let tableValue = localeTable[primaryKey][secondaryKey];
-
-            // Check translation, replace with key if not in localeTable (This means its data)
-            tableValue = (tableValue != undefined) ? tableValue : secondaryKey;
-
+            let tableValue = this.getTableValue(primaryKey, element, isArray);
+            
             // Stylize
             processedText += (isArray) ? this.stylize(tableValue, element[1]) : tableValue;
 
@@ -77,7 +78,9 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.info, ["bgGrey", "black"]);
         console.log(
             prefix,
-            (Array.isArray(items)) ? this.processList("infoMsg", items) : items
+            (Array.isArray(items)) 
+                ? this.processList("infoMsg", items) 
+                : this.getTableValue("infoMsg", items)
        )
     }
 
@@ -85,7 +88,9 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.warn, ["bgYellow", "black"]);
         console.log(
             prefix,
-            (Array.isArray(items)) ? this.processList("warnMsg", items) : items
+            (Array.isArray(items)) 
+                ? this.processList("warnMsg", items) 
+                : this.getTableValue("warnMsg", items)
         )
     }
 
@@ -93,7 +98,9 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.err, ["bgRed", "black"]);
         console.log(
             prefix,
-            (Array.isArray(items)) ? this.processList("errMsg", items) : items        
+            (Array.isArray(items)) 
+                ? this.processList("errMsg", items) 
+                : this.getTableValue("errMsg", items)        
         )
     }
 
@@ -101,16 +108,28 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.test, ["bgBlue", "black"]);
         console.log(
             prefix,
-            (Array.isArray(items)) ? this.processList("testMsg", items) : items          
+            (Array.isArray(items)) 
+                ? this.processList("testMsg", items) 
+                : this.getTableValue("testMsg", items)          
         )
     }
     
     net(items) { // Networking Messages
-        const prefix = this.stylize(localeTable.msgIden.con, ["bgCyan", "black"]);
+        const prefix = this.stylize(localeTable.msgIden.net, ["bgCyan", "black"]);
         console.log(
             prefix,
-            (Array.isArray(items)) ? this.processList("netMsg", items) : items
+            (Array.isArray(items)) 
+                ? this.processList("netMsg", items) 
+                : this.getTableValue("netMsg", items)
         )
+    }
+
+    testLogger() {
+        this.info("fetch");
+        this.info(["fetch", "data"]);
+        this.info(["fetch", [123, "cyan"]]);
+        this.info([["fetch", "green"], "data"])
+        this.info(["fetch", [process.env.BACKEND_URL, "green"], ["load", ["yellow", "underline", "bgCyan"]]]);
     }
 }
 

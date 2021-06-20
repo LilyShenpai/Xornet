@@ -43,7 +43,7 @@
         "dnL": "Download:"
     },
 
-    "conMsg" : {
+    "netMsg" : {
         "con" : "Connected to ",
         "dis" : "Disconnected from "
     }
