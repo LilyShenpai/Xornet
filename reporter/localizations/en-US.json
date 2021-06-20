@@ -25,6 +25,10 @@
     },
 
     "testMsg" : {
+        "winDL": "Downloading speedtest binaries for Windows -",
+        "linDL": "Downloading speedtest binaries for Linux -",
+        "osxDL": "Downloading speedtest binaries for MacOS -",
+        "dlFin": "Download finished",
         "instChk": "Checking for SpeedTest installation...",
         "noTest": "Speedtest not installed",
         "isTest": "Speedtest found",
