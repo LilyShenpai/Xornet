@@ -40,9 +40,6 @@ router.get("/stats/machine/:machineUUID?", auth, async (req, res) => {
   res.status(200).json(cleanObject(machine.static));
 });
 
-// TODO: Add the user's ID in the machine so we can auth the machines to users
-// so random people wont be able to get people's details cus they kinda
-// important to keep a secret you know?
 router.get("/stats/processes/:machineUUID?", auth, async (req, res) => {
   return res.status(200).json(await new Promise(async resolve => {
     const machine = await Machine.findOne({ _id: req.params.machineUUID });
