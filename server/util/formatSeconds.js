@@ -1,6 +1,6 @@
 /**
  * @author Geoxor
- * 
+ *
  * Formats seconds into days, hours, minutes and seconds.
  * @return {Object} days, hours, minutes, seconds
  */

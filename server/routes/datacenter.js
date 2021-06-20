@@ -34,7 +34,7 @@ router.post("/datacenter/new", async (req, res) => {
     res.status(201).json(datacenter);
   } catch (error) {
     if (error.code == 11000) {
-      res.status(403).json({message: `Datacenter with name of ${req.body.name} is taken!`});
+      res.status(403).json({ message: `Datacenter with name of ${req.body.name} is taken!` });
     }
   }
 });

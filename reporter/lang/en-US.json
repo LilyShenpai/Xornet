@@ -11,7 +11,7 @@
         "fetch": "Fetching static data...",
         "sysInf": "System information collection finished",
         "load": "Loading Stats...",
-        "send": "Sending Stats - ",
+        "send": "Sending Stats -",
         "accChk": "Checking for account linked to this machine",
         "authCmp": "Authentication completed"
     },

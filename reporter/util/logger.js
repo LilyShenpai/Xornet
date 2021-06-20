@@ -1,12 +1,14 @@
 const colors = require("colors/safe");
 const locale = require("os-locale");
 const fs = require("fs");
+const ReporterSettings = require("./settings");
+
 const localeTable = (() => {
-  const systemLocale = locale.sync();
+  const systemLocale = ReporterSettings.language === "auto" ? locale.sync() : ReporterSettings.language;
 
   // If UNIX asks for default locale then pass them england is my city
   if (systemLocale === "C") {
-    var rawJson = fs.readFileSync('lang/en-US.json');
+    var rawJson = fs.readFileSync("lang/en-US.json");
   } else {
     var rawJson = fs.readFileSync(`lang/${systemLocale}.json`);
   }
@@ -50,7 +52,7 @@ const localeTable = (() => {
 
 class Logger {
   /**
-   *
+   * Adds the style to the message
    * @param {Array} msg
    * @param {Array} style
    */
@@ -95,30 +97,35 @@ class Logger {
 
   info(items) {
     // General Info Messages
+    if (!ReporterSettings.verbose) return;
     const prefix = this.stylize(localeTable.msgIden.info, ["bgGrey", "black"]);
     console.log(prefix, Array.isArray(items) ? this.processList("infoMsg", items) : this.getTableValue("infoMsg", items));
   }
 
   warn(items) {
     // Warning Messages
+    if (!ReporterSettings.verbose) return;
     const prefix = this.stylize(localeTable.msgIden.warn, ["bgYellow", "black"]);
     console.log(prefix, Array.isArray(items) ? this.processList("warnMsg", items) : this.getTableValue("warnMsg", items));
   }
 
   error(items) {
     // Fatal Error Messages
+    if (!ReporterSettings.verbose) return;
     const prefix = this.stylize(localeTable.msgIden.err, ["bgRed", "black"]);
     console.log(prefix, Array.isArray(items) ? this.processList("errMsg", items) : this.getTableValue("errMsg", items));
   }
 
   test(items) {
     // Speedtest Messages
+    if (!ReporterSettings.verbose) return;
     const prefix = this.stylize(localeTable.msgIden.test, ["bgBlue", "black"]);
     console.log(prefix, Array.isArray(items) ? this.processList("testMsg", items) : this.getTableValue("testMsg", items));
   }
 
   net(items) {
     // Networking Messages
+    if (!ReporterSettings.verbose) return;
     const prefix = this.stylize(localeTable.msgIden.net, ["bgCyan", "black"]);
     console.log(prefix, Array.isArray(items) ? this.processList("netMsg", items) : this.getTableValue("netMsg", items));
   }

@@ -34,7 +34,7 @@
         <div class="heading">
           <!-- make this change to the user's selected badge -->
           <Tooltip v-if="profile.badges?.owned[profile.badges.selected]" :text="profile.badges?.owned[profile.badges.selected]">
-              <img :src="require(`@/assets/badges/${profile.badges?.owned[profile.badges.selected]}.svg`)" />
+            <img :src="require(`@/assets/badges/${profile.badges?.owned[profile.badges.selected]}.svg`)" />
           </Tooltip>
           <div class="container">
             <h1 class="username">{{ profile.username }}</h1>
@@ -58,8 +58,9 @@
           <h1 class="descriptionHeading">Badges</h1>
 
           <div class="badges">
-            <Tooltip v-for="badge of profile.badges.owned" :key="badge" v-bind:text=badge>
-              <img class="badge" :src="require(`@/assets/badges/${badge}.svg`)" />
+            <Tooltip v-for="(badge, index) of profile.badges.owned" :key="badge" :text="badge">
+              <!--  [ is this true ? if so do this : otherwise do this ] -->
+              <img class="badge" :class="{ isEditing, selectedBadge: index == profile.badges.selected }" @click="isEditing ? changeBadge(index) : null" :src="require(`@/assets/badges/${badge}.svg`)" />
             </Tooltip>
           </div>
 
@@ -206,18 +207,11 @@ export default {
 
       if (url.endsWith("/")) url = url.substring(0, url.length - 1);
 
-      let sites = ([
-        "youtube", "twitch", "discord",
-        "reddit", "github", "facebook",
-        "steam", "instagram", "tiktok",
-        "tumblr", "vk"
-      ])
-      
-      sites.forEach((element) => {
+      let sites = ["youtube", "twitch", "discord", "reddit", "github", "facebook", "steam", "instagram", "tiktok", "tumblr", "vk"];
+
+      sites.forEach(element => {
         if (url.includes(element)) name = element;
-      })
-
-
+      });
 
       url = {
         name,
@@ -256,6 +250,13 @@ export default {
       } catch {
         console.log("Oops, unable to copy");
       }
+    },
+    /**
+     * @author cimok
+     * Changes the currently selected badge.
+     */
+    changeBadge(index) {
+      this.profile.badges.selected = index;
     }
   },
   watch: {
@@ -440,8 +441,8 @@ export default {
   align-items: flex-end;
 }
 .profilePage .profiileDetails .heading .username {
-font-family: "Work Sans";
-    font-style: normal;
+  font-family: "Work Sans";
+  font-style: normal;
   font-weight: 600;
   max-width: 100%;
   font-size: 28px;
@@ -460,9 +461,22 @@ font-family: "Work Sans";
   gap: 8px;
 }
 .profilePage .profiileDetails .badges .badge {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
+  padding: 4px;
   user-select: none;
+  transition: 100ms ease;
+}
+.profilePage .profiileDetails .badges .badge.isEditing:hover {
+  transform: scale(1.35) rotate(20deg);
+  cursor: pointer;
+}
+.profilePage .profiileDetails .badges .badge.isEditing:active {
+  transform: scale(0.9) rotate(-360deg);
+}
+.profilePage .profiileDetails .badges .badge.isEditing.selectedBadge {
+  background-color: var(--green);
+  border-radius: 500px;
 }
 .profilePage .points {
   background: linear-gradient(90deg, #8676ff 0%, #516dff 33.33%, #32b5ff 69.27%, #4adeff 100%);
