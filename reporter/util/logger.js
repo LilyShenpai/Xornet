@@ -61,6 +61,7 @@ class Logger {
             } else {
                 processedText += (this.stylize(msg,element[1]));
             }
+            msg += " ";
         });
         return processedText;
     }
