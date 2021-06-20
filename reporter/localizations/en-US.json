@@ -1,0 +1,50 @@
+{
+    "msgIden" : {
+        "info" : "[INFO]",
+        "warn" : "[WARN]",
+        "err" : "[ERROR]",
+        "test" : "[SPEEDTEST]",
+        "net" : "[NETWORK]"
+    },
+    
+    "infoMsg" : {
+        "fetch": "Fetching static data...",
+        "sysInf": "System information collection finished",
+        "load": "Loading Stats...",
+        "send": "Sending Stats - ",
+        "accChk": "Checking for account linked to this machine",
+        "authCmp": "Authentication completed"
+    },
+
+    "warnMsg" : {
+        "svrDn": "Backend server appears to be offline/unavailable",
+        "goToURL": "Go to this URL to add this machine to your account and restart the reporter"
+    },
+
+    "errMsg" : {
+        "test": "test"
+    },
+
+    "testMsg" : { 
+        "winDL": "Downloading speedtest binaries for Windows -",
+        "linDL": "Downloading speedtest binaries for Linux -",
+        "osxDL": "Downloading speedtest binaries for MacOS -",
+        "dlFin": "Download finished",
+        "instChk": "Checking for SpeedTest installation...",
+        "noTest": "Speedtest not installed",
+        "isTest": "Speedtest found",
+        "runTest": "Performing speedtest...",
+        "testDone": "Speedtest complete -",
+        "perf": "Performing:",
+        "prog": "Progress:",
+        "spd": "Speed:",
+        "ping": "Ping:",
+        "upL": "Upload:",
+        "dnL": "Download:"
+    },
+
+    "netMsg" : {
+        "con" : "Connected to ",
+        "dis" : "Disconnected from "
+    }
+}
