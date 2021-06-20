@@ -27,10 +27,10 @@ let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
 
-// Temp clear out machines every 60seconds to clear
-setInterval(() => {
-  machines.clear();
-}, 60000);
+// // Temp clear out machines every 60seconds to clear
+// setInterval(() => {
+//   machines.clear();
+// }, 60000);
 
 // Log amount of sockets connected every minute
 setInterval(() => {
