@@ -1,4 +1,5 @@
 const download = require("../util/download");
+const logger = require("./logger");
 
 module.exports = async function installSpeedtest() {
   // Install speedtest
@@ -8,7 +9,7 @@ module.exports = async function installSpeedtest() {
   switch (platform) {
     case "win32":
       platform = "win64";
-      console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for Windows - ${platform} - ${arch}`);
+      logger.test(["windDL", `${platform} - ${arch}`]);
       await download("https://backend.xornet.cloud/speedtest/speedtest.exe");
       break;
     case "linux":
@@ -20,10 +21,10 @@ module.exports = async function installSpeedtest() {
         }
       break;
     case "darwin":
-      console.log("[SPEEDTEST]".bgYellow.black + ` Downloading speedtest binaries for MacOS - ${platform} - ${arch}`);
+      logger.test(["osxDL", `- ${platform} - ${arch}`]);
       await download("https://backend.xornet.cloud/speedtest/speedtest-macos");
       break;
   }
 
-  console.log("[SPEEDTEST]".bgYellow.black + ` Download finished`);
+  logger.test("dlFin");
 };
