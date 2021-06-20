@@ -5,6 +5,7 @@ const Machine = require("@/models/Machine.js");
 const Datacenter = require("@/models/Datacenter.js");
 const auth = require("@/middleware/auth.js");
 const cleanObject = require("@/util/cleanObject.js");
+const io = require("..");
 
 // Gets the entire xornet's infrustrucutre's daily traffic
 router.get("/stats/daily-traffic", async (req, res) => {
@@ -37,6 +38,32 @@ router.get("/stats/machine/:machineUUID?", auth, async (req, res) => {
   delete machine.static.diskLayout;
 
   res.status(200).json(cleanObject(machine.static));
+});
+
+router.get("/stats/processes/:machineUUID?", auth, async (req, res) => {
+  return res.status(200).json(await new Promise(async resolve => {
+    const machine = await Machine.findOne({ _id: req.params.machineUUID });
+    const datacenter = await Datacenter.findOne({ machines: req.params.machineUUID });
+
+    // TODO: turn these into a middleware for future use
+    if (!req.user.machines.includes(machine._id) && !datacenter?.members.includes(req.user._id) && !req.user.is_admin) return res.status(403).json({ message: "you don't have permission to view this machine" });
+    if (!machine) return res.status(404).json({ message: "machine not found" });
+
+    // Send a event to get the processes to this specific reporter
+    io.sockets.in(`reporter-${req.params.machineUUID}`).emit("getProcesses");
+
+    // Get the room that reporter is in
+    const room = io.sockets.adapter.rooms.get(`reporter-${req.params.machineUUID}`);
+
+    // Respond if the machine isn't online
+    if (!room) return res.status(404).json({ message: "machine not online" });
+
+    // Get the socket instance from that room since theres always gonna be only 1 reporter on each room
+    const socket = io.sockets.sockets.get(Array.from(room)[0]);
+
+    // When we get the response from the reporter resole the HTTP request
+    socket.on('processes', processes => resolve(processes));
+  }));
 });
 
 module.exports = router;

@@ -1,6 +1,7 @@
 require("colors");
 require("./util/printLogo");
-const settings = require("./util/settings");
+require("./util/settings");
+const si = require("systeminformation");
 const isSpeedtestInstalled = require("./util/isSpeedtestInstalled");
 const installSpeedtest = require("./util/installSpeedtest");
 const connectToXornet = require("./util/connectToXornet");
@@ -9,7 +10,6 @@ const getStaticData = require("./util/getStaticData");
 const clearLastLine = require("./util/clearLastLine");
 const speedtest = require("./util/speedtest");
 const logger = require("./util/logger");
-
 process.env.REFRESH_INTERVAL = 1000;
 process.env.BACKEND_URL = "wss://backend.xornet.cloud";
 process.env.STARTTIME = Date.now();
@@ -71,6 +71,9 @@ async function main() {
   // Get a event to run a speedtest
   // Returns a response with the results of the speedtest
   xornet.on("runSpeedtest", async () => xornet.emit("speedtest", await speedtest()));
+  xornet.on("getProcesses", async () => xornet.emit("processes", await si.processes()));
+  xornet.on("shutdown", async () => await require('./util/shutdown')());
+  xornet.on("restart", async () => await require('./util/restart')());
 }
 
 main();

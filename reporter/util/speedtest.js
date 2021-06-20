@@ -1,12 +1,12 @@
-const { execSync, spawn, fork } = require("child_process");
+const { spawn } = require("child_process");
 const fs = require("fs");
 const isSpeedtestInstalled = require("../util/isSpeedtestInstalled");
 const installSpeedtest = require("../util/installSpeedtest");
-const { osInfo } = require("systeminformation");
-const os = require("os");
 const logger = require("../util/logger");
+const ReporterSettings = require("../util/settings");
 
 module.exports = async function speedtest() {
+  if (!ReporterSettings.speedtests) return;
   // Disable speedtests on liinux because when the reporter
   // Runs as a service it crashes from permissions
   return new Promise(async (resolve, reject) => {
