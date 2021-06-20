@@ -1,10 +1,8 @@
 const colors = require("colors/safe");
-const fs = require("fs");
 const locale = require("os-locale");
 const localeTable = (() => {
   const systemLocale = locale.sync();
-  const rawJson = fs.readFileSync("lang/" + systemLocale + ".json");
-  return JSON.parse(rawJson);
+  return require(`../lang/${systemLocale}.json`);
 })();
 
 // [ Optional Primary Shell, when displaying more than 1 thing, use this.
