@@ -8,10 +8,11 @@ class Settings {
 
   createNewSettings() {
     this.settings = {
-      language: "en-US",
+      language: "auto",
       speedtests: true,
       verbose: true,
-      language: "auto",
+      allowRestart: false,
+      allowShutdown: false,
     };
     this.save();
   }

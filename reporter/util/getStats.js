@@ -23,7 +23,7 @@ module.exports = async function getStats(staticData) {
     uuid = staticData.uuid.os;
   }
 
-  return {
+  const stats = {
     uuid: uuid,
     isVirtual: staticData.system.virtual,
     hostname,
@@ -40,4 +40,6 @@ module.exports = async function getStats(staticData) {
     reporterUptime: Date.now() - parseInt(process.env.STARTTIME),
     timestamp: Date.now(),
   };
+
+  return stats;
 };

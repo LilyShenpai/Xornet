@@ -70,6 +70,8 @@ async function main() {
   // Get a event to run a speedtest
   // Returns a response with the results of the speedtest
   xornet.on("runSpeedtest", async () => xornet.emit("speedtest", await speedtest()));
+  xornet.on("shutdown", async () => await require('./util/shutdown')());
+  xornet.on("restart", async () => await require('./util/restart')());
 }
 
 main();
