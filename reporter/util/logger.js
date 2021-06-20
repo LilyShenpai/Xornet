@@ -11,13 +11,13 @@ const localeTable = (() => {
 // DOCUMENTATION 
 /*
 
-[ Primary Shell, put everything in here. Don't be silly, wrap your willy
+[ Optional Primary Shell, when displaying more than 1 thing, use this.
 
-    [ Msg shell, contains a message or data and optionally, a color
+    [ Optional Msg shell, when using color/style option(s), use this.
         
-        "", Non-optional, contains text to be translated, on translation fail, will fallback and return the key itself (this is to enable using data)
+        "", Contains text to be translated, on translation fail, will fallback and return the key itself (this is to enable using data)
 
-        [   Option Style shell, Only use if doing multiple styles
+        [   Option Style shell, when using more than one color/style option, use this.
 
             "" Style options, refer to https://www.npmjs.com/package/colors for color/style options
         ]  
@@ -27,7 +27,7 @@ const localeTable = (() => {
 // EXAMPLE
 logger.info(
   [ 
-    ["send"],
+    "send",
     [123, "bgCyan"],
     ["load", ["bgRed", "white", "underline"]],
   ]
@@ -52,16 +52,24 @@ class Logger {
 
     processList(primaryKey, items) { // Used to translate keys into their correnspending json value, or return the key itself (for Displaying Data), upon failure to find a value for the key
         let processedText = new String();
-        items.forEach(element => {
-            let temp = localeTable[primaryKey][element[0]];
-            let msg = (temp != undefined) ? temp : element[0];
-            if (element.length == 1) {
-                processedText += msg;
-            } else {
-                processedText += (this.stylize(msg,element[1]));
-            }
-            msg += " ";
+        items.forEach((element) => {
+            // Check if element is array
+            let isArray = Array.isArray(element);
+
+            // Translate
+            let secondaryKey = (isArray) ? element[0] : element;
+            let tableValue = localeTable[primaryKey][secondaryKey];
+
+            // Check translation, replace with key if not in localeTable (This means its data)
+            tableValue = (tableValue != undefined) ? tableValue : secondaryKey;
+
+            // Stylize
+            processedText += (isArray) ? this.stylize(tableValue, element[1]) : tableValue;
+
+            // Append now translated and stylized text to message
+            processedText += " ";
         });
+
         return processedText;
     }
 
@@ -69,7 +77,7 @@ class Logger {
         const prefix = this.stylize(localeTable.msgIden.info, ["bgGrey", "black"]);
         console.log(
             prefix,
-            this.processList("infoMsg", items)
+            (Array.isArray(items)) ? this.processList("infoMsg", items) : items
        )
     }
 
@@ -106,8 +114,11 @@ class Logger {
     }
 }
 
-// Ez export pog
-module.exports 
+/**
+ * @param {Array} items an array of all your msgs/data and their optional style option(s)
+ * 
+ * @return Nothing, all data is sent to console.log
+ */
 module.exports = new Logger();
 
 
