@@ -103,7 +103,7 @@ router.put("/datacenter/:datacenterUUID/machine/:machineUUID", datacenterAuth, a
     return res.status(403).json({ message: "Undefined field" });
   }
 
-  if (!req.user.machines.includes(req.params.machineUUID)) {
+  if (!req.user.machines.includes(req.params.machineUUID) && !req.user.is_admin) {
     return res.status(403).json({ message: "That machine doesn't belong to you" });
   }
 
@@ -119,7 +119,7 @@ router.delete("/datacenter/:datacenterUUID/machine/:machineUUID", datacenterAuth
     return res.status(403).json({ message: "Undefined field" });
   }
 
-  if (!req.user.machines.includes(req.params.machineUUID)) {
+  if (!req.user.machines.includes(req.params.machineUUID) && !req.user.is_admin) {
     return res.status(403).json({ message: "That machine doesn't belong to you" });
   }
 

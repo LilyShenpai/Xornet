@@ -10,7 +10,11 @@ Restart=always
 
 Type=simple
 
+User=root
+
 ExecStart=/etc/xornet/xornet-reporter-linux-v0.0.21.bin
+
+WorkingDirectory=/etc/xornet
 
 [Install]
 
