@@ -1,0 +1,51 @@
+{
+  "msgIden" : {
+      // Translate these to your language
+      "info" : "[INFO]",
+      "warn" : "[ALERTE]",
+      "err" : "[ERREUR]",
+      "test" : "[SPEEDTEST]",
+      "net" : "[RESEAU]"
+  },
+  
+  "infoMsg" : {
+      "fetch": "Récupération des données statiques...",
+      "sysInf": "Collecte des informations système terminée",
+      "load": "Chargement des statistiques...",
+      "send": "Envoi de statistiques -",
+      "accChk": "Recherche d'un compte lié à cette machine",
+      "authCmp": "Authentification terminée"
+  },
+
+  "warnMsg" : {
+      "svrDn": "Le serveur back-end semble être hors ligne/indisponible",
+      "goToURL": "Rendez-vous sur cette adresse pour ajouter cette machine à votre compte puis redémarrez le reporter"
+  },
+
+  "errMsg" : {
+      "test": "test"
+  },
+
+  "testMsg" : { 
+      "winDL": "Téléchargement des binaires Speedtest pour Windows -",
+      "linDL": "Téléchargement des binaires Speedtest pour Linux -",
+      "osxDL": "Téléchargement des binaires Speedtest pour MacOS -",
+      "dlFin": "Téléchargement terminé",
+      "instChk": "Vérification de l'installation du Speedtest...",
+      "noTest": "Speedtest non installé",
+      "isTest": "Speedtest trouvé",
+      "runTest": "Exécution d'un Speedtest...",
+      "testDone": "Speedtest terminé -",
+      "perf": "Exécution:",
+      "prog": "Progrès:",
+      "spd": "Vitesse:",
+      "ping": "Ping:",
+      "upL": "Upload:",
+      "dnL": "Download:"
+  },
+
+  "netMsg" : {
+      "con" : "Connecté à ",
+      "dis" : "Déconnecté de "
+  }
+}
