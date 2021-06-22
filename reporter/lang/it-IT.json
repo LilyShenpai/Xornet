@@ -1,0 +1,51 @@
+{
+    "msgIden" : {
+        // Translate these to your language
+        "info" : "[INFORMAZIONI]",
+        "warn" : "[AVVISARE]",
+        "err" : "[ERRORE]",
+        "test" : "[SPEEDTEST]",
+        "net" : "[RETE]"
+    },
+  
+    "infoMsg" : {
+        "fetch": "Andare a prendere statico dati...",
+        "sysInf": "Raccolta delle informazioni di sistema terminata",
+        "load": "Statistiche di Caricamento...",
+        "send": "Invio di Statistiche - ",
+        "accChk": "Verifica dell'account collegato a questa macchina",
+        "authCmp": "Autenticazione completata"
+    },
+  
+    "warnMsg" : {
+        "svrDn": "Il server di backend sembra essere offline/non disponibile",
+        "goToURL": "Vai a questo URL per aggiungere questa macchina al tuo account e riavvia il reporter"
+    },
+  
+    "errMsg" : {
+        "test": "test"
+    },
+  
+    "testMsg" : { 
+        "winDL": "Downloading dei binari del SpeedTest per Windows -",
+        "linDL": "Downloading dei binari del SpeedTest per Linux -",
+        "osxDL": "Downloading dei binari del SpeedTest per MacOS -",
+        "dlFin": "Download terminato",
+        "instChk": "Controllo per SpeedTest installazione...",
+        "noTest": "Speedtest non installato",
+        "isTest": "Speedtest trovato",
+        "runTest": "Esibirsi speedtest...",
+        "testDone": "Speedtest completa -",
+        "perf": "Esibirsi:",
+        "prog": "Progresso:",
+        "spd": "Velocità:",
+        "ping": "Ping:",
+        "upL": "Carica:",
+        "dnL": "Download:"
+    },
+  
+    "netMsg" : {
+        "con" : "Collegato al ",
+        "dis" : "Disconnesso da "
+    }
+  }
